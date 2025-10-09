@@ -1,0 +1,35 @@
+name: Build Unity Windows Project
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    name: Build for Windows
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Cache Unity Library
+        uses: actions/cache@v4
+        with:
+          path: CE-Final-Project/Library
+          key: Library-${{ runner.os }}-${{ hashFiles('CE-Final-Project/Assets/**', 'CE-Final-Project/Packages/**', 'CE-Final-Project/ProjectSettings/**') }}
+          restore-keys: |
+            Library-${{ runner.os }}-
+
+      - name: Unity - Builder
+        uses: game-ci/unity-builder@v4
+        with:
+          projectPath: CE-Final-Project
+          targetPlatform: StandaloneWindows64
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
