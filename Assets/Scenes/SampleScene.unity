@@ -395,6 +395,9 @@ MonoBehaviour:
   totalModifier: {fileID: 0}
   rollButton: {fileID: 0}
   resultOfRoll: {fileID: 0}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  highlightColor: {r: 0.6, g: 0.9, b: 1, a: 1}
+  selectedDiceType: 0
 --- !u!1 &255301199
 GameObject:
   m_ObjectHideFlags: 0
@@ -1113,7 +1116,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 619394800}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
+  m_Script: {fileID: 0}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!4 &619394802
@@ -3899,6 +3902,9 @@ MonoBehaviour:
   totalModifier: {fileID: 0}
   rollButton: {fileID: 0}
   resultOfRoll: {fileID: 0}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  highlightColor: {r: 0.6, g: 0.9, b: 1, a: 1}
+  selectedDiceType: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
