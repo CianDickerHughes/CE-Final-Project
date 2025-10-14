@@ -389,6 +389,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c24a3059de874f429a72653b563601f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceControllerScript
+  diceButtons: []
+  diceSides: 
+  numDice: {fileID: 0}
+  totalModifier: {fileID: 0}
+  rollButton: {fileID: 0}
+  resultOfRoll: {fileID: 0}
 --- !u!1 &255301199
 GameObject:
   m_ObjectHideFlags: 0
@@ -3887,6 +3893,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c24a3059de874f429a72653b563601f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceControllerScript
+  diceButtons: []
+  diceSides: 
+  numDice: {fileID: 0}
+  totalModifier: {fileID: 0}
+  rollButton: {fileID: 0}
+  resultOfRoll: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
