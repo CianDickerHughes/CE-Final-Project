@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Random=UnityEngine.Random;
+using TMPro;
 
 public class DiceControllerScript : MonoBehaviour
 {
     //Global Variables
     public Button[] diceButtons; //Array for representing all potential dice
     public int[] diceSides; //Array for representing the sides of the individual dice
-    public InputField numDice; //Variable for how many of a particular dice will be rolled
-    public InputField totalModifier; //Meant to represent the total modifier to be applied to the result e.g. +3, -2, 0
+    public TMP_InputField numDice; //Variable for how many of a particular dice will be rolled
+    public TMP_InputField totalModifier; //Meant to represent the total modifier to be applied to the result e.g. +3, -2, 0
     public Button rollButton; //Variable for checking/verifying when the roll button is clicked
-    public Text resultOfRoll; //Simplistic text to be returned that will be updated with the result of the roll
+    public TextMeshProUGUI resultOfRoll; //Simplistic text to be returned that will be updated with the result of the roll
 
     //Variables for coloring the buttons after a click is performed - show user what they've done
     public Color normalColor = Color.white;
@@ -142,7 +143,7 @@ public class DiceControllerScript : MonoBehaviour
 
     //Method for parsing the inputs - needed for number of dice & modifier e.g. "+3"
     //Fallback is a default value we pass to fall back on
-    private int ParseIntField(InputField f, int fallback)
+    private int ParseIntField(TMP_InputField f, int fallback)
     {
         if (f == null) 
         {
