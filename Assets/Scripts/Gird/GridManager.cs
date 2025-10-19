@@ -14,9 +14,16 @@ public class GridManager : MonoBehaviour
     public InputField rowsInput;
     public Button resizeButton;
 
+    [Header("Camera")]
+    public Camera mainCamera; // Drag your main camera here
+    public float cameraZ = -15f; // Default Z for 2D camera
+    public float cameraGap = 10f; // Gap around the grid
+
+
     void Start()
     {
         GenerateGrid();
+        CenterCamera();
 
         // Setup button listener
         if (resizeButton != null)
@@ -77,5 +84,33 @@ public class GridManager : MonoBehaviour
 
         // Generate new grid
         GenerateGrid();
+        CenterCamera();
     }
+
+    // Call this after generating the grid
+    void CenterCamera()
+    {
+       if (mainCamera == null) return;
+
+        // Calculate grid center
+        float centerX = (columns - 1) * cellSize / 2f;
+        float centerY = (rows - 1) * cellSize / 2f;
+
+        // Move camera to center
+        mainCamera.transform.position = new Vector3(centerX, centerY, cameraZ);
+
+        // Calculate orthographic size to fit the grid + gap
+        float gridWidth = columns * cellSize + cameraGap * 2f;
+        float gridHeight = rows * cellSize + cameraGap * 2f;
+
+        // Orthographic size is half of vertical height
+        float sizeY = gridHeight / 2f;
+
+        // Horizontal size based on aspect ratio
+        float sizeX = (gridWidth / 2f) / mainCamera.aspect;
+
+        // Choose the larger size so entire grid + gap fits
+        mainCamera.orthographicSize = Mathf.Max(sizeX, sizeY);
+    }
+
 }
