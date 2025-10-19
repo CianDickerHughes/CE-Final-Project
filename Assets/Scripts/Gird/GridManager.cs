@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UI; // Needed for UI components
 
 public class GridManager : MonoBehaviour
 {
@@ -9,16 +9,18 @@ public class GridManager : MonoBehaviour
     public float cellSize = 1f;
     public GameObject cellPrefab;
 
-    [Header("Tile Selection")]
-    public static Color selectedColor = Color.white; // default
-    public Button whiteButton;
-    public Button greenButton;
-    public Button redButton;
+    [Header("UI References")]
+    public InputField columnsInput;
+    public InputField rowsInput;
+    public Button resizeButton;
 
     void Start()
     {
         GenerateGrid();
-        SetupButtons();
+
+        // Setup button listener
+        if (resizeButton != null)
+            resizeButton.onClick.AddListener(OnResizeButtonClicked);
 
     }
 
@@ -40,15 +42,40 @@ public class GridManager : MonoBehaviour
         }
     }
 
-        void SetupButtons()
+    // Called when the resize button is clicked
+    void OnResizeButtonClicked()
     {
-        whiteButton.onClick.AddListener(() => SelectColor(Color.white));
-        greenButton.onClick.AddListener(() => SelectColor(Color.green));
-        redButton.onClick.AddListener(() => SelectColor(Color.red));
+        if (columnsInput != null && rowsInput != null)
+        {
+            int newColumns;
+            int newRows;
+
+            // Parse input safely
+            if (int.TryParse(columnsInput.text, out newColumns) &&
+                int.TryParse(rowsInput.text, out newRows))
+            {
+                ResizeGrid(newColumns, newRows);
+            }
+            else
+            {
+                Debug.LogWarning("Invalid input for columns or rows!");
+            }
+        }
     }
 
-    void SelectColor(Color color)
+    // New method to resize the grid
+    public void ResizeGrid(int newColumns, int newRows)
     {
-        selectedColor = color;
+        columns = newColumns;
+        rows = newRows;
+
+        // Destroy old grid
+        foreach (Transform child in transform)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // Generate new grid
+        GenerateGrid();
     }
 }
