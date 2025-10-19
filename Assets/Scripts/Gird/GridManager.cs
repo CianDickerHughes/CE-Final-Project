@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GridManager : MonoBehaviour
 {
@@ -8,9 +9,17 @@ public class GridManager : MonoBehaviour
     public float cellSize = 1f;
     public GameObject cellPrefab;
 
+    [Header("Tile Selection")]
+    public static Color selectedColor = Color.white; // default
+    public Button whiteButton;
+    public Button greenButton;
+    public Button redButton;
+
     void Start()
     {
         GenerateGrid();
+        SetupButtons();
+
     }
 
     void GenerateGrid()
@@ -29,5 +38,17 @@ public class GridManager : MonoBehaviour
                 Instantiate(cellPrefab, position, Quaternion.identity, transform);
             }
         }
+    }
+
+        void SetupButtons()
+    {
+        whiteButton.onClick.AddListener(() => SelectColor(Color.white));
+        greenButton.onClick.AddListener(() => SelectColor(Color.green));
+        redButton.onClick.AddListener(() => SelectColor(Color.red));
+    }
+
+    void SelectColor(Color color)
+    {
+        selectedColor = color;
     }
 }
