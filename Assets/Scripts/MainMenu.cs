@@ -12,7 +12,7 @@ public class MainMenu : MonoBehaviour
 
     public void CreateCharacter()
     {
-        //This actually switches us to the scene we want to go to - change the name here if we want to go to a different scene
+        //This is the exact same as the one above - it only switches to the character creator screen
         SceneManager.LoadSceneAsync("CreateCharacter");
     }
     
