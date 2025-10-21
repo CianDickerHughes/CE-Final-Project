@@ -19,7 +19,7 @@ public class MainMenu : MonoBehaviour
     public void CreateGame()
     {
         //This is the exact same as the one above - it only switches to the character creator screen
-        SceneManager.LoadSceneAsync("CreateGame");
+        SceneManager.LoadSceneAsync("GameScene");
     }
     
 }
