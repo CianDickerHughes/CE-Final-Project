@@ -12,6 +12,9 @@ public class MainMenu : MonoBehaviour
     - Go back to the project & hook up the button to this method & drag across whatever controller/manager we may be using
     */
 
+    //EOIN - POTENTIALLY LOOK IN TO JUST HAVING A SINGULAR METHOD FOR THE NAVIGATION HERE
+    //PASSING THE PARAMETER OF THE SCENE WE WANT TO GO TO AS OPPOSED TO THE NUMEROUS METHODS FOR NAVIGATION HERE
+
     //Method we will use to actually switch from main menu to playing the game
     public void PlayGame()
     {
@@ -29,6 +32,12 @@ public class MainMenu : MonoBehaviour
     {
         //This is the exact same as the one above - it only switches to the "Create Game" scene
         SceneManager.LoadSceneAsync("GameScene");
+    }
+
+    public void navigateMainMenu()
+    {
+        //This just takes us back to the main menu
+        SceneManager.LoadSceneAsync("MainMenu");
     }
     
 }
