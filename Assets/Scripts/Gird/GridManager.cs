@@ -4,12 +4,24 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI; // Needed for UI components
  
+ /// <summary>
+ /// Manages a grid of tiles, allowing for dynamic generation and resizing.
+ /// Also handles spawning tokens at specified grid positions.
+ /// </summary>
+ 
 public class GridManager : MonoBehaviour {
     [SerializeField] private int _width, _height;
  
     [SerializeField] private Tile _tilePrefab;
  
     [SerializeField] private Transform _cam;
+    
+    [Header("Token")]
+    [SerializeField] private Token _tokenPrefab;
+    [SerializeField] private UnityEngine.Vector2Int _tokenStartPosition = new UnityEngine.Vector2Int(0, 0);
+    [SerializeField] private UnityEngine.UI.Button spawnTokenButton;
+
+    private Token _activeToken;
 
     private Dictionary<Vector2, Tile> _tiles;
     
@@ -20,6 +32,12 @@ public class GridManager : MonoBehaviour {
  
     void Start() {
         GenerateGrid();
+
+        // Wire spawn button if assigned - clicking will spawn a token at the configured start position
+        if (spawnTokenButton != null)
+        {
+            spawnTokenButton.onClick.AddListener(() => SpawnTokenAt(_tokenStartPosition));
+        }
 
         if (resizeButton != null)
             resizeButton.onClick.AddListener(OnResizeButtonClicked);
@@ -48,6 +66,33 @@ public class GridManager : MonoBehaviour {
         if (_tiles.TryGetValue(pos, out var tile)) return tile;
         return null;
     }
+
+    public Token SpawnTokenAt(UnityEngine.Vector2Int gridPos)
+    {
+        if (_tokenPrefab == null)
+        {
+            Debug.LogWarning("GridManager: No Token prefab assigned.");
+            return null;
+        }
+
+        UnityEngine.Vector2 key = new UnityEngine.Vector2(gridPos.x, gridPos.y);
+        Tile tile = GetTileAtPosition(key);
+        UnityEngine.Vector3 spawnPos = tile != null ? tile.transform.position : new UnityEngine.Vector3(gridPos.x, gridPos.y);
+
+        var token = Instantiate(_tokenPrefab, spawnPos, Quaternion.identity);
+        token.name = $"Token {gridPos.x} {gridPos.y}";
+        if (tile != null) token.MoveToTile(tile);
+
+        _activeToken = token;
+        return token;
+    }
+
+    public void OnSpawnTokenButtonClicked()
+    {
+        SpawnTokenAt(_tokenStartPosition);
+    }
+
+    public Token GetActiveToken() => _activeToken;
     
     // Called when the resize button is clicked
     void OnResizeButtonClicked()

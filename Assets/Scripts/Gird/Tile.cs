@@ -2,6 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
  
+ /// <summary>
+ /// Represents a single tile in the grid. It can be initialized with different colors 
+ /// based on its position (offset or base) and provides visual feedback on mouse hover.
+ /// </summary>
+ 
 [RequireComponent(typeof(SpriteRenderer))]
 public class Tile : MonoBehaviour {
     [SerializeField] private Color _baseColor = Color.white;
