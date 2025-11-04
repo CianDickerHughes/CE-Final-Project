@@ -22,6 +22,8 @@ public class GridManager : MonoBehaviour {
     [SerializeField] private UnityEngine.UI.Button spawnTokenButton;
 
     private Token _activeToken;
+    // Sequential counter for naming spawned tokens (Token 1, Token 2, ...)
+    private int _tokenCounter = 0;
 
     private Dictionary<Vector2, Tile> _tiles;
     
@@ -78,9 +80,10 @@ public class GridManager : MonoBehaviour {
         UnityEngine.Vector2 key = new UnityEngine.Vector2(gridPos.x, gridPos.y);
         Tile tile = GetTileAtPosition(key);
         UnityEngine.Vector3 spawnPos = tile != null ? tile.transform.position : new UnityEngine.Vector3(gridPos.x, gridPos.y);
-
-        var token = Instantiate(_tokenPrefab, spawnPos, Quaternion.identity);
-        token.name = $"Token {gridPos.x} {gridPos.y}";
+    // Increment counter and use sequential naming for tokens
+    _tokenCounter++;
+    var token = Instantiate(_tokenPrefab, spawnPos, Quaternion.identity);
+    token.name = $"Token {_tokenCounter}";
         if (tile != null) token.MoveToTile(tile);
 
         _activeToken = token;
