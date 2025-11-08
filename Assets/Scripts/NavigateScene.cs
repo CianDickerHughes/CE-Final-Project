@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-public class NavigateScene : MonoBehaviour
+public class MainMenu : MonoBehaviour
 {
     /*
     EXPLANATION OF CODE FOR FUTURE USE
