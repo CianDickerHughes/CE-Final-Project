@@ -6,7 +6,7 @@ using UnityEngine;
 //THIS CLASS IS SUBJECT TO CHANGE
 //When we move characters from being saved in game to the users individual device we may need to change this file around
 [Serializable]
-public class CharacterData : MonoBehaviour
+public class CharacterData
 {
     //Unique ID for each of the characters
     public string id;
