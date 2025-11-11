@@ -4832,6 +4832,7 @@ GameObject:
   - component: {fileID: 962995430}
   - component: {fileID: 962995432}
   - component: {fileID: 962995431}
+  - component: {fileID: 962995433}
   m_Layer: 5
   m_Name: SavedCharactersPanel
   m_TagString: Untagged
@@ -4899,6 +4900,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 962995429}
   m_CullTransparentMesh: 1
+--- !u!114 &962995433
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 962995429}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68c9b81b184a20f429a94928f7d4a096, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SavedCharactersWindow
+  itemPrefab: {fileID: 3021428213142830607, guid: 9f7438261d6c69845b5d9beba9fbed1d, type: 3}
+  contentParent: {fileID: 2078128708}
+  closeButton: {fileID: 1118857760}
+  titleText: {fileID: 0}
 --- !u!1 &991086712
 GameObject:
   m_ObjectHideFlags: 0
@@ -8170,6 +8187,7 @@ MonoBehaviour:
   saveButton: {fileID: 276261295}
   loadButton: {fileID: 942913482}
   statusText: {fileID: 506193573}
+  savedWindow: {fileID: 962995433}
 --- !u!4 &1676809194
 Transform:
   m_ObjectHideFlags: 0

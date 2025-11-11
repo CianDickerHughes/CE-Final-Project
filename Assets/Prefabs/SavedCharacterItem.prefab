@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6058319490256272660}
   - component: {fileID: 7306430899828670874}
   m_Layer: 0
-  m_Name: TimeStamp
+  m_Name: TimestampText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -35,7 +35,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 823.8834, y: 139.1269}
+  m_SizeDelta: {x: 586.831, y: 118.287}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6058319490256272660
 CanvasRenderer:
@@ -130,7 +130,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: -2.0180664, w: 0}
+  m_margin: {x: 0, y: 0, z: -2.0180664, w: 2.6049805}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -146,6 +146,7 @@ GameObject:
   m_Component:
   - component: {fileID: 991847932107013752}
   - component: {fileID: 3162553166909681388}
+  - component: {fileID: 1483029237059219151}
   m_Layer: 0
   m_Name: SavedCharacterItem
   m_TagString: Untagged
@@ -172,8 +173,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -4.0718, y: 168.73633}
-  m_SizeDelta: {x: 2020, y: 335}
+  m_AnchoredPosition: {x: 156.78513, y: 168.73633}
+  m_SizeDelta: {x: 1376.5718, y: 335}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &3162553166909681388
 MonoBehaviour:
@@ -201,6 +202,22 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &1483029237059219151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3021428213142830607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d41fcbeb3c77084ebf2bbc505b589c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SavedCharacterItem
+  thumbImage: {fileID: 7783809522115527071}
+  nameText: {fileID: 95492212460098831}
+  timestampText: {fileID: 7306430899828670874}
+  loadButton: {fileID: 5805187959249818031}
 --- !u!1 &5624657337825526597
 GameObject:
   m_ObjectHideFlags: 0
@@ -237,7 +254,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1351.341, y: 335}
+  m_SizeDelta: {x: 793.877, y: 335}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &6326777394697724818
 MonoBehaviour:
@@ -277,7 +294,7 @@ GameObject:
   - component: {fileID: 526264334145758038}
   - component: {fileID: 95492212460098831}
   m_Layer: 0
-  m_Name: CharName
+  m_Name: NameText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -300,7 +317,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 823.88, y: 126.7485}
+  m_SizeDelta: {x: 586.83, y: 152.798}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &526264334145758038
 CanvasRenderer:
@@ -413,7 +430,7 @@ GameObject:
   - component: {fileID: 2850397726609975456}
   - component: {fileID: 7783809522115527071}
   m_Layer: 0
-  m_Name: CharImg
+  m_Name: ThumbImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -625,7 +642,7 @@ GameObject:
   - component: {fileID: 7268975793686098432}
   - component: {fileID: 5805187959249818031}
   m_Layer: 0
-  m_Name: LoadBtn
+  m_Name: LoadButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
