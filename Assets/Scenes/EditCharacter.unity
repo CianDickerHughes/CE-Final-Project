@@ -155,8 +155,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -688.7904, y: -290.05606}
-  m_SizeDelta: {x: 365, y: 75}
+  m_AnchoredPosition: {x: -688.79004, y: -290.05606}
+  m_SizeDelta: {x: 282.5, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &12290173
 MonoBehaviour:
@@ -3031,6 +3031,63 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 654217211}
   m_CullTransparentMesh: 1
+--- !u!1 &657813937
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 657813939}
+  - component: {fileID: 657813938}
+  m_Layer: 0
+  m_Name: CharacterEditor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &657813938
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 657813937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 368039e271d58af42a6ae295f9ad02f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterCreatorUI
+  nameInput: {fileID: 1656001053}
+  raceDropdown: {fileID: 1949575952}
+  classDropdown: {fileID: 136693552}
+  strengthInput: {fileID: 209722509}
+  dexInput: {fileID: 962075939}
+  conInput: {fileID: 806990907}
+  intInput: {fileID: 88902664}
+  wisInput: {fileID: 796433132}
+  chaInput: {fileID: 1720925673}
+  tokenImage: {fileID: 360851082}
+  uploadButton: {fileID: 12290173}
+  saveButton: {fileID: 1513244980}
+  statusText: {fileID: 1632797254}
+--- !u!4 &657813939
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 657813937}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2032.3903, y: 921.4661, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &664945568
 GameObject:
   m_ObjectHideFlags: 0
@@ -5723,7 +5780,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Save Character
+  m_text: Update Character
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -6689,8 +6746,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -688.79, y: -387}
-  m_SizeDelta: {x: 365, y: 75}
+  m_AnchoredPosition: {x: -678.4648, y: -383}
+  m_SizeDelta: {x: 408.2264, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1513244980
 MonoBehaviour:
@@ -8590,9 +8647,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Upload Token
-
-'
+  m_text: Edit Token
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -9837,3 +9892,4 @@ SceneRoots:
   - {fileID: 604977939}
   - {fileID: 1870652608}
   - {fileID: 702239855}
+  - {fileID: 657813939}

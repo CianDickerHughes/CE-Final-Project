@@ -1,23 +1,16 @@
-using UnityEngine;
-using TMPro;
-using UnityEngine.UI;
 using System;
 using System.IO;
-using UnityEngine.EventSystems;
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using UnityEngine.SceneManagement;
 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-// Simple UI controller for a character creator screen.
-// - Exposes UI references to inspector fields (InputFields, Dropdowns, Image, Buttons)
-// - Handles loading a token image (editor file picker or simple runtime fallback)
-// - Serializes/deserializes CharacterData to/from JSON and saves/loads token images
-// - Populates and reads UI fields to build CharacterData objects
 public class CharacterCreatorUI : MonoBehaviour
 {
-    //Fields for populating the fields in our ui display for the users characters
-    //Again this tag just creates a header in the inspector tab we can use
     [Header("UI refs")]
     public TMP_InputField nameInput;
     public TMP_Dropdown raceDropdown;
@@ -28,25 +21,34 @@ public class CharacterCreatorUI : MonoBehaviour
     public TMP_InputField intInput;
     public TMP_InputField wisInput;
     public TMP_InputField chaInput;
-    public Image tokenImage; // UI image to show token
+    public Image tokenImage;
     public Button uploadButton;
     public Button saveButton;
-    public Button loadButton;
     public TextMeshProUGUI statusText;
-    private Texture2D tokenTexture; // loaded token texture
 
-    [Header("Saved Characters Window")]
-    public SavedCharactersWindow savedWindow; // assign the panel GameObject with SavedCharactersWindow component
+    // When editing an existing character, this will hold the JSON file path to overwrite.
+    private string editFilePath = null;
+    private Texture2D tokenTexture;
 
-    //We then set things up so that on starting we have event listeners on the buttons & clear out everything else - user has a blank canvas
     void Start()
     {
         SetupDropdowns();
         uploadButton.onClick.AddListener(OnUploadClicked);
         saveButton.onClick.AddListener(OnSaveClicked);
-        loadButton.onClick.AddListener(OnLoadClicked);
         ClearStatus();
         tokenTexture = null;
+
+        // If the selection context has a path, this is Edit mode: load it
+        if (!string.IsNullOrEmpty(CharacterSelectionContext.SelectedCharacterFilePath))
+        {
+            editFilePath = CharacterSelectionContext.SelectedCharacterFilePath;
+            LoadCharacterFromPath(editFilePath);
+        }
+        else
+        {
+            // New character: clear UI
+            ClearUI();
+        }
     }
 
     //Method called to setup the dropdown menus with their options
@@ -55,8 +57,8 @@ public class CharacterCreatorUI : MonoBehaviour
     {
         raceDropdown.ClearOptions();
         raceDropdown.AddOptions(new System.Collections.Generic.List<string> {
-            "Human","Elf","Dwarf","Halfling","Gnome","Half-Orc","Dragonborn", "Tiefling", "Half-Elf"
-            , "Other"
+            "Human","Elf","Dwarf","Halfling","Gnome","Half-Orc","Dragonborn", "Half-Elf","Tiefling"
+            , "Aasimar","Genasi","Goliath","Tabaxi","Triton","Firbolg","Kenku","Lizardfolk","Orc","Yuan-Ti Pureblood"
         });
 
         classDropdown.ClearOptions();
@@ -68,31 +70,36 @@ public class CharacterCreatorUI : MonoBehaviour
 
     void ClearStatus() => statusText.text = "";
 
+
+    void ClearUI()
+    {
+        nameInput.text = "";
+        raceDropdown.value = 0;
+        classDropdown.value = 0;
+        strengthInput.text = "10";
+        dexInput.text = "10";
+        conInput.text = "10";
+        intInput.text = "10";
+        wisInput.text = "10";
+        chaInput.text = "10";
+        tokenTexture = null;
+        tokenImage.sprite = null;
+    }
+
     // Upload image: editor-only file picker, else ask user to paste a file path (simple fallback)
     // When running in the Unity Editor, this opens the native file dialog to pick an image.
     // At runtime (non-editor builds) a very simple prompt coroutine is used instead.
     public void OnUploadClicked()
     {
     #if UNITY_EDITOR
-            //We are in the editor - use EditorUtility to open file panel
             string path = EditorUtility.OpenFilePanel("Choose token image", "", "png,jpg,jpeg");
             if (string.IsNullOrEmpty(path)) return;
             LoadTextureFromFile(path);
     #else
-            //Runtime fallback: prompt user to paste a full file path via a simple popup (or you can implement a runtime file picker).
-            StartCoroutine(ShowRuntimePathPrompt());
+            // Runtime fallback (left simple)
     #endif
     }
 
-    #if !UNITY_EDITOR
-        System.Collections.IEnumerator ShowRuntimePathPrompt()
-        {
-            statusText.text = "Runtime: paste full image path into Name field and click Upload again.";
-            yield return null;
-        }
-    #endif
-
-    //This method loads a token from a file path
     void LoadTextureFromFile(string path)
     {
         try
@@ -105,8 +112,7 @@ public class CharacterCreatorUI : MonoBehaviour
                 return;
             }
             tokenTexture = tex;
-            Sprite s = SpriteFromTexture2D(tex);
-            tokenImage.sprite = s;
+            tokenImage.sprite = Sprite.Create(tex, new Rect(0,0,tex.width,tex.height), new Vector2(.5f,.5f));
             tokenImage.preserveAspect = true;
             statusText.text = "Token loaded.";
         }
@@ -117,18 +123,12 @@ public class CharacterCreatorUI : MonoBehaviour
         }
     }
 
-    Sprite SpriteFromTexture2D(Texture2D tex)
-    {
-        return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(.5f, .5f));
-    }
-
     void OnSaveClicked()
     {
         var data = new CharacterData();
         data.charName = nameInput.text;
         data.race = raceDropdown.options[raceDropdown.value].text;
         data.charClass = classDropdown.options[classDropdown.value].text;
-        //parse stats with safe fallback to 10 - the default average stat
         data.strength = ParseIntOrDefault(strengthInput.text, 10);
         data.dexterity = ParseIntOrDefault(dexInput.text, 10);
         data.constitution = ParseIntOrDefault(conInput.text, 10);
@@ -136,59 +136,107 @@ public class CharacterCreatorUI : MonoBehaviour
         data.wisdom = ParseIntOrDefault(wisInput.text, 10);
         data.charisma = ParseIntOrDefault(chaInput.text, 10);
 
-        string timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-        string baseFileName = $"{(string.IsNullOrEmpty(data.charName) ? "char" : data.charName)}_{timestamp}";
-
-        // save token image if exists
-        if (tokenTexture != null)
+        // If editFilePath is null -> create new file; else overwrite the existing file
+        if (string.IsNullOrEmpty(editFilePath))
         {
-            string tokenPath = CharacterIO.SaveTokenImage(tokenTexture, baseFileName);
-            data.tokenFileName = Path.GetFileName(tokenPath);
+            // New: create with timestamp name (same as earlier)
+            string timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+            string baseFileName = $"{(string.IsNullOrEmpty(data.charName) ? "char" : data.charName)}_{timestamp}";
+
+            if (tokenTexture != null)
+            {
+                string tokenPath = CharacterIO.SaveTokenImage(tokenTexture, baseFileName);
+                data.tokenFileName = Path.GetFileName(tokenPath);
+            }
+
+            string json = JsonUtility.ToJson(data, true);
+            CharacterIO.SaveCharacterJson(json, baseFileName);
+            statusText.text = "Saved new character.";
+        }
+        else
+        {
+            // Edit: overwrite existing file. Keep token filename if present (or replace).
+            // Read existing to preserve token filename if user didn't change the token
+            string existingJson = CharacterIO.LoadJsonFromFile(editFilePath);
+            CharacterData existing = null;
+            try { existing = JsonUtility.FromJson<CharacterData>(existingJson); } catch { existing = null; }
+
+            // If tokenTexture is set, write a new token file using the existing filename or a derived name
+            if (tokenTexture != null)
+            {
+                // use existing tokenFileName if present; else create one based on existing json filename
+                string baseName = Path.GetFileNameWithoutExtension(editFilePath);
+                string tokenPath = CharacterIO.SaveTokenImage(tokenTexture, baseName);
+                data.tokenFileName = Path.GetFileName(tokenPath);
+            }
+            else
+            {
+                // preserve old token filename if present
+                if (existing != null)
+                    data.tokenFileName = existing.tokenFileName;
+            }
+
+            // Preserve id and createdAt from existing if possible
+            if (existing != null)
+            {
+                data.id = existing.id;
+                data.createdAt = existing.createdAt;
+            }
+            else
+            {
+                // fallback to new Guid/time
+                data.id = Guid.NewGuid().ToString();
+                data.createdAt = DateTime.UtcNow.ToString("o");
+            }
+
+            // Serialize and overwrite the same file
+            string json = JsonUtility.ToJson(data, true);
+            File.WriteAllText(editFilePath, json);
+            statusText.text = "Saved changes to character.";
         }
 
-        string json = JsonUtility.ToJson(data, true);
-        CharacterIO.SaveCharacterJson(json, baseFileName);
-
-        statusText.text = "Saved character.";
+        SceneManager.LoadSceneAsync("Characters");
     }
 
-    // NEW: open the saved characters window
-    void OnLoadClicked()
-    {
-        if (savedWindow == null)
-        {
-            statusText.text = "Saved window not assigned in inspector.";
-            return;
-        }
-        // Open window and provide callback to load selected file
-        savedWindow.Open(LoadCharacterFromPath);
-    }
-
-    // New method to load from a chosen file path
+    // Loads a character JSON from a path and populates UI
     void LoadCharacterFromPath(string path)
     {
         if (!File.Exists(path))
         {
-            statusText.text = "File not found: " + path;
+            statusText.text = "File not found.";
             return;
         }
 
         string json = CharacterIO.LoadJsonFromFile(path);
         if (string.IsNullOrEmpty(json))
         {
-            statusText.text = "Failed to read file.";
+            statusText.text = "Failed to load file.";
             return;
         }
 
         CharacterData data = JsonUtility.FromJson<CharacterData>(json);
         PopulateUIFromData(data);
-        statusText.text = $"Loaded {data.charName}";
+    }
 
-        // load token image if exists
-        if (!string.IsNullOrEmpty(data.tokenFileName))
+    //This is another new method to populate the UI fields from a CharacterData object
+    //Literally all it does is fill in the various fields with the data from the object/loaded character
+    void PopulateUIFromData(CharacterData d)
+    {
+        nameInput.text = d.charName;
+        raceDropdown.value = Math.Max(0, raceDropdown.options.FindIndex(o => o.text == d.race));
+        classDropdown.value = Math.Max(0, classDropdown.options.FindIndex(o => o.text == d.charClass));
+        strengthInput.text = d.strength.ToString();
+        dexInput.text = d.dexterity.ToString();
+        conInput.text = d.constitution.ToString();
+        intInput.text = d.intelligence.ToString();
+        wisInput.text = d.wisdom.ToString();
+        chaInput.text = d.charisma.ToString();
+
+        // Load token if exists
+        if (!string.IsNullOrEmpty(d.tokenFileName))
         {
             string folder = CharacterIO.GetCharactersFolder();
-            string tokenPath = Path.Combine(folder, data.tokenFileName);
+            string tokenPath = Path.Combine(folder, d.tokenFileName);
             if (File.Exists(tokenPath))
             {
                 LoadTextureFromFile(tokenPath);
@@ -206,22 +254,7 @@ public class CharacterCreatorUI : MonoBehaviour
         }
     }
 
-    //This is another new method to populate the UI fields from a CharacterData object
-    //Literally all it does is fill in the various fields with the data from the object/loaded character
-    void PopulateUIFromData(CharacterData d)
-    {
-        nameInput.text = d.charName;
-        raceDropdown.value = Math.Max(0, raceDropdown.options.FindIndex(o => o.text == d.race));
-        classDropdown.value = Math.Max(0, classDropdown.options.FindIndex(o => o.text == d.@charClass));
-        strengthInput.text = d.strength.ToString();
-        dexInput.text = d.dexterity.ToString();
-        conInput.text = d.constitution.ToString();
-        intInput.text = d.intelligence.ToString();
-        wisInput.text = d.wisdom.ToString();
-        chaInput.text = d.charisma.ToString();
-    }
-
-    //This is a small utility method to parse an int from a string with a fallback value
+    //This is a small utility method to parse an int from a string with a fallback valuey
     int ParseIntOrDefault(string s, int fallback)
     {
         if (int.TryParse(s, out int v)) return v;
