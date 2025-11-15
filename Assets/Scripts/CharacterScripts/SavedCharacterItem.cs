@@ -9,6 +9,8 @@ public class SavedCharacterItem : MonoBehaviour
     public Image thumbImage;
     public TextMeshProUGUI nameText;
     public TextMeshProUGUI timestampText;
+    public TextMeshProUGUI charClass;
+    public TextMeshProUGUI charRace;
     public Button loadButton;
     private string filePath;
 
@@ -25,6 +27,16 @@ public class SavedCharacterItem : MonoBehaviour
         if (timestampText != null)
         {
             timestampText.text = !string.IsNullOrEmpty(data.createdAt) ? data.createdAt : "";
+        }
+
+        if (charClass != null)
+        {
+            charClass.text = !string.IsNullOrEmpty(data.charClass) ? data.charClass : "";
+        }
+
+        if (charRace != null)
+        {
+            charRace.text = !string.IsNullOrEmpty(data.race) ? data.race : "";
         }
 
         // load thumbnail image if available (async is not required here for local files)
