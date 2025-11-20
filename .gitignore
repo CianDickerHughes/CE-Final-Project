@@ -149,3 +149,8 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/unity,windows,linux,macos
+
+# Ignore everything under Assets/Characters
+/Assets/Characters/
+# (redundant explicit match to cover nested files)
+/Assets/Characters/**
