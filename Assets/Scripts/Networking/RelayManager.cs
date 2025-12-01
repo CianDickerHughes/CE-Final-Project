@@ -15,8 +15,20 @@ public class RelayManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI codeText;
 
     async void Start() {
-        await UnityServices.InitializeAsync();
-        await AuthenticationService.Instance.SignInAnonymouslyAsync();
+        try {
+            await UnityServices.InitializeAsync();
+
+            // Only sign in if not already signed in to avoid the "already signed in" AuthenticationException
+            if (!AuthenticationService.Instance.IsSignedIn) {
+                await AuthenticationService.Instance.SignInAnonymouslyAsync();
+            } else {
+                Debug.Log($"RelayManager: Already signed in (PlayerId: {AuthenticationService.Instance.PlayerId})");
+            }
+        }
+        catch (System.Exception ex) {
+            Debug.LogError($"RelayManager: Failed to initialize/authenticate: {ex}");
+            return;
+        }
 
         // Try to auto-assign UI references if they weren't set in the Inspector
         if (hostButton == null) hostButton = GetComponent<Button>();
