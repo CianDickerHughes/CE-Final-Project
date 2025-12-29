@@ -1,20 +1,23 @@
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-//This class will handle the overall management of campaigns within the game
-//Creating campaigns, adding/removing scenes, managing players etc.
-//We need to do things like imposing a limit of 5 scenes per campaign for space and performance reasons
+//MAIN MANAGEMENT FOR CAMPAIGNS
+//This class will act as a manager for the various actions to do with campaigns - creating them, adding players, adding scenes etc.
+//Effectively outlines main functionality for stuff to do with campaigns - excluding the actual data structures themselves, 
+//IMPORTANT THING TO REMEMBER: USE THE SAVE() METHOD AFTER ANY CHANGES TO CAMPAIGN DATA TO ENSURE IT IS SAVED PROPERLY -although this may need to be changed later on
 
-//JSON.UTILITY - We use this to persist campaign data
 public class CampaignManager : MonoBehaviour
 {
     public static CampaignManager Instance { get; private set; }
-    
     private Campaign currentCampaign;
-    private const int MAX_SCENES = 5;
+    //For the sake of space concerns we restrict the number of scenes per campaign to 6 for now
+    private const int MAX_SCENES = 6;
     
     void Awake()
     {
+        //This is just us initializing the singleton for this class
         if (Instance == null)
         {
             Instance = this;
@@ -26,18 +29,57 @@ public class CampaignManager : MonoBehaviour
         }
     }
     
-    // Create a new campaign - need to pass in the campaign name and dm user id
-    //CIAN WE NEED TO DISCUSS HOW WE'RE HANDLING USERS/DMs AND THEIR ID - need to make sure things are unique/secure
-    // - FIREBASE AUTH OR SOMETHING ELSE?
-    public Campaign CreateCampaign(string campaignName, string dmUserId)
+    //MAIN CAMPAIGN FUNCTIONS
+    //Create a new campaign - this new way does it without the id's 
+    //We will generate a new campaign ID within the Campaign class itself
+    public Campaign CreateCampaign(string campaignName, string dmUsername, string description = "")
     {
-        currentCampaign = new Campaign(campaignName, dmUserId);
+        currentCampaign = new Campaign(campaignName, dmUsername, description);
         SaveCampaign();
         Debug.Log($"Campaign created: {campaignName} with code: {currentCampaign.inviteCode}");
         return currentCampaign;
     }
     
-    //Method to add a new "scene" to the current campaign
+    //HOST ONLY: Add a player's character to the current campaign
+    //This is called when a client sends their character data over the network
+    public bool AddPlayerCharacterToCampaign(string playerUsername, ulong networkId, CharacterData character)
+    {
+        if (currentCampaign == null)
+        {
+            Debug.LogError("No active campaign on host!");
+            return false;
+        }
+        
+        //We then just assign the character to the player within the campaign
+        currentCampaign.AssignCharacterToPlayer(playerUsername, networkId, character);
+        //Then make sure to save the campaign data
+        SaveCampaign();
+        Debug.Log($"Player {playerUsername} joined with character {character.charName}");
+        return true;
+    }
+    
+    //Update a player's character selection (if they want to switch before starting)
+    public bool UpdatePlayerCharacter(ulong networkId, CharacterData newCharacter)
+    {
+        if (currentCampaign == null)
+        {
+            return false;
+        }
+        
+        //Finding the player's assignment and updating their character data - done using network ID
+        var assignment = currentCampaign.playerCharacters.Find(p => p.networkId == networkId);
+        if (assignment != null)
+        {
+            assignment.characterData = newCharacter;
+            //NEED TO KEEP REMEMBERING TO SAVE THE CAMPAIGN AFTER CHANGES
+            SaveCampaign();
+            Debug.Log($"Player character updated to {newCharacter.charName}");
+            return true;
+        }
+        return false;
+    }
+    
+    //Add a new scene to the current campaign
     public bool AddScene(string sceneName, SceneType sceneType, string description)
     {
         if (currentCampaign == null)
@@ -46,32 +88,27 @@ public class CampaignManager : MonoBehaviour
             return false;
         }
         
+        //Checking we are not exceeding the max scenes limit
         if (currentCampaign.scenes.Count >= MAX_SCENES)
         {
             Debug.LogWarning("Maximum scene limit reached (5 scenes)");
             return false;
         }
-        
-        //Instantiate and add the new scene to the specific campaign
+        //If not then we can add the new scene
         SceneData newScene = new SceneData(sceneName, sceneType, description);
         currentCampaign.scenes.Add(newScene);
-        //We then just save the campaign again to persist the changes
         SaveCampaign();
         Debug.Log($"Scene added: {sceneName}");
         return true;
     }
     
-    //Method to remove a scene from the current campaign by its ID
+    //Remove a scene from the current campaign
     public bool RemoveScene(string sceneId)
     {
         if (currentCampaign == null)
-        {
             return false;
-        } 
         
-        //Find and remove the scene with the given ID
         int removed = currentCampaign.scenes.RemoveAll(s => s.sceneId == sceneId);
-        //If its removed successfully we save the campaign again - persist changes
         if (removed > 0)
         {
             SaveCampaign();
@@ -81,19 +118,77 @@ public class CampaignManager : MonoBehaviour
         return false;
     }
     
-    //Method to add a player to the current campaign using an invite code and their player ID
-    public bool AddPlayer(string inviteCode, string playerId)
+    //DM adds a player's character to a specific scene - potentially usefull for specific scenarios
+    //Or just setting up combat encounters etc.
+    public bool AddCharacterToScene(string sceneId, string characterId)
     {
-        Campaign campaign = LoadCampaignByInviteCode(inviteCode);
-        if (campaign != null && !campaign.playerIds.Contains(playerId))
+        if (currentCampaign == null)
+            return false;
+            
+        SceneData scene = currentCampaign.scenes.Find(s => s.sceneId == sceneId);
+        if (scene != null)
         {
-            campaign.playerIds.Add(playerId);
-            currentCampaign = campaign;
+            scene.AddCharacterToScene(characterId);
             SaveCampaign();
-            Debug.Log($"Player {playerId} joined campaign");
+            Debug.Log($"Character added to scene {scene.sceneName}");
             return true;
         }
         return false;
+    }
+    
+    //DM removes a character from a scene
+    public bool RemoveCharacterFromScene(string sceneId, string characterId)
+    {
+        if (currentCampaign == null)
+            return false;
+            
+        SceneData scene = currentCampaign.scenes.Find(s => s.sceneId == sceneId);
+        if (scene != null)
+        {
+            scene.RemoveCharacterFromScene(characterId);
+            SaveCampaign();
+            Debug.Log($"Character removed from scene {scene.sceneName}");
+            return true;
+        }
+        return false;
+    }
+    
+    //Get all characters in a specific scene
+    //Listing out characters in a scene - good for showing who is present in a scene (This would be purely UI for the DM)
+    public List<CharacterData> GetCharactersInScene(string sceneId)
+    {
+        List<CharacterData> characters = new List<CharacterData>();
+        
+        if (currentCampaign == null)
+            return characters;
+            
+        SceneData scene = currentCampaign.scenes.Find(s => s.sceneId == sceneId);
+        if (scene != null)
+        {
+            foreach (string charId in scene.activeCharacterIds)
+            {
+                CharacterData character = currentCampaign.playerCharacters
+                    .Find(p => p.characterData.id == charId)?.characterData;
+                if (character != null)
+                {
+                    characters.Add(character);
+                }
+            }
+        }
+        
+        return characters;
+    }
+    
+    //Get the character controlled by a specific network player
+    public CharacterData GetCharacterForPlayer(ulong networkId)
+    {
+        return currentCampaign?.GetCharacterForPlayer(networkId);
+    }
+    
+    // Get all players in the current campaign
+    public List<PlayerCharacterAssignment> GetAllPlayers()
+    {
+        return currentCampaign?.playerCharacters ?? new List<PlayerCharacterAssignment>();
     }
     
     public Campaign GetCurrentCampaign()
@@ -111,18 +206,31 @@ public class CampaignManager : MonoBehaviour
         return currentCampaign != null && currentCampaign.scenes.Count < MAX_SCENES;
     }
     
-    //Basic save/load methods using PlayerPrefs and JSON utility
+    //Save the current campaign
     private void SaveCampaign()
     {
         if (currentCampaign != null)
         {
             string json = JsonUtility.ToJson(currentCampaign);
             PlayerPrefs.SetString($"Campaign_{currentCampaign.campaignId}", json);
+            
+            //Keep track of all campaign IDs for searching by invite code
+            string campaignsList = PlayerPrefs.GetString("CampaignsList", "");
+            if (!campaignsList.Contains(currentCampaign.campaignId))
+            {
+                if (string.IsNullOrEmpty(campaignsList))
+                    campaignsList = currentCampaign.campaignId;
+                else
+                    campaignsList += "," + currentCampaign.campaignId;
+                PlayerPrefs.SetString("CampaignsList", campaignsList);
+            }
+            
             PlayerPrefs.SetString("LastCampaignId", currentCampaign.campaignId);
             PlayerPrefs.Save();
         }
     }
     
+    //Load a campaign by ID
     public Campaign LoadCampaign(string campaignId)
     {
         string json = PlayerPrefs.GetString($"Campaign_{campaignId}", "");
@@ -134,18 +242,13 @@ public class CampaignManager : MonoBehaviour
         return null;
     }
     
-    //NEED TO CHANGE THIS METHOD IN THE FUTURE - THIS IS JUST A BASIC WAY TO LOAD CAMPAIGNS BASED ON INVITE CODES
-    //IN THE FUTURE WE MAY WANT TO INTEGRATE WITH A BACKEND SERVICE TO MANAGE CAMPAIGNS AND PLAYERS MORE SECURELY
-    private Campaign LoadCampaignByInviteCode(string inviteCode)
+    //Load the last active campaign
+    public Campaign LoadLastCampaign()
     {
         string lastCampaignId = PlayerPrefs.GetString("LastCampaignId", "");
         if (!string.IsNullOrEmpty(lastCampaignId))
         {
-            Campaign campaign = LoadCampaign(lastCampaignId);
-            if (campaign != null && campaign.inviteCode == inviteCode)
-            {
-                return campaign;
-            }
+            return LoadCampaign(lastCampaignId);
         }
         return null;
     }
