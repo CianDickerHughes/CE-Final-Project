@@ -25,10 +25,19 @@ public class CharacterData
     public string tokenFileName;
     //Timestamp for creating things
     public string createdAt;
+    //Owner username to link character to user and a variable to check ownership
+    public string ownerUsername;
 
     public CharacterData()
     {
         id = Guid.NewGuid().ToString();
         createdAt = DateTime.UtcNow.ToString("o");
+    }
+
+    // Check if this character is owned by the currently logged-in user
+    public bool IsOwnedByCurrentUser()
+    {
+        return SessionManager.Instance.IsLoggedIn &&
+               ownerUsername == SessionManager.Instance.CurrentUsername;
     }
 }
