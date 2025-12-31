@@ -24,11 +24,13 @@ public class UserAuthentication : MonoBehaviour
     void Start()
     {
         // If already signed in, hide panel immediately
+        /*
         if (SessionManager.Instance != null && SessionManager.Instance.IsLoggedIn)
         {
             panel.SetActive(false);
             return;
         }
+        */
         // Show the panel on start
         panel.SetActive(true);
         // Load and display existing users
