@@ -10,8 +10,6 @@ public class CampaignSelector : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private Transform campaignListContainer;
     [SerializeField] private GameObject campaignItemPrefab;
-    [SerializeField] private Button createCampaignButton;
-    [SerializeField] private GameObject campaignCreationPopup;
 
     private List<Campaign> userCampaigns = new List<Campaign>();
 
@@ -19,7 +17,6 @@ public class CampaignSelector : MonoBehaviour
     {
         LoadUserCampaigns();
         PopulateCampaignList();
-        createCampaignButton.onClick.AddListener(ShowCampaignCreationPopup);
     }
 
     // Loads campaigns from Assets/Campaigns and filters by current user
@@ -56,13 +53,6 @@ public class CampaignSelector : MonoBehaviour
                 itemUI.SetCampaign(campaign);
             }
         }
-    }
-
-    // Shows the campaign creation popup
-    private void ShowCampaignCreationPopup()
-    {
-        if (campaignCreationPopup != null)
-            campaignCreationPopup.SetActive(true);
     }
 
     // Call this after creating a new campaign to refresh the list

@@ -1157,6 +1157,9 @@ MonoBehaviour:
   campaignNameInput: {fileID: 1156489434}
   campaignDescriptionInput: {fileID: 192541864}
   campaignLogoImage: {fileID: 1005745537}
+  createCampaignButton: {fileID: 2054013322}
+  popupPanel: {fileID: 844345921}
+  campaignSelector: {fileID: 1969879159}
 --- !u!4 &502295544
 Transform:
   m_ObjectHideFlags: 0
@@ -4261,7 +4264,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 181255476}
   m_Direction: 2
   m_Value: 0
-  m_Size: 1
+  m_Size: 0.9976418
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -4908,7 +4911,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Create New Campaign
+  m_text: Start New Adventure
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -5172,6 +5175,50 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RectMask2D
   m_Padding: {x: -8, y: -5, z: -8, w: -5}
   m_Softness: {x: 0, y: 0}
+--- !u!1 &1926540765
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1926540767}
+  - component: {fileID: 1926540766}
+  m_Layer: 0
+  m_Name: CampaignManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1926540766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1926540765}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94f894081f26ea746a46d18e499b0fc4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CampaignManager
+--- !u!4 &1926540767
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1926540765}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1738.6185, y: 1242.019, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1969879155
 GameObject:
   m_ObjectHideFlags: 0
@@ -5183,6 +5230,7 @@ GameObject:
   - component: {fileID: 1969879156}
   - component: {fileID: 1969879158}
   - component: {fileID: 1969879157}
+  - component: {fileID: 1969879159}
   m_Layer: 5
   m_Name: CampPanel
   m_TagString: Untagged
@@ -5204,12 +5252,12 @@ RectTransform:
   m_Children:
   - {fileID: 1448483453}
   - {fileID: 988716006}
-  - {fileID: 1395086941}
   - {fileID: 1458079872}
+  - {fileID: 56932914}
   - {fileID: 1169434636}
+  - {fileID: 1395086941}
   - {fileID: 1992586212}
   - {fileID: 551544065}
-  - {fileID: 56932914}
   m_Father: {fileID: 2092118751}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -5255,6 +5303,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1969879155}
   m_CullTransparentMesh: 1
+--- !u!114 &1969879159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1969879155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9141d79a70169884c84e65c994d33a6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CampaignSelector
+  campaignListContainer: {fileID: 56932914}
+  campaignItemPrefab: {fileID: 7783010492633106339, guid: 2059db6c542b2134ca61485ce9b5ed57, type: 3}
 --- !u!1 &1992586209
 GameObject:
   m_ObjectHideFlags: 0
@@ -5816,7 +5878,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.0007709068}
+  m_AnchoredPosition: {x: 0, y: 0.00020377131}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &2092118747
@@ -6067,3 +6129,4 @@ SceneRoots:
   - {fileID: 1374742274}
   - {fileID: 342003157}
   - {fileID: 502295544}
+  - {fileID: 1926540767}
