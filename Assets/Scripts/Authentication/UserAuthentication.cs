@@ -32,24 +32,24 @@ public class UserAuthentication : MonoBehaviour
             panel.SetActive(false);
             return;
         }
-        // Show the panel on start
+        //Show the panel on start
         panel.SetActive(true);
-        // Load and display existing users
+        //Load and display existing users
         LoadUsers();
-        // Set up create button
+        //Set up create button
         createUserButton.onClick.AddListener(OnCreateUserClicked);
     }
     
-    // Load all users and populate the list
+    //Load all users and populate the list
     private void LoadUsers()
     {
-        // Clear existing items
+        //Clear existing items
         foreach (Transform child in userListContainer)
         {
             Destroy(child.gameObject);
         }
         
-        // Get all saved users
+        //Get all saved users
         List<string> users = UserDataManager.Instance.GetAllUsers();
         
         if (users.Count == 0)

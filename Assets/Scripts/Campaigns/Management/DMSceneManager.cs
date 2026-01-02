@@ -4,9 +4,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+//SCENE MANAGEMENT FOR DM
 //This script provides the DM with an interface to manage which characters are in which scenes
 //Potentially remove it later but for now it helps with testing scene management
 
+//A lot of these fields/listeners could very well change as we go on because the UI needs to be fleshed out more
 public class DMSceneManager : MonoBehaviour
 {
     [Header("Scene Selection")]
@@ -164,6 +166,9 @@ public class DMSceneManager : MonoBehaviour
         }
     }
     
+    //These 2 methods handle adding/removing characters from the current scene
+    //They both require some networking so they wont really work at all until we have that in place
+
     //Add a character to the current scene
     private void AddCharacterToCurrentScene(string characterId)
     {

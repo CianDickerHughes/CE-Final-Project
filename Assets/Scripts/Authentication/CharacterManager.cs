@@ -3,8 +3,8 @@ using System.Linq;
 using System.IO;
 using UnityEngine;
 
-// Manages characters - saves them to UserData folder
-// Filters to show only the current user's characters
+//Manages characters - saves them to UserData folder
+//Filters to show only the current user's characters
 public class CharacterManager : MonoBehaviour
 {
     public static CharacterManager Instance { get; private set; }
@@ -20,10 +20,10 @@ public class CharacterManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
             
-            // Set up path to UserData folder
+            //Set up path to UserData folder
             characterDataPath = Path.Combine(Application.dataPath, "UserData");
             
-            // Create folder if it doesn't exist
+            //Create folder if it doesn't exist
             if (!Directory.Exists(characterDataPath))
             {
                 Directory.CreateDirectory(characterDataPath);
@@ -37,7 +37,7 @@ public class CharacterManager : MonoBehaviour
         }
     }
     
-    // Create a new character (auto-assigns to current user)
+    //Create a new character (auto-assigns to current user)
     public CharacterData CreateCharacter(string name, string race, string charClass)
     {
         if (!SessionManager.Instance.IsLoggedIn)
@@ -61,7 +61,7 @@ public class CharacterManager : MonoBehaviour
         return newChar;
     }
     
-    // Get only the current user's characters
+    //Get only the current user's characters
     public List<CharacterData> GetCurrentUserCharacters()
     {
         if (!SessionManager.Instance.IsLoggedIn)
@@ -76,7 +76,7 @@ public class CharacterManager : MonoBehaviour
             .ToList();
     }
     
-    // Get a specific character by ID (only if owned by current user)
+    //Get a specific character by ID (only if owned by current user)
     public CharacterData GetCharacterById(string characterId)
     {
         CharacterData character = allCharacters.FirstOrDefault(c => c.id == characterId);
@@ -89,7 +89,7 @@ public class CharacterManager : MonoBehaviour
         return null;
     }
     
-    // Update an existing character
+    //Update an existing character
     public bool UpdateCharacter(CharacterData updatedCharacter)
     {
         int index = allCharacters.FindIndex(c => c.id == updatedCharacter.id);
@@ -110,7 +110,7 @@ public class CharacterManager : MonoBehaviour
         return true;
     }
     
-    // Delete a character (only if owned by current user)
+    //Delete a character (only if owned by current user)
     public bool DeleteCharacter(string characterId)
     {
         CharacterData character = GetCharacterById(characterId);
@@ -125,7 +125,7 @@ public class CharacterManager : MonoBehaviour
         return true;
     }
     
-    // Save all characters to file
+    //Save all characters to file
     private void SaveAllCharacters()
     {
         string filePath = Path.Combine(characterDataPath, CHARACTER_FILE);
@@ -147,7 +147,7 @@ public class CharacterManager : MonoBehaviour
         }
     }
     
-    // Load all characters from file
+    //Load all characters from file
     private void LoadAllCharacters()
     {
         string filePath = Path.Combine(characterDataPath, CHARACTER_FILE);
@@ -176,5 +176,3 @@ public class CharacterManager : MonoBehaviour
         }
     }
 }
-
-// CharacterDataList is now defined in CharacterSelector.cs for shared use.

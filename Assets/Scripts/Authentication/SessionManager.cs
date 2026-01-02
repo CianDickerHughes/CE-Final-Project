@@ -8,10 +8,10 @@ public class SessionManager : MonoBehaviour
     public static SessionManager Instance { get; private set; }
 
     private const string PlayerPrefsKey = "CurrentUsername";
-    // The current logged-in user's name
+    //The current logged-in user's name
     public string CurrentUsername { get; private set; }
 
-    // Check if a user is logged in
+    //Check if a user is logged in
     public bool IsLoggedIn => !string.IsNullOrEmpty(CurrentUsername);
 
     void Awake()

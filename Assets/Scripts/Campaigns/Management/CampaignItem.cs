@@ -13,7 +13,7 @@ public class CampaignItem : MonoBehaviour
     private Campaign campaignData;
     private string campaignFilePath;
 
-    // Sets up the campaign item with data
+    //Set up the campaign item with data
     public void SetCampaign(Campaign campaign, string filePath){
         campaignData = campaign;
         campaignFilePath = filePath;
@@ -25,6 +25,8 @@ public class CampaignItem : MonoBehaviour
             campaignDescriptionText.text = campaign.campaignDescription;
 
         //Load logo if available
+        //Previously this was just a literal reference to the logo path on the persons device
+        //Now we copy the logo to the Campaigns folder and just store the file name
         if (campaignLogoImage != null && !string.IsNullOrEmpty(campaign.campaignLogoPath))
         {
             string logoPath = System.IO.Path.Combine(CampaignManager.GetCampaignsFolder(), campaign.campaignLogoPath);
@@ -46,6 +48,7 @@ public class CampaignItem : MonoBehaviour
         }
 
         //Setup button listener
+        //Not 100% what i want to do with this yet but have it here in case
         if (selectButton != null)
         {
             //selectButton.onClick.RemoveAllListeners();

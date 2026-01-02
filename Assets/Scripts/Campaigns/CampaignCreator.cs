@@ -93,7 +93,7 @@ public class CampaignCreator : MonoBehaviour
             newCampaign.campaignLogoPath = logoPath;
         }
 
-        //Optionally, save the campaign data again
+        //Optionally, save the campaign data again - just to make sure
         CampaignManager.Instance.SaveCampaign();
 
         //Hide the popup and clear the fields

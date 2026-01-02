@@ -7,6 +7,10 @@ using TMPro;
 //This script handles the UI for players to select which character they want to use
 //AFTER they've already connected to the campaign via netcode
 //Potentially need to be removed/heavily altered later on once the networking is implemented/when functionality for character selection is finalized
+
+//ALSO NOTE
+//A lot of this could change as I properly decelop the UI for character selection
+//Right now its just a basic mockup to get something working for testing
 public class CharacterSelector : MonoBehaviour
 {
     [Header("UI References")]
@@ -32,12 +36,13 @@ public class CharacterSelector : MonoBehaviour
         confirmButton.interactable = false;
     }
     
-    // Load all characters saved on this device
+    //Load all characters saved on this device and this specific user
     private void LoadPlayerCharacters()
     {
         availableCharacters.Clear();
         
-        // Assuming you have a CharacterManager that saves characters to a specific location
+        //This could be implemented to simply load from files later on
+        //For now we will just simulate loading from PlayerPrefs
         string charactersJson = PlayerPrefs.GetString("SavedCharacters", "");
         
         if (!string.IsNullOrEmpty(charactersJson))
@@ -60,16 +65,16 @@ public class CharacterSelector : MonoBehaviour
         }
     }
     
-    // Display all available characters as selectable buttons
+    //Display all available characters as selectable buttons
     private void PopulateCharacterList()
     {
-        // Clear existing buttons
+        //Clear existing buttons
         foreach (Transform child in characterListContainer)
         {
             Destroy(child.gameObject);
         }
         
-        // Create a button for each character
+        //Create a button for each character
         foreach (CharacterData character in availableCharacters)
         {
             GameObject buttonObj = Instantiate(characterButtonPrefab, characterListContainer);
