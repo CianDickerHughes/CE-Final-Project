@@ -16,7 +16,7 @@ public class Campaign
     public List<SceneData> scenes;
     public string inviteCode;
     public string createdDate;
-    public string campaignLogoPath; // Path to the campaign logo image file
+    public string campaignLogoPath;
     
     //Constructor for the main source of initialization
     public Campaign(string name, string dmName, string description = "")

@@ -691,6 +691,7 @@ GameObject:
   - component: {fileID: 688719689659144852}
   - component: {fileID: 6448456040825415113}
   - component: {fileID: 8140396309286136865}
+  - component: {fileID: 7507480795259400470}
   m_Layer: 5
   m_Name: CampaignItem
   m_TagString: Untagged
@@ -760,6 +761,22 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &7507480795259400470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7783010492633106339}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 086a2492e0e5b494e99c3f7db0161275, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CampaignItem
+  campaignLogoImage: {fileID: 5858684574486290273}
+  campaignNameText: {fileID: 7885052071958641940}
+  campaignDescriptionText: {fileID: 6372350423040097359}
+  selectButton: {fileID: 8995599725612234128}
 --- !u!1 &8842093817036018962
 GameObject:
   m_ObjectHideFlags: 0

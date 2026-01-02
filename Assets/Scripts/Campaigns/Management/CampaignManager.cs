@@ -10,6 +10,7 @@ using UnityEngine.SceneManagement;
 
 public class CampaignManager : MonoBehaviour
 {
+
     public static CampaignManager Instance { get; private set; }
     private Campaign currentCampaign;
     //For the sake of space concerns we restrict the number of scenes per campaign to 6 for now
@@ -207,35 +208,29 @@ public class CampaignManager : MonoBehaviour
     }
     
     //Save the current campaign
-    private void SaveCampaign()
+    public void SaveCampaign()
     {
         if (currentCampaign != null)
         {
-            string json = JsonUtility.ToJson(currentCampaign);
-            PlayerPrefs.SetString($"Campaign_{currentCampaign.campaignId}", json);
-            
-            //Keep track of all campaign IDs for searching by invite code
-            string campaignsList = PlayerPrefs.GetString("CampaignsList", "");
-            if (!campaignsList.Contains(currentCampaign.campaignId))
-            {
-                if (string.IsNullOrEmpty(campaignsList))
-                    campaignsList = currentCampaign.campaignId;
-                else
-                    campaignsList += "," + currentCampaign.campaignId;
-                PlayerPrefs.SetString("CampaignsList", campaignsList);
-            }
-            
-            PlayerPrefs.SetString("LastCampaignId", currentCampaign.campaignId);
-            PlayerPrefs.Save();
+            string json = JsonUtility.ToJson(currentCampaign, true);
+            string folderPath = Path.Combine(Application.dataPath, "Campaigns");
+            if (!Directory.Exists(folderPath))
+                Directory.CreateDirectory(folderPath);
+
+            string filePath = Path.Combine(folderPath, $"{currentCampaign.campaignId}.json");
+            File.WriteAllText(filePath, json);
+            Debug.Log($"Campaign saved to {filePath}");
         }
     }
     
     //Load a campaign by ID
     public Campaign LoadCampaign(string campaignId)
     {
-        string json = PlayerPrefs.GetString($"Campaign_{campaignId}", "");
-        if (!string.IsNullOrEmpty(json))
+        string folderPath = Path.Combine(Application.dataPath, "Campaigns");
+        string filePath = Path.Combine(folderPath, $"{campaignId}.json");
+        if (File.Exists(filePath))
         {
+            string json = File.ReadAllText(filePath);
             currentCampaign = JsonUtility.FromJson<Campaign>(json);
             return currentCampaign;
         }
@@ -245,11 +240,20 @@ public class CampaignManager : MonoBehaviour
     //Load the last active campaign
     public Campaign LoadLastCampaign()
     {
-        string lastCampaignId = PlayerPrefs.GetString("LastCampaignId", "");
-        if (!string.IsNullOrEmpty(lastCampaignId))
-        {
-            return LoadCampaign(lastCampaignId);
-        }
+        //Placeholder - in future we may want to store the last opened campaign ID in player prefs or similar
         return null;
+    }
+
+    // Returns the folder path to save campaigns
+    public static string GetCampaignsFolder()
+    {
+        #if UNITY_EDITOR
+            string folder = Path.Combine(Application.dataPath, "Campaigns");
+        #else
+            string folder = Path.Combine(Application.persistentDataPath, "Campaigns");
+        #endif
+        if (!Directory.Exists(folder))
+            Directory.CreateDirectory(folder);
+        return folder;
     }
 }

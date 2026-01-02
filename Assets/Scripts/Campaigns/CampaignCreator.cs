@@ -3,6 +3,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -27,18 +28,23 @@ public class CampaignCreator : MonoBehaviour
     }
 
 
-    //Function to set a new image for the campaign logo
-    public void SetCampaignLogo(){
-        #if UNITY_EDITOR
-                string path = EditorUtility.OpenFilePanel("Choose campaign logo", "", "png,jpg,jpeg");
-                if (string.IsNullOrEmpty(path)) return;
-                LoadTextureFromFile(path);
-                logoPath = path;
-        #else
-                //Runtime fallback (left simple)
-                Debug.LogWarning("Campaign logo selection is only supported in the Unity Editor.");
-        #endif
-    }
+        //Function to set a new image for the campaign logo
+        public void SetCampaignLogo(){
+    #if UNITY_EDITOR
+        string path = EditorUtility.OpenFilePanel("Choose campaign logo", "", "png,jpg,jpeg");
+        if (string.IsNullOrEmpty(path)) return;
+        // Load and display the image
+        LoadTextureFromFile(path);
+        // Save the image to the campaigns folder
+        string folder = CampaignManager.GetCampaignsFolder();
+        string fileName = Path.GetFileName(path);
+        string destPath = Path.Combine(folder, fileName);
+        File.Copy(path, destPath, true);
+        logoPath = fileName; // Store only the file name for portability
+    #else
+        Debug.LogWarning("Campaign logo selection is only supported in the Unity Editor.");
+    #endif
+        }
 
     void LoadTextureFromFile(string path)
     {
@@ -116,5 +122,8 @@ public class CampaignCreator : MonoBehaviour
         {
             campaignLogoImage.sprite = null;
         }
+
+        Debug.Log($"Campaign '{name}' created successfully.");
+        SceneManager.LoadScene("CampaignManager");
     }
 }
