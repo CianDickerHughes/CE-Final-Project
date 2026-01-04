@@ -198,7 +198,7 @@ public class CharacterCreatorUI : MonoBehaviour
         SceneManager.LoadSceneAsync("Characters");
     }
 
-    // Loads a character JSON from a path and populates UI
+    //Loads a character JSON from a path and populates UI
     void LoadCharacterFromPath(string path)
     {
         if (!File.Exists(path))

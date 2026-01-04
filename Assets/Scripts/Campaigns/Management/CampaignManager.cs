@@ -92,7 +92,7 @@ public class CampaignManager : MonoBehaviour
         //Checking we are not exceeding the max scenes limit
         if (currentCampaign.scenes.Count >= MAX_SCENES)
         {
-            Debug.LogWarning("Maximum scene limit reached (5 scenes)");
+            Debug.LogWarning("Maximum scene limit reached (6 scenes)");
             return false;
         }
         //If not then we can add the new scene

@@ -82,7 +82,7 @@ public class CharacterListController : MonoBehaviour
     //It them moves us to the EditCharacter scene
     void OnItemSelected(string jsonFilePath)
     {
-        // Set selection and load EditCharacter scene
+        //Set selection and load EditCharacter scene
         CharacterSelectionContext.SelectedCharacterFilePath = jsonFilePath;
         SceneManager.LoadScene("EditCharacter");
     }

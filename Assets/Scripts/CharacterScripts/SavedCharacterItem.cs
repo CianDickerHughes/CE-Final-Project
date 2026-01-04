@@ -14,7 +14,7 @@ public class SavedCharacterItem : MonoBehaviour
     public Button loadButton;
     private string filePath;
 
-    // Setup called after instantiation
+    //Setup called after instantiation
     public void Setup(string jsonFilePath, CharacterData data, Action<string> onSelect)
     {
         filePath = jsonFilePath;

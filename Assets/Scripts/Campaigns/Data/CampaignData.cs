@@ -101,6 +101,8 @@ public class SceneData
     public string sceneName;
     public SceneType sceneType;
     public string description;
+    public string lastPlayed;
+    public string status;
     //This is to help us keep track of which characters are active in this scene - i.e. who is playing or what players are here
     public List<string> activeCharacterIds;
     
@@ -110,6 +112,8 @@ public class SceneData
         sceneName = name;
         sceneType = type;
         description = desc;
+        lastPlayed = "";
+        status = "Not Started";
         activeCharacterIds = new List<string>();
     }
     

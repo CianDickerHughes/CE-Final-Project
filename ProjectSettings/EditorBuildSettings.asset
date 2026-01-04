@@ -21,14 +21,14 @@ EditorBuildSettings:
     path: Assets/Scenes/Characters.unity
     guid: 8b45627a13e6a6a48975788ec9594b5c
   - enabled: 1
-    path: Assets/Scenes/Campaigns/CampaignCreator.unity
-    guid: 6f137855bb2061844ac6e5359cb9c0ef
-  - enabled: 1
     path: Assets/Scenes/Campaigns/Campaigns.unity
     guid: 53f484102a82fae469e3310b4c38b27b
   - enabled: 1
     path: Assets/Scenes/EditCharacter.unity
     guid: fe7aace0400e4a54d82094ff71cb94c2
+  - enabled: 1
+    path: Assets/Scenes/Campaigns/CampaignManager.unity
+    guid: 54e380f7f66b5c049910fff0e4ecd78b
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
