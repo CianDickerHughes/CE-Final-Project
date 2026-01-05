@@ -9,14 +9,23 @@ public class CampaignItem : MonoBehaviour
     public Image campaignLogoImage;
     public TextMeshProUGUI campaignNameText;
     public TextMeshProUGUI campaignDescriptionText;
-    public Button selectButton;
+    public Button playButton;      // Renamed from selectButton for clarity
+    public Button deleteButton;    // New delete button
+    
     private Campaign campaignData;
     private string campaignFilePath;
+    
+    //Callbacks for button actions - set by CampaignSelector
+    private Action<Campaign, string> onPlayClicked;
+    private Action<Campaign, string> onDeleteClicked;
 
-    //Set up the campaign item with data
-    public void SetCampaign(Campaign campaign, string filePath){
+    //Set up the campaign item with data and callbacks
+    public void SetCampaign(Campaign campaign, string filePath, Action<Campaign, string> onPlay = null, Action<Campaign, string> onDelete = null)
+    {
         campaignData = campaign;
         campaignFilePath = filePath;
+        onPlayClicked = onPlay;
+        onDeleteClicked = onDelete;
 
         if (campaignNameText != null)
             campaignNameText.text = campaign.campaignName;
@@ -25,8 +34,6 @@ public class CampaignItem : MonoBehaviour
             campaignDescriptionText.text = campaign.campaignDescription;
 
         //Load logo if available
-        //Previously this was just a literal reference to the logo path on the persons device
-        //Now we copy the logo to the Campaigns folder and just store the file name
         if (campaignLogoImage != null && !string.IsNullOrEmpty(campaign.campaignLogoPath))
         {
             string logoPath = System.IO.Path.Combine(CampaignManager.GetCampaignsFolder(), campaign.campaignLogoPath);
@@ -47,12 +54,30 @@ public class CampaignItem : MonoBehaviour
             }
         }
 
-        //Setup button listener
-        //Not 100% what i want to do with this yet but have it here in case
-        if (selectButton != null)
+        //Wire up the Play button
+        if (playButton != null)
         {
-            //selectButton.onClick.RemoveAllListeners();
-            //selectButton.onClick.AddListener(OnSelectButtonClicked);
+            playButton.onClick.RemoveAllListeners();
+            playButton.onClick.AddListener(OnPlayButtonClicked);
         }
+        
+        //Wire up the Delete button
+        if (deleteButton != null)
+        {
+            deleteButton.onClick.RemoveAllListeners();
+            deleteButton.onClick.AddListener(OnDeleteButtonClicked);
+        }
+    }
+    
+    //Called when the Play button is clicked
+    private void OnPlayButtonClicked()
+    {
+        onPlayClicked?.Invoke(campaignData, campaignFilePath);
+    }
+    
+    //Called when the Delete button is clicked
+    private void OnDeleteButtonClicked()
+    {
+        onDeleteClicked?.Invoke(campaignData, campaignFilePath);
     }
 }

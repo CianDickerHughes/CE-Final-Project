@@ -776,7 +776,8 @@ MonoBehaviour:
   campaignLogoImage: {fileID: 5858684574486290273}
   campaignNameText: {fileID: 7885052071958641940}
   campaignDescriptionText: {fileID: 6372350423040097359}
-  selectButton: {fileID: 8995599725612234128}
+  playButton: {fileID: 8995599725612234128}
+  deleteButton: {fileID: 7604600919237670377}
 --- !u!1 &8842093817036018962
 GameObject:
   m_ObjectHideFlags: 0

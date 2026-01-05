@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 //This script manages the campaign selection UI for the DM/User who is creating a new campaign
@@ -11,8 +12,10 @@ public class CampaignSelector : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private Transform campaignListContainer;
     [SerializeField] private GameObject campaignItemPrefab;
+    [SerializeField] private TextMeshProUGUI emptyText; // Optional: show when no campaigns
 
-    private List<Campaign> userCampaigns = new List<Campaign>();
+    //Store campaigns with their file paths for deletion
+    private List<(Campaign campaign, string filePath)> userCampaigns = new List<(Campaign, string)>();
 
     //To start we load in all campaigns created by the current user and populate the list
     void Start()
@@ -21,43 +24,100 @@ public class CampaignSelector : MonoBehaviour
         PopulateCampaignList();
     }
 
-    //Loads campaigns from Assets/Campaigns and filters by current user
+    //Loads campaigns from the Campaigns folder and filters by current user
     private void LoadUserCampaigns()
     {
         userCampaigns.Clear();
-        string campaignsPath = Path.Combine(Application.dataPath, "Campaigns");
+        string campaignsPath = CampaignManager.GetCampaignsFolder();
         if (!Directory.Exists(campaignsPath)) return;
+        
         string[] files = Directory.GetFiles(campaignsPath, "*.json");
         foreach (string file in files)
         {
-            string json = File.ReadAllText(file);
-            Campaign campaign = JsonUtility.FromJson<Campaign>(json);
-            if (campaign != null && campaign.dmUsername == SessionManager.Instance.CurrentUsername)
+            try
             {
-                userCampaigns.Add(campaign);
+                string json = File.ReadAllText(file);
+                Campaign campaign = JsonUtility.FromJson<Campaign>(json);
+                if (campaign != null && campaign.dmUsername == SessionManager.Instance.CurrentUsername)
+                {
+                    userCampaigns.Add((campaign, file));
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning($"Failed to load campaign from {file}: {ex.Message}");
             }
         }
     }
 
     //Populates the scroll view with campaign items
-    //This will soon be changed to being specifically the user's campaigns
     private void PopulateCampaignList()
     {
+        //Clear existing items
         foreach (Transform child in campaignListContainer)
         {
             Destroy(child.gameObject);
         }
-        foreach (Campaign campaign in userCampaigns)
+        
+        //Show empty text if no campaigns
+        if (emptyText != null)
         {
-            //Instantiate campaign item prefab - this just has a script to set up its own UI
+            emptyText.gameObject.SetActive(userCampaigns.Count == 0);
+        }
+        
+        //Create an item for each campaign
+        foreach (var (campaign, filePath) in userCampaigns)
+        {
             GameObject item = Instantiate(campaignItemPrefab, campaignListContainer);
             CampaignItem itemScript = item.GetComponent<CampaignItem>();
-            //If the item isnt null i.e. has the script, set it up
             if (itemScript != null)
             {
-                //We don't need the file path here, so passing null
-                //All this does is set up the UI elements for the loaded campaigns in the list
-                itemScript.SetCampaign(campaign, null);
+                //Pass the campaign data and callbacks for Play/Delete
+                itemScript.SetCampaign(campaign, filePath, OnPlayCampaign, OnDeleteCampaign);
+            }
+        }
+    }
+
+    //Called when user clicks Play on a campaign
+    private void OnPlayCampaign(Campaign campaign, string filePath)
+    {
+        //Set the selection context so the CampaignManager scene knows which campaign to load
+        CampaignSelectionContext.SelectedCampaignId = campaign.campaignId;
+        CampaignSelectionContext.SelectedCampaignFilePath = filePath;
+        
+        Debug.Log($"Loading campaign: {campaign.campaignName}");
+        
+        //Load the CampaignManager scene
+        SceneManager.LoadScene("CampaignManager");
+    }
+    
+    //Called when user clicks Delete on a campaign
+    private void OnDeleteCampaign(Campaign campaign, string filePath)
+    {
+        //Delete the campaign JSON file
+        if (File.Exists(filePath))
+        {
+            try
+            {
+                File.Delete(filePath);
+                Debug.Log($"Deleted campaign: {campaign.campaignName}");
+                
+                //Also delete the logo if it exists
+                if (!string.IsNullOrEmpty(campaign.campaignLogoPath))
+                {
+                    string logoPath = Path.Combine(CampaignManager.GetCampaignsFolder(), campaign.campaignLogoPath);
+                    if (File.Exists(logoPath))
+                    {
+                        File.Delete(logoPath);
+                    }
+                }
+                
+                //Refresh the list
+                RefreshCampaignList();
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"Failed to delete campaign: {ex.Message}");
             }
         }
     }
