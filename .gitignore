@@ -154,3 +154,8 @@ $RECYCLE.BIN/
 /Assets/Characters/
 # (redundant explicit match to cover nested files)
 /Assets/Characters/**
+
+# Ignore everything under Assets/Campaigns
+/Assets/Campaigns/
+# (redundant explicit match to cover nested files)
+/Assets/Campaigns/**
