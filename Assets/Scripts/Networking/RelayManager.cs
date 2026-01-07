@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using Unity.Services.Core;
 using Unity.Services.Authentication;
 using Unity.Services.Relay;
@@ -76,6 +77,8 @@ public class RelayManager : MonoBehaviour
                 return;
             }
             await RelayService.Instance.JoinAllocationAsync(joinCode);
+            Debug.Log($"RelayManager: Successfully joined relay with code '{joinCode}'.");
+            SceneManager.LoadScene("WaitingRoom");
         }
         catch (System.Exception ex) {
             Debug.LogError($"RelayManager: Failed to join relay with code '{joinCode}': {ex}");

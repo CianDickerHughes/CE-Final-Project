@@ -29,6 +29,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Campaigns/CampaignManager.unity
     guid: 54e380f7f66b5c049910fff0e4ecd78b
+  - enabled: 1
+    path: Assets/Scenes/Campaigns/WaitingRoom.unity
+    guid: ab8a65887962535419bbd22e52d1b4e3
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
