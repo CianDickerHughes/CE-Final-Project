@@ -27,11 +27,11 @@ public class UserAuthentication : MonoBehaviour
         //This can happen if returning from another scene
         //This is where things can get a bit tricky - in edit mode the SessionManager might persist which is useful for testing but prevents this from popping up again
         //Not a problem just something to be aware of
-        if (SessionManager.Instance != null && SessionManager.Instance.IsLoggedIn)
+        /*if (SessionManager.Instance != null && SessionManager.Instance.IsLoggedIn)
         {
             panel.SetActive(false);
             return;
-        }
+        }*/
         //Show the panel on start
         panel.SetActive(true);
         //Load and display existing users
