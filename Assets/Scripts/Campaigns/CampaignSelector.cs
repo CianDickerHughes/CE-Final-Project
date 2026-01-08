@@ -25,27 +25,33 @@ public class CampaignSelector : MonoBehaviour
     }
 
     //Loads campaigns from the Campaigns folder and filters by current user
+    //Now searches through campaign subfolders for the .json files
     private void LoadUserCampaigns()
     {
         userCampaigns.Clear();
         string campaignsPath = CampaignManager.GetCampaignsFolder();
         if (!Directory.Exists(campaignsPath)) return;
         
-        string[] files = Directory.GetFiles(campaignsPath, "*.json");
-        foreach (string file in files)
+        //Search through each campaign subfolder
+        string[] campaignFolders = Directory.GetDirectories(campaignsPath);
+        foreach (string folder in campaignFolders)
         {
-            try
+            string[] files = Directory.GetFiles(folder, "*.json");
+            foreach (string file in files)
             {
-                string json = File.ReadAllText(file);
-                Campaign campaign = JsonUtility.FromJson<Campaign>(json);
-                if (campaign != null && campaign.dmUsername == SessionManager.Instance.CurrentUsername)
+                try
                 {
-                    userCampaigns.Add((campaign, file));
+                    string json = File.ReadAllText(file);
+                    Campaign campaign = JsonUtility.FromJson<Campaign>(json);
+                    if (campaign != null && campaign.dmUsername == SessionManager.Instance.CurrentUsername)
+                    {
+                        userCampaigns.Add((campaign, file));
+                    }
                 }
-            }
-            catch (System.Exception ex)
-            {
-                Debug.LogWarning($"Failed to load campaign from {file}: {ex.Message}");
+                catch (System.Exception ex)
+                {
+                    Debug.LogWarning($"Failed to load campaign from {file}: {ex.Message}");
+                }
             }
         }
     }
@@ -94,22 +100,19 @@ public class CampaignSelector : MonoBehaviour
     //Called when user clicks Delete on a campaign
     private void OnDeleteCampaign(Campaign campaign, string filePath)
     {
-        //Delete the campaign JSON file
+        //Delete the entire campaign folder (which contains the JSON and any assets like the logo)
         if (File.Exists(filePath))
         {
             try
             {
-                File.Delete(filePath);
-                Debug.Log($"Deleted campaign: {campaign.campaignName}");
+                //Get the campaign folder path (parent of the JSON file)
+                string campaignFolder = Path.GetDirectoryName(filePath);
                 
-                //Also delete the logo if it exists
-                if (!string.IsNullOrEmpty(campaign.campaignLogoPath))
+                //Delete the entire campaign folder and its contents
+                if (Directory.Exists(campaignFolder))
                 {
-                    string logoPath = Path.Combine(CampaignManager.GetCampaignsFolder(), campaign.campaignLogoPath);
-                    if (File.Exists(logoPath))
-                    {
-                        File.Delete(logoPath);
-                    }
+                    Directory.Delete(campaignFolder, true); //true = recursive delete
+                    Debug.Log($"Deleted campaign folder: {campaign.campaignName}");
                 }
                 
                 //Refresh the list

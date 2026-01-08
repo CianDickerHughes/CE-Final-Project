@@ -33,10 +33,12 @@ public class CampaignItem : MonoBehaviour
         if (campaignDescriptionText != null)
             campaignDescriptionText.text = campaign.campaignDescription;
 
-        //Load logo if available
+        //Load logo if available - now from the campaign's own folder
         if (campaignLogoImage != null && !string.IsNullOrEmpty(campaign.campaignLogoPath))
         {
-            string logoPath = System.IO.Path.Combine(CampaignManager.GetCampaignsFolder(), campaign.campaignLogoPath);
+            //Get the campaign folder from the file path (parent directory of the JSON)
+            string campaignFolder = System.IO.Path.GetDirectoryName(filePath);
+            string logoPath = System.IO.Path.Combine(campaignFolder, campaign.campaignLogoPath);
             if (System.IO.File.Exists(logoPath))
             {
                 try

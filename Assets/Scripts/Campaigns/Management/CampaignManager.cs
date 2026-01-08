@@ -213,27 +213,41 @@ public class CampaignManager : MonoBehaviour
         if (currentCampaign != null)
         {
             string json = JsonUtility.ToJson(currentCampaign, true);
-            string folderPath = Path.Combine(Application.dataPath, "Campaigns");
-            if (!Directory.Exists(folderPath))
-                Directory.CreateDirectory(folderPath);
+            // Create a folder with the campaign name inside the Campaigns folder
+            string campaignFolder = Path.Combine(GetCampaignsFolder(), currentCampaign.campaignName);
+            if (!Directory.Exists(campaignFolder))
+            {
+                Directory.CreateDirectory(campaignFolder);
+            }
 
-            string filePath = Path.Combine(folderPath, $"{currentCampaign.campaignId}.json");
+            string filePath = Path.Combine(campaignFolder, $"{currentCampaign.campaignId}.json");
             File.WriteAllText(filePath, json);
             Debug.Log($"Campaign saved to {filePath}");
         }
     }
     
-    //Load a campaign by ID
+    //Load a campaign by ID - searches through campaign subfolders
     public Campaign LoadCampaign(string campaignId)
     {
-        string folderPath = Path.Combine(Application.dataPath, "Campaigns");
-        string filePath = Path.Combine(folderPath, $"{campaignId}.json");
-        if (File.Exists(filePath))
+        string campaignsFolder = GetCampaignsFolder();
+        
+        // Search through all campaign subfolders for the matching campaign ID
+        if (Directory.Exists(campaignsFolder))
         {
-            string json = File.ReadAllText(filePath);
-            currentCampaign = JsonUtility.FromJson<Campaign>(json);
-            return currentCampaign;
+            foreach (string campaignFolder in Directory.GetDirectories(campaignsFolder))
+            {
+                string filePath = Path.Combine(campaignFolder, $"{campaignId}.json");
+                if (File.Exists(filePath))
+                {
+                    string json = File.ReadAllText(filePath);
+                    currentCampaign = JsonUtility.FromJson<Campaign>(json);
+                    Debug.Log($"Campaign loaded from {filePath}");
+                    return currentCampaign;
+                }
+            }
         }
+        
+        Debug.LogWarning($"Campaign with ID {campaignId} not found");
         return null;
     }
     
@@ -255,5 +269,15 @@ public class CampaignManager : MonoBehaviour
         if (!Directory.Exists(folder))
             Directory.CreateDirectory(folder);
         return folder;
+    }
+
+    //Helper method to get the folder path for the current campaign
+    //This can help later for scenes/assets specific to that campaign
+    public string GetCurrentCampaignFolder()
+    {
+        if (currentCampaign == null)
+            return null;
+        
+        return Path.Combine(GetCampaignsFolder(), currentCampaign.campaignName);
     }
 }

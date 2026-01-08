@@ -155,10 +155,10 @@ RectTransform:
   - {fileID: 1598171970}
   m_Father: {fileID: 1969879156}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 12.831}
-  m_SizeDelta: {x: 920, y: 505.66}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: -527.16895}
+  m_SizeDelta: {x: 920, y: 505.66016}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &56932915
 MonoBehaviour:
@@ -2582,7 +2582,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1524111635}
   m_HandleRect: {fileID: 1524111634}
   m_Direction: 0
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -5680,7 +5680,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CampaignSelector
   campaignListContainer: {fileID: 56932914}
-  campaignItemPrefab: {fileID: 7783010492633106339, guid: 2059db6c542b2134ca61485ce9b5ed57, type: 3}
+  campaignItemPrefab: {fileID: 2038379441579813130, guid: 77bf851fb77883644a75497819f07740, type: 3}
   emptyText: {fileID: 1679286133}
 --- !u!1 &1996128741
 GameObject:
@@ -6084,6 +6084,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2089474640}
+  - component: {fileID: 2089474641}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -6107,9 +6108,23 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000047311183}
-  m_SizeDelta: {x: 0, y: 300}
-  m_Pivot: {x: 0, y: 1}
+  m_AnchoredPosition: {x: -0.00091552734, y: 0.000061035156}
+  m_SizeDelta: {x: -903, y: 0}
+  m_Pivot: {x: 0.5, y: 1}
+--- !u!114 &2089474641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2089474639}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
 --- !u!1 &2092118747
 GameObject:
   m_ObjectHideFlags: 0

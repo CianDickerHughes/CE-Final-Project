@@ -88,8 +88,22 @@ public class CampaignCreator : MonoBehaviour
 
         //Create the campaign
         Campaign newCampaign = CampaignManager.Instance.CreateCampaign(name, dm, desc);
+        
+        //If we have a logo, copy it to the campaign's own folder
         if (!string.IsNullOrEmpty(logoPath))
         {
+            string campaignFolder = CampaignManager.Instance.GetCurrentCampaignFolder();
+            if (campaignFolder != null)
+            {
+                string destLogoPath = Path.Combine(campaignFolder, logoPath);
+                //Copy the logo from the temp location to the campaign folder
+                string tempLogoPath = Path.Combine(CampaignManager.GetCampaignsFolder(), logoPath);
+                if (File.Exists(tempLogoPath))
+                {
+                    File.Copy(tempLogoPath, destLogoPath, true);
+                    File.Delete(tempLogoPath); //Clean up the temp file
+                }
+            }
             newCampaign.campaignLogoPath = logoPath;
         }
 
