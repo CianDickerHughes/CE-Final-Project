@@ -25,6 +25,10 @@ public class CampaignViewUI : MonoBehaviour
     [Header("Buttons")]
     [SerializeField] private Button backButton;
     [SerializeField] private Button addSceneButton;
+    [SerializeField] private Button createSceneButton;
+
+    [Header("Popups")]
+    [SerializeField] private GameObject createScenePopup;
     
     //The currently loaded campaign
     private Campaign currentCampaign;
@@ -217,9 +221,11 @@ public class CampaignViewUI : MonoBehaviour
     //Called when the Add Scene button is clicked
     private void OnAddSceneClicked()
     {
-        //TODO: Open a scene creation popup/dialog
-        //For now, we'll just add a test scene
-        Debug.Log("Add Scene clicked - implement scene creation UI");
+        //Open popup window to add a new scene
+        if (createScenePopup != null)
+        {
+            createScenePopup.SetActive(true);
+        }
     }
     
     //Called when the Back button is clicked

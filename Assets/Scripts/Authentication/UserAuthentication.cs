@@ -20,6 +20,9 @@ public class UserAuthentication : MonoBehaviour
     
     [Header("Status")]
     [SerializeField] private TextMeshProUGUI statusText;
+
+    [Header("Close Button")]
+    [SerializeField] private Button closeButton;
     
     void Start()
     {
@@ -122,5 +125,11 @@ public class UserAuthentication : MonoBehaviour
             // Reload user list in case another user was added externally
             LoadUsers();
         }
+    }
+
+    //Temporary method to close the menu, for testing
+    public void CloseMenu()
+    {
+        panel.SetActive(false);
     }
 }
