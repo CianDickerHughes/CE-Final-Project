@@ -9,50 +9,50 @@ using UnityEngine;
  
 [RequireComponent(typeof(SpriteRenderer))]
 public class Tile : MonoBehaviour {
-    [SerializeField] private Color _baseColor = Color.white;
-    [SerializeField] private Color _offsetColor = Color.gray;
-    [SerializeField] private SpriteRenderer _renderer;
-    [SerializeField] private GameObject _highlight;
+    [SerializeField] private Color baseColor = Color.white;
+    [SerializeField] private Color offsetColor = Color.gray;
+    [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private GameObject highlight;
 
     void OnValidate()
     {
         // Auto-assign in editor if not set
-        if (_renderer == null)
-            _renderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponent<SpriteRenderer>();
 
         // Prevent accidental fully-transparent colors from the inspector
-        if (_baseColor.a <= 0f) _baseColor.a = 1f;
-        if (_offsetColor.a <= 0f) _offsetColor.a = 1f;
+        if (baseColor.a <= 0f) baseColor.a = 1f;
+        if (offsetColor.a <= 0f) offsetColor.a = 1f;
     }
 
     void Awake()
     {
-        if (_renderer == null)
-            _renderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponent<SpriteRenderer>();
 
         // Hide highlight by default (safe)
-        if (_highlight != null)
-            _highlight.SetActive(false);
+        if (highlight != null)
+            highlight.SetActive(false);
     }
  
     public void Init(bool isOffset) {
-        if (_renderer == null) {
+        if (spriteRenderer == null) {
             Debug.LogWarning($"Tile ({name}) has no SpriteRenderer assigned.");
             return;
         }
 
         // Choose color and ensure visible alpha
-        Color c = isOffset ? _offsetColor : _baseColor;
+        Color c = isOffset ? offsetColor : baseColor;
         if (c.a <= 0f) c.a = 1f;
-        _renderer.color = c;
+        spriteRenderer.color = c;
     }
  
     void OnMouseEnter() {
-        if (_highlight != null) _highlight.SetActive(true);
+        if (highlight != null) highlight.SetActive(true);
     }
  
     void OnMouseExit()
     {
-        if (_highlight != null) _highlight.SetActive(false);
+        if (highlight != null) highlight.SetActive(false);
     }
 }

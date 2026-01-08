@@ -15,33 +15,33 @@ public class Token : MonoBehaviour
 {
     [Header("References")]
     [Tooltip("Optional: assign your GridManager. If left empty the script will try FindObjectOfType<GridManager>()")]
-    [SerializeField] private GridManager _gridManager;
+    [SerializeField] private GridManager gridManager;
 
-    private Tile _currentTile;
-    private SpriteRenderer _spriteRenderer;
+    private Tile currentTile;
+    private SpriteRenderer spriteRenderer;
 
     void OnValidate()
     {
-        if (_spriteRenderer == null) _spriteRenderer = GetComponent<SpriteRenderer>();
-        if (_gridManager == null)
+        if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
+        if (gridManager == null)
         {
 #if UNITY_2023_2_OR_NEWER
-            _gridManager = FindAnyObjectByType<GridManager>();
+            gridManager = FindAnyObjectByType<GridManager>();
 #else
-            _gridManager = FindObjectOfType<GridManager>();
+            gridManager = FindObjectOfType<GridManager>();
 #endif
         }
     }
 
     void Awake()
     {
-        if (_spriteRenderer == null) _spriteRenderer = GetComponent<SpriteRenderer>();
-        if (_gridManager == null)
+        if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
+        if (gridManager == null)
         {
 #if UNITY_2023_2_OR_NEWER
-            _gridManager = FindAnyObjectByType<GridManager>();
+            gridManager = FindAnyObjectByType<GridManager>();
 #else
-            _gridManager = FindObjectOfType<GridManager>();
+            gridManager = FindObjectOfType<GridManager>();
 #endif
         }
     }
@@ -52,13 +52,13 @@ public class Token : MonoBehaviour
     /// </summary>
     public void PlaceAtGridPosition(Vector2Int gridPos)
     {
-        if (_gridManager == null)
+        if (gridManager == null)
         {
             Debug.LogWarning("Token: No GridManager assigned or found in scene.");
             return;
         }
 
-        var tile = _gridManager.GetTileAtPosition(new Vector2(gridPos.x, gridPos.y));
+        var tile = gridManager.GetTileAtPosition(new Vector2(gridPos.x, gridPos.y));
         if (tile != null) MoveToTile(tile);
         else Debug.LogWarning($"Token: No tile at {gridPos.x},{gridPos.y}");
     }
@@ -69,15 +69,15 @@ public class Token : MonoBehaviour
     /// </summary>
     public void SnapToNearestTile()
     {
-        if (_gridManager == null)
+        if (gridManager == null)
         {
             // Try modern fast API when available, otherwise fall back for older Unity versions
             #if UNITY_2023_2_OR_NEWER
-            _gridManager = FindAnyObjectByType<GridManager>();
+            gridManager = FindAnyObjectByType<GridManager>();
             #else
-            _gridManager = FindObjectOfType<GridManager>();
+            gridManager = FindObjectOfType<GridManager>();
             #endif
-            if (_gridManager == null)
+            if (gridManager == null)
             {
                 Debug.LogWarning("Token: No GridManager assigned or found in scene.");
                 return;
@@ -86,7 +86,7 @@ public class Token : MonoBehaviour
 
         Vector3 world = transform.position;
         Vector2 nearest = new Vector2(Mathf.RoundToInt(world.x), Mathf.RoundToInt(world.y));
-        var tile = _gridManager.GetTileAtPosition(nearest);
+        var tile = gridManager.GetTileAtPosition(nearest);
         if (tile != null) MoveToTile(tile);
         else Debug.LogWarning($"Token: No tile at {nearest}");
     }
@@ -97,7 +97,7 @@ public class Token : MonoBehaviour
     public void MoveToTile(Tile tile)
     {
         if (tile == null) return;
-        _currentTile = tile;
+        currentTile = tile;
         // Match tile position exactly
         transform.position = tile.transform.position;
     }
@@ -105,5 +105,5 @@ public class Token : MonoBehaviour
     /// <summary>
     /// Returns the tile the token is currently on (if any).
     /// </summary>
-    public Tile GetCurrentTile() => _currentTile;
+    public Tile GetCurrentTile() => currentTile;
 }

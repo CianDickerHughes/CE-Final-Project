@@ -10,22 +10,22 @@ using UnityEngine.UI; // Needed for UI components
  /// </summary>
  
 public class GridManager : MonoBehaviour {
-    [SerializeField] private int _width, _height;
+    [SerializeField] private int width, height;
  
-    [SerializeField] private Tile _tilePrefab;
+    [SerializeField] private Tile tilePrefab;
  
-    [SerializeField] private Transform _cam;
+    [SerializeField] private Transform cam;
     
     [Header("Token")]
-    [SerializeField] private Token _tokenPrefab;
-    [SerializeField] private UnityEngine.Vector2Int _tokenStartPosition = new UnityEngine.Vector2Int(0, 0);
+    [SerializeField] private Token tokenPrefab;
+    [SerializeField] private UnityEngine.Vector2Int tokenStartPosition = new UnityEngine.Vector2Int(0, 0);
     [SerializeField] private UnityEngine.UI.Button spawnTokenButton;
 
-    private Token _activeToken;
+    private Token activeToken;
     // Sequential counter for naming spawned tokens (Token 1, Token 2, ...)
-    private int _tokenCounter = 0;
+    private int tokenCounter = 0;
 
-    private Dictionary<Vector2, Tile> _tiles;
+    private Dictionary<Vector2, Tile> tiles;
     
     [Header("UI References")]
     public InputField columnsInput;
@@ -38,7 +38,7 @@ public class GridManager : MonoBehaviour {
         // Wire spawn button if assigned - clicking will spawn a token at the configured start position
         if (spawnTokenButton != null)
         {
-            spawnTokenButton.onClick.AddListener(() => SpawnTokenAt(_tokenStartPosition));
+            spawnTokenButton.onClick.AddListener(() => SpawnTokenAt(tokenStartPosition));
         }
 
         if (resizeButton != null)
@@ -46,32 +46,32 @@ public class GridManager : MonoBehaviour {
     }
  
     void GenerateGrid() {
-        _tiles = new Dictionary<Vector2, Tile>();
-        for (int x = 0; x < _width; x++) {
-            for (int y = 0; y < _height; y++) {
-                var spawnedTile = Instantiate(_tilePrefab, new Vector3(x, y), Quaternion.identity);
+        tiles = new Dictionary<Vector2, Tile>();
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                var spawnedTile = Instantiate(tilePrefab, new Vector3(x, y), Quaternion.identity);
                 spawnedTile.name = $"Tile {x} {y}";
  
                 var isOffset = (x % 2 == 0 && y % 2 != 0) || (x % 2 != 0 && y % 2 == 0);
                 spawnedTile.Init(isOffset);
  
  
-                _tiles[new Vector2(x, y)] = spawnedTile;
+                tiles[new Vector2(x, y)] = spawnedTile;
             }
         }
  
-        _cam.transform.position = new Vector3((float)_width/2 -0.5f, (float)_height / 2 - 0.5f,-10);
+        cam.transform.position = new Vector3((float)width/2 -0.5f, (float)height / 2 - 0.5f,-10);
     }
 
     public Tile GetTileAtPosition(Vector2 pos)
     {
-        if (_tiles.TryGetValue(pos, out var tile)) return tile;
+        if (tiles.TryGetValue(pos, out var tile)) return tile;
         return null;
     }
 
     public Token SpawnTokenAt(UnityEngine.Vector2Int gridPos)
     {
-        if (_tokenPrefab == null)
+        if (tokenPrefab == null)
         {
             Debug.LogWarning("GridManager: No Token prefab assigned.");
             return null;
@@ -81,21 +81,21 @@ public class GridManager : MonoBehaviour {
         Tile tile = GetTileAtPosition(key);
         UnityEngine.Vector3 spawnPos = tile != null ? tile.transform.position : new UnityEngine.Vector3(gridPos.x, gridPos.y);
     // Increment counter and use sequential naming for tokens
-    _tokenCounter++;
-    var token = Instantiate(_tokenPrefab, spawnPos, Quaternion.identity);
-    token.name = $"Token {_tokenCounter}";
+    tokenCounter++;
+    var token = Instantiate(tokenPrefab, spawnPos, Quaternion.identity);
+    token.name = $"Token {tokenCounter}";
         if (tile != null) token.MoveToTile(tile);
 
-        _activeToken = token;
+        activeToken = token;
         return token;
     }
 
     public void OnSpawnTokenButtonClicked()
     {
-        SpawnTokenAt(_tokenStartPosition);
+        SpawnTokenAt(tokenStartPosition);
     }
 
-    public Token GetActiveToken() => _activeToken;
+    public Token GetActiveToken() => activeToken;
     
     // Called when the resize button is clicked
     void OnResizeButtonClicked()
@@ -103,10 +103,10 @@ public class GridManager : MonoBehaviour {
         if (columnsInput != null && rowsInput != null)
         {
             // Parse input safely
-            if (int.TryParse(columnsInput.text, out _width) &&
-                int.TryParse(rowsInput.text, out _height))
+            if (int.TryParse(columnsInput.text, out width) &&
+                int.TryParse(rowsInput.text, out height))
             {
-                ResizeGrid(_width, _height);
+                ResizeGrid(width, height);
             }
             else
             {
@@ -118,18 +118,18 @@ public class GridManager : MonoBehaviour {
     // New method to resize the grid
    public void ResizeGrid(int newColumns, int newRows)
     {
-        _width = newColumns;
-        _height = newRows;
+        width = newColumns;
+        height = newRows;
 
         // Destroy old tiles
-        if (_tiles != null)
+        if (tiles != null)
         {
-            foreach (var tile in _tiles.Values)
+            foreach (var tile in tiles.Values)
             {
                 if (tile != null)
                     Destroy(tile.gameObject);
             }
-            _tiles.Clear();
+            tiles.Clear();
         }
 
         // Generate new grid
