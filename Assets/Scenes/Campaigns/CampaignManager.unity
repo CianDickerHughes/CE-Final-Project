@@ -3233,7 +3233,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 948964799}
-  - component: {fileID: 948964798}
+  - component: {fileID: 948964800}
   m_Layer: 0
   m_Name: RelayManager
   m_TagString: Untagged
@@ -3241,22 +3241,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &948964798
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 948964797}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6bee98b879e9322448ac4449da3236ab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RelayManager
-  hostButton: {fileID: 968432744}
-  joinButton: {fileID: 0}
-  joinInput: {fileID: 0}
-  codeText: {fileID: 510389128}
 --- !u!4 &948964799
 Transform:
   m_ObjectHideFlags: 0
@@ -3272,6 +3256,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &948964800
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 948964797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6aa1ce40273ab9c4aa1879beb9bc6c4e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RelayHostManager
+  hostButton: {fileID: 968432744}
+  codeText: {fileID: 510389128}
+  maxConnections: 3
 --- !u!1 &968432742
 GameObject:
   m_ObjectHideFlags: 0
@@ -3582,7 +3581,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.0000297226}
+  m_AnchoredPosition: {x: 0, y: 0.00017156125}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &1010027115
@@ -5029,7 +5028,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 491223804}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.999997
+  m_Size: 0.9999544
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
