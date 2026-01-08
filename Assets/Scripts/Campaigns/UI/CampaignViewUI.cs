@@ -231,6 +231,9 @@ public class CampaignViewUI : MonoBehaviour
     //Called when the Back button is clicked
     private void OnBackClicked()
     {
+        //Save any changes to the campaign - this then becomes "save and exit"
+        SaveCampaign();
+
         //Clear the selection context
         CampaignSelectionContext.Clear();
         
