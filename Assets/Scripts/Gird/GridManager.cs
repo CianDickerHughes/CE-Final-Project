@@ -25,6 +25,11 @@ public class GridManager : MonoBehaviour {
     // Sequential counter for naming spawned tokens (Token 1, Token 2, ...)
     private int tokenCounter = 0;
 
+    //Tracking to see if the map is in edit mode
+    public bool IsEditMode;
+    //Variable to handle what type we're painting with
+    private TileType currentPaintType;
+
     private Dictionary<Vector2, Tile> tiles;
     
     [Header("UI References")]
@@ -53,7 +58,7 @@ public class GridManager : MonoBehaviour {
                 spawnedTile.name = $"Tile {x} {y}";
  
                 var isOffset = (x % 2 == 0 && y % 2 != 0) || (x % 2 != 0 && y % 2 == 0);
-                spawnedTile.Init(isOffset);
+                spawnedTile.Init(x, y, this, isOffset);
  
  
                 tiles[new Vector2(x, y)] = spawnedTile;
@@ -136,5 +141,109 @@ public class GridManager : MonoBehaviour {
         GenerateGrid();
     }
 
+    //Getter for the current paint type
+    public TileType GetCurrentPaintType()
+    {
+        return currentPaintType;
+    }
+
+    //Width and height getters for dimensions
+    public int GetWidth()
+    {
+        return width;
+    }
+    public int GetHeight()
+    {
+        return height;
+    }
+
+    //Edit mode methods 
+    public void SetEditMode(bool enabled)
+    {
+        IsEditMode = enabled;
+    }
+
+    public void SetCurrentPaintType(TileType type)
+    {
+        currentPaintType = type;
+    }
+
+    public void SetPaintTypeFromInt(int index){
+        currentPaintType = (TileType)index;
+    }
+
+    public void PaintTile(Tile tile)
+    {
+        if (tile != null)
+        {
+            tile.SetTileType(currentPaintType);
+        }
+    }
+
+    public void ClearMap()
+    {
+        foreach (var tile in tiles.Values)
+        {
+            tile.SetTileType(TileType.Floor);
+        }
+    }
+
+    public void FillMap(TileType type)
+    {
+        foreach (var tile in tiles.Values)
+        {
+            tile.SetTileType(type);
+        }
+    }
+
+    //Method to save the map data to a CampaignData object
+    public MapData SaveMapData(){
+        MapData mapData = new MapData(width, height);
+        foreach (var kvp in tiles)
+        {
+            Vector2 pos = kvp.Key;
+            Tile tile = kvp.Value;
+            mapData.SetTileAt((int)pos.x, (int)pos.y, tile.CurrentTileType);
+        }
+        return mapData;
+    }
+
+    public void LoadMapData(MapData mapData)
+    {
+        if (mapData == null) {
+            return;
+        }
+
+        //Automatically resize grid to match map data dimensions
+        //Happens on initialization of a scene
+        ResizeGrid(mapData.width, mapData.height);
+
+        foreach (var kvp in tiles)
+        {
+            Vector2 pos = kvp.Key;
+            Tile tile = kvp.Value;
+            TileType type = mapData.GetTileAt((int)pos.x, (int)pos.y);
+            tile.SetTileType(type);
+        }
+    }
+
+    //Method to initialize the grid
+    public void InitializeGrid(int gridWidth, int gridHeight)
+    {
+        //Destroy existing tiles if any
+        if (tiles != null)
+        {
+            foreach (var tile in tiles.Values)
+            {
+                if (tile != null)
+                    Destroy(tile.gameObject);
+            }
+            tiles.Clear();
+        }
+        //Then setting up the tiles and generating the grid
+        width = gridWidth;
+        height = gridHeight;
+        GenerateGrid();
+    }
 
 }

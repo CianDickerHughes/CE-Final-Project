@@ -118,6 +118,46 @@ public class CampaignManager : MonoBehaviour
         }
         return false;
     }
+
+    // Add a scene with full SceneData (called by SceneMaker when saving)
+    public bool AddSceneWithData(SceneData scene)
+    {
+        if (currentCampaign == null)
+        {
+            Debug.LogError("No active campaign!");
+            return false;
+        }
+        
+        if (currentCampaign.scenes.Count >= MAX_SCENES)
+        {
+            Debug.LogWarning("Maximum scene limit reached (6 scenes)");
+            return false;
+        }
+        
+        currentCampaign.scenes.Add(scene);
+        SaveCampaign();
+        Debug.Log($"Scene added with data: {scene.sceneName}");
+        return true;
+    }
+
+    // Update an existing scene's data
+    public bool UpdateScene(SceneData updatedScene)
+    {
+        if (currentCampaign == null)
+            return false;
+        
+        int index = currentCampaign.scenes.FindIndex(s => s.sceneId == updatedScene.sceneId);
+        if (index >= 0)
+        {
+            currentCampaign.scenes[index] = updatedScene;
+            SaveCampaign();
+            Debug.Log($"Scene updated: {updatedScene.sceneName}");
+            return true;
+        }
+        
+        Debug.LogWarning($"Scene not found: {updatedScene.sceneId}");
+        return false;
+    }
     
     //DM adds a player's character to a specific scene - potentially usefull for specific scenarios
     //Or just setting up combat encounters etc.

@@ -181,8 +181,23 @@ public class CampaignViewUI : MonoBehaviour
         SceneData scene = currentCampaign?.scenes.Find(s => s.sceneId == sceneId);
         if (scene != null)
         {
-            Debug.Log($"Loading scene: {scene.sceneName}");
-            //TODO: Load into the scene/level editor or gameplay view
+            Debug.Log($"Loading scene for play: {scene.sceneName}");
+            
+            if (SceneDataTransfer.Instance != null)
+            {
+                SceneDataTransfer.Instance.PreparePlayScene(currentCampaign.campaignId, scene);
+                
+                // Load appropriate gameplay scene based on type
+                string gameplayScene = scene.sceneType switch
+                {
+                    SceneType.Combat => "CombatScene",
+                    SceneType.Roleplay => "RoleplayScene",
+                    SceneType.Exploration => "ExplorationScene",
+                    _ => "GameplayScene"
+                };
+                
+                SceneManager.LoadScene(gameplayScene);
+            }
         }
     }
     
@@ -213,8 +228,18 @@ public class CampaignViewUI : MonoBehaviour
         SceneData scene = currentCampaign?.scenes.Find(s => s.sceneId == sceneId);
         if (scene != null)
         {
-            Debug.Log($"Opening settings for scene: {scene.sceneName}");
-            //TODO: Open scene settings/edit dialog
+            Debug.Log($"Opening editor for scene: {scene.sceneName}");
+            
+            // Prepare for editing existing scene
+            if (SceneDataTransfer.Instance != null)
+            {
+                SceneDataTransfer.Instance.PrepareEditScene(currentCampaign.campaignId, scene);
+                SceneManager.LoadScene("SceneMaker");
+            }
+            else
+            {
+                Debug.LogError("SceneDataTransfer not found!");
+            }
         }
     }
     
