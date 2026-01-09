@@ -5,6 +5,9 @@ using TMPro;
 using Unity.Services.Core;
 using Unity.Services.Authentication;
 using Unity.Services.Relay;
+using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
+using Unity.Networking.Transport.Relay;
 
 /// <summary>
 /// Manages relay client functionality for the Campaigns scene.
@@ -94,9 +97,40 @@ public class RelayClientManager : MonoBehaviour
             
             Debug.Log($"RelayClientManager: Successfully joined relay with code '{joinCode}'.");
             
-            // TODO: Configure Unity Transport with relay server data
-            // var relayServerData = new RelayServerData(joinAllocation, "dtls");
-            // NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
+            // Check if NetworkManager exists
+            if (NetworkManager.Singleton == null)
+            {
+                Debug.LogError("RelayClientManager: NetworkManager.Singleton is null! Add a NetworkManager GameObject to your scene.");
+                if (statusText != null)
+                {
+                    statusText.text = "Error: No NetworkManager found";
+                }
+                return;
+            }
+            
+            // Configure Unity Transport with relay server data
+            try
+            {
+                var relayServerData = new RelayServerData(
+                    joinAllocation.RelayServer.IpV4,
+                    (ushort)joinAllocation.RelayServer.Port,
+                    joinAllocation.AllocationIdBytes,
+                    joinAllocation.ConnectionData,
+                    joinAllocation.ConnectionData,
+                    joinAllocation.Key,
+                    false
+                );
+                NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
+                Debug.Log("RelayClientManager: Relay server data configured");
+            }
+            catch (System.Exception relayEx)
+            {
+                Debug.LogWarning($"RelayClientManager: Could not configure relay data: {relayEx}. Continuing without relay.");
+            }
+            
+            // Start as client
+            NetworkManager.Singleton.StartClient();
+            Debug.Log("RelayClientManager: Started as client");
 
             // Load the waiting room scene
             SceneManager.LoadScene(waitingRoomSceneName);

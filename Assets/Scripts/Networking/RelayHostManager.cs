@@ -5,6 +5,9 @@ using Unity.Services.Core;
 using Unity.Services.Authentication;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
+using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
+using Unity.Networking.Transport.Relay;
 
 /// <summary>
 /// Manages relay hosting functionality for the CampaignManager scene.
@@ -81,9 +84,40 @@ public class RelayHostManager : MonoBehaviour
             
             Debug.Log($"RelayHostManager: Relay created successfully with join code: {joinCode}");
             
-            // TODO: Configure Unity Transport with relay server data
-            // var relayServerData = new RelayServerData(allocation, "dtls");
-            // NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
+            // Check if NetworkManager exists
+            if (NetworkManager.Singleton == null)
+            {
+                Debug.LogError("RelayHostManager: NetworkManager.Singleton is null! Add a NetworkManager GameObject to your scene.");
+                if (codeText != null)
+                {
+                    codeText.text = "Error: No NetworkManager found";
+                }
+                return;
+            }
+            
+            // Configure Unity Transport with relay server data
+            try
+            {
+                var relayServerData = new RelayServerData(
+                    allocation.RelayServer.IpV4,
+                    (ushort)allocation.RelayServer.Port,
+                    allocation.AllocationIdBytes,
+                    allocation.ConnectionData,
+                    allocation.ConnectionData,
+                    allocation.Key,
+                    false
+                );
+                NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
+                Debug.Log("RelayHostManager: Relay server data configured");
+            }
+            catch (System.Exception relayEx)
+            {
+                Debug.LogWarning($"RelayHostManager: Could not configure relay data: {relayEx}. Continuing without relay.");
+            }
+            
+            // Start as host
+            NetworkManager.Singleton.StartHost();
+            Debug.Log("RelayHostManager: Started as host");
         }
         catch (System.Exception ex)
         {
