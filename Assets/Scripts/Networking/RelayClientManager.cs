@@ -111,16 +111,9 @@ public class RelayClientManager : MonoBehaviour
             // Configure Unity Transport with relay server data
             try
             {
-                var relayServerData = new RelayServerData(
-                    joinAllocation.RelayServer.IpV4,
-                    (ushort)joinAllocation.RelayServer.Port,
-                    joinAllocation.AllocationIdBytes,
-                    joinAllocation.ConnectionData,
-                    joinAllocation.ConnectionData,
-                    joinAllocation.Key,
-                    false
-                );
-                NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
+                var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+                transport.SetClientRelayData(joinAllocation.RelayServer.IpV4, (ushort)joinAllocation.RelayServer.Port, joinAllocation.AllocationIdBytes, joinAllocation.Key, joinAllocation.ConnectionData, joinAllocation.HostConnectionData);
+
                 Debug.Log("RelayClientManager: Relay server data configured");
             }
             catch (System.Exception relayEx)

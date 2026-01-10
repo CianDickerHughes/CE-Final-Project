@@ -35,7 +35,6 @@ public class SceneCreatorUI : MonoBehaviour
         { 
             "Roleplay", 
             "Combat", 
-            "Exploration" 
         });
     }
 

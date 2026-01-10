@@ -58,8 +58,8 @@ public class ChatManager : NetworkBehaviour
             return;
         }
 
-        // Check if network is running
-        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsListening)
+        // Check if network is running and connected
+        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsConnectedClient)
         {
             Debug.LogWarning("ChatManager: Network not connected. Cannot send message.");
             return;

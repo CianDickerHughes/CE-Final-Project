@@ -18,9 +18,12 @@ public class RelayHostManager : MonoBehaviour
     [Header("UI References")]
     [SerializeField] Button hostButton;
     [SerializeField] TextMeshProUGUI codeText;
+    [SerializeField] Button copyButton;
 
     [Header("Settings")]
     [SerializeField] int maxConnections = 3;
+
+    string currentJoinCode;
 
     async void Start()
     {
@@ -57,6 +60,12 @@ public class RelayHostManager : MonoBehaviour
         {
             Debug.LogWarning($"RelayHostManager: 'hostButton' is not assigned on '{gameObject.name}'. Host functionality will be disabled.");
         }
+
+        if (copyButton != null)
+        {
+            copyButton.interactable = false;
+            copyButton.onClick.AddListener(CopyJoinCodeToClipboard);
+        }
     }
 
     /// <summary>
@@ -71,11 +80,17 @@ public class RelayHostManager : MonoBehaviour
             
             // Get the join code for clients
             string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+            currentJoinCode = joinCode;
             
             // Display the join code
             if (codeText != null)
             {
-                codeText.text = "Join Code: " + joinCode;
+                codeText.text = joinCode;
+            }
+
+            if (copyButton != null)
+            {
+                copyButton.interactable = true;
             }
             else
             {
@@ -98,16 +113,14 @@ public class RelayHostManager : MonoBehaviour
             // Configure Unity Transport with relay server data
             try
             {
-                var relayServerData = new RelayServerData(
+                var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+                transport.SetHostRelayData(
                     allocation.RelayServer.IpV4,
                     (ushort)allocation.RelayServer.Port,
                     allocation.AllocationIdBytes,
-                    allocation.ConnectionData,
-                    allocation.ConnectionData,
                     allocation.Key,
-                    false
+                    allocation.ConnectionData
                 );
-                NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
                 Debug.Log("RelayHostManager: Relay server data configured");
             }
             catch (System.Exception relayEx)
@@ -128,5 +141,17 @@ public class RelayHostManager : MonoBehaviour
                 codeText.text = "Error: Failed to create relay";
             }
         }
+    }
+
+    void CopyJoinCodeToClipboard()
+    {
+        if (string.IsNullOrEmpty(currentJoinCode))
+        {
+            Debug.LogWarning("RelayHostManager: No join code to copy yet.");
+            return;
+        }
+
+        GUIUtility.systemCopyBuffer = currentJoinCode;
+        Debug.Log("RelayHostManager: Join code copied to clipboard");
     }
 }

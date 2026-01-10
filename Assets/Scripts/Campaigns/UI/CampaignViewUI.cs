@@ -44,7 +44,7 @@ public class CampaignViewUI : MonoBehaviour
             addSceneButton.onClick.AddListener(OnAddSceneClicked);
         
         //Load the campaign from context
-        LoadCampaignFromContext();
+        // LoadCampaignFromContext();
     }
     
     //Load the campaign using the selection context
