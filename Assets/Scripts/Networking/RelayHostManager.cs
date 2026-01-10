@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Unity.Services.Core;
+using UnityEngine.SceneManagement;
 using Unity.Services.Authentication;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
@@ -128,9 +129,19 @@ public class RelayHostManager : MonoBehaviour
                 Debug.LogWarning($"RelayHostManager: Could not configure relay data: {relayEx}. Continuing without relay.");
             }
             
-            // Start as host
-            NetworkManager.Singleton.StartHost();
-            Debug.Log("RelayHostManager: Started as host");
+                // Subscribe before starting host to avoid missing the event
+                if (NetworkManager.Singleton.SceneManager != null)
+                {
+                    NetworkManager.Singleton.OnServerStarted += () =>
+                    {
+                        Debug.Log("RelayHostManager: Server started, loading WaitingRoom via NetworkSceneManager");
+                        NetworkManager.Singleton.SceneManager.LoadScene("WaitingRoom", LoadSceneMode.Single);
+                    };
+                }
+
+                NetworkManager.Singleton.StartHost();
+                Debug.Log("RelayHostManager: Started as host");
+
         }
         catch (System.Exception ex)
         {
