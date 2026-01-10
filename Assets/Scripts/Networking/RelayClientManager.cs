@@ -125,11 +125,8 @@ public class RelayClientManager : MonoBehaviour
             NetworkManager.Singleton.StartClient();
             Debug.Log("RelayClientManager: Started as client");
 
-            // Do not load local scene; host will drive synchronized scene
-            if (statusText != null)
-            {
-                statusText.text = "Connected. Waiting for host...";
-            }
+            // Load WaitingRoom scene
+            SceneManager.LoadScene(waitingRoomSceneName);
         }
         catch (System.Exception ex)
         {

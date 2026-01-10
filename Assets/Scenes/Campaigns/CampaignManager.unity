@@ -652,8 +652,8 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1202281199}
-  - {fileID: 1475581669}
   - {fileID: 838039738}
+  - {fileID: 1475581669}
   m_Father: {fileID: 1581829736}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -2690,84 +2690,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 587394394}
   m_CullTransparentMesh: 1
---- !u!1 &590829082
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 590829085}
-  - component: {fileID: 590829083}
-  - component: {fileID: 590829084}
-  m_Layer: 0
-  m_Name: ChatManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &590829083
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 590829082}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2889288744
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  DeferredDespawnTick: 0
-  Ownership: 1
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 0
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
-  SyncOwnerTransformWhenParented: 1
-  AllowOwnerToParent: 0
---- !u!114 &590829084
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 590829082}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 60a78e50f943d6149b2c324a4e71f212, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ChatManager
-  ShowTopMostFoldoutHeaderGroup: 1
-  sendButton: {fileID: 1202281200}
-  inputField: {fileID: 838039741}
-  contentParent: {fileID: 1798465099}
-  scrollRect: {fileID: 1475581670}
-  chatMessagePrefab: {fileID: 2867137679412485494, guid: 2cd160a3f49180c4582b1898294c81fd, type: 3}
-  maxMessages: 50
-  playerName: Player
---- !u!4 &590829085
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 590829082}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3126.85, y: 984.78815, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &649817697
 GameObject:
   m_ObjectHideFlags: 0
@@ -4613,6 +4535,7 @@ MonoBehaviour:
   hostButton: {fileID: 968432744}
   codeText: {fileID: 510389128}
   copyButton: {fileID: 1048778478}
+  chatNetworkPrefab: {fileID: 6134980698075567069, guid: a714c5386baa76e4db41571ebd56c1b0, type: 3}
   maxConnections: 10
 --- !u!1 &968432742
 GameObject:
@@ -4767,7 +4690,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 18.85944}
+  m_AnchoredPosition: {x: 0, y: 18.859163}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &1009047638
@@ -6759,8 +6682,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 491223805}
   m_HandleRect: {fileID: 491223804}
   m_Direction: 2
-  m_Value: -0.000029127721
-  m_Size: 0.93713146
+  m_Value: -0.0000145638605
+  m_Size: 0.93713117
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -8619,6 +8542,57 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RectMask2D
   m_Padding: {x: -8, y: -5, z: -8, w: -5}
   m_Softness: {x: 0, y: 0}
+--- !u!1 &1916346175
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1916346178}
+  - component: {fileID: 1916346177}
+  m_Layer: 0
+  m_Name: ChatManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1916346177
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1916346175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60a78e50f943d6149b2c324a4e71f212, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ChatManager
+  sendButton: {fileID: 1202281200}
+  inputField: {fileID: 838039741}
+  contentParent: {fileID: 1798465099}
+  scrollRect: {fileID: 1475581670}
+  chatMessagePrefab: {fileID: 2867137679412485494, guid: 2cd160a3f49180c4582b1898294c81fd, type: 3}
+  maxMessages: 50
+  playerName: Player
+--- !u!4 &1916346178
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1916346175}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2516.8677, y: 1208.6721, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1970580584
 GameObject:
   m_ObjectHideFlags: 0
@@ -9309,5 +9283,5 @@ SceneRoots:
   - {fileID: 1794244468}
   - {fileID: 1026421536}
   - {fileID: 1744041824}
+  - {fileID: 1916346178}
   - {fileID: 948964799}
-  - {fileID: 590829085}

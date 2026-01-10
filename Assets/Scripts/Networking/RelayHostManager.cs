@@ -21,6 +21,9 @@ public class RelayHostManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI codeText;
     [SerializeField] Button copyButton;
 
+    [Header("Network Prefabs")]
+    [SerializeField] NetworkObject chatNetworkPrefab;
+
     [Header("Settings")]
     [SerializeField] int maxConnections = 3;
 
@@ -129,19 +132,21 @@ public class RelayHostManager : MonoBehaviour
                 Debug.LogWarning($"RelayHostManager: Could not configure relay data: {relayEx}. Continuing without relay.");
             }
             
-                // Subscribe before starting host to avoid missing the event
-                if (NetworkManager.Singleton.SceneManager != null)
-                {
-                    NetworkManager.Singleton.OnServerStarted += () =>
-                    {
-                        Debug.Log("RelayHostManager: Server started, loading WaitingRoom via NetworkSceneManager");
-                        NetworkManager.Singleton.SceneManager.LoadScene("WaitingRoom", LoadSceneMode.Single);
-                    };
-                }
+            // Start as host
+            NetworkManager.Singleton.StartHost();
+            Debug.Log("RelayHostManager: Started as host");
 
-                NetworkManager.Singleton.StartHost();
-                Debug.Log("RelayHostManager: Started as host");
-
+            // Spawn networked chat so clients can message across scenes
+            if (chatNetworkPrefab != null)
+            {
+                var spawned = Instantiate(chatNetworkPrefab);
+                spawned.Spawn();
+                Debug.Log("RelayHostManager: Spawned ChatNetwork prefab");
+            }
+            else
+            {
+                Debug.LogWarning("RelayHostManager: ChatNetwork prefab not assigned. Chat won't sync across network.");
+            }
         }
         catch (System.Exception ex)
         {

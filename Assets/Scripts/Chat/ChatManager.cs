@@ -1,14 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using Unity.Netcode;
 using System.Collections.Generic;
 
 /// <summary>
 /// Simple chat manager - connects SendButton, InputMessage, Content, and message prefabs
-/// Handles networked messaging across all players
+/// Handles UI display. Uses ChatNetwork for networked messaging.
 /// </summary>
-public class ChatManager : NetworkBehaviour
+public class ChatManager : MonoBehaviour
 {
     [Header("Connect These in Inspector")]
     [Tooltip("Your SendMSGBtn button")]
@@ -34,6 +33,12 @@ public class ChatManager : NetworkBehaviour
 
     private void Start()
     {
+        // Set player name from logged-in user
+        if (SessionManager.Instance != null && !string.IsNullOrEmpty(SessionManager.Instance.CurrentUsername))
+        {
+            playerName = SessionManager.Instance.CurrentUsername;
+        }
+
         // Connect send button
         if (sendButton != null)
         {
@@ -44,6 +49,39 @@ public class ChatManager : NetworkBehaviour
         if (inputField != null)
         {
             inputField.onSubmit.AddListener((text) => SendMessage());
+        }
+
+        // Try to find ChatNetwork - will retry in Update if not found yet
+        TryConnectToChatNetwork();
+    }
+
+    private void Update()
+    {
+        // Keep trying to connect if not connected yet
+        if (ChatNetwork.Instance != null && !isConnectedToNetwork)
+        {
+            TryConnectToChatNetwork();
+        }
+    }
+
+    private bool isConnectedToNetwork = false;
+
+    private void TryConnectToChatNetwork()
+    {
+        if (ChatNetwork.Instance != null && !isConnectedToNetwork)
+        {
+            ChatNetwork.Instance.OnMessageReceived += DisplayMessage;
+            isConnectedToNetwork = true;
+            Debug.Log("ChatManager: Connected to ChatNetwork");
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // Unsubscribe from network messages
+        if (ChatNetwork.Instance != null)
+        {
+            ChatNetwork.Instance.OnMessageReceived -= DisplayMessage;
         }
     }
 
@@ -58,43 +96,21 @@ public class ChatManager : NetworkBehaviour
             return;
         }
 
-        // Check if network is running and connected
-        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsConnectedClient)
+        // Check if network is available
+        if (ChatNetwork.Instance == null)
         {
-            Debug.LogWarning("ChatManager: Network not connected. Cannot send message.");
+            Debug.LogWarning("ChatManager: ChatNetwork not available. Cannot send message.");
             return;
         }
 
         string message = inputField.text.Trim();
         
         // Send to all players via network
-        SendMessageServerRpc(message, playerName);
+        ChatNetwork.Instance.SendMessage(message, playerName);
         
         // Clear input
         inputField.text = "";
         inputField.ActivateInputField();
-    }
-
-    /// <summary>
-    /// Sends message to server
-    /// </summary>
-    [Rpc(SendTo.Server)]
-    private void SendMessageServerRpc(string message, string senderName, RpcParams rpcParams = default)
-    {
-        // Get sender ID
-        ulong senderId = rpcParams.Receive.SenderClientId;
-        
-        // Broadcast to all clients
-        ReceiveMessageClientRpc(senderId, senderName, message);
-    }
-
-    /// <summary>
-    /// Receives message and displays it
-    /// </summary>
-    [Rpc(SendTo.ClientsAndHost)]
-    private void ReceiveMessageClientRpc(ulong senderId, string senderName, string message)
-    {
-        DisplayMessage(senderId, senderName, message);
     }
 
     /// <summary>
