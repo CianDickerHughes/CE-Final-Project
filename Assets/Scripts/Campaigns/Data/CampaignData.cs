@@ -272,6 +272,5 @@ public class MapData
 public enum SceneType
 {
     Roleplay,
-    Combat,
-    Exploration
+    Combat
 }

@@ -192,7 +192,6 @@ public class CampaignViewUI : MonoBehaviour
                 {
                     SceneType.Combat => "CombatScene",
                     SceneType.Roleplay => "RoleplayScene",
-                    SceneType.Exploration => "ExplorationScene",
                     _ => "GameplayScene"
                 };
                 
