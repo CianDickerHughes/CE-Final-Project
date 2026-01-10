@@ -186,16 +186,8 @@ public class CampaignViewUI : MonoBehaviour
             if (SceneDataTransfer.Instance != null)
             {
                 SceneDataTransfer.Instance.PreparePlayScene(currentCampaign.campaignId, scene);
-                
-                // Load appropriate gameplay scene based on type
-                string gameplayScene = scene.sceneType switch
-                {
-                    SceneType.Combat => "CombatScene",
-                    SceneType.Roleplay => "RoleplayScene",
-                    _ => "GameplayScene"
-                };
-                
-                SceneManager.LoadScene(gameplayScene);
+                //Load the Gameplay scene - Now its dynamic and should work for either roleplay or combat
+                SceneManager.LoadScene("GameplayScene");
             }
         }
     }
