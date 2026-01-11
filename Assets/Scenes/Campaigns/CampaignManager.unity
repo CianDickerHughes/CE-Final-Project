@@ -4690,7 +4690,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 18.859163}
+  m_AnchoredPosition: {x: 0, y: 18.85895}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &1009047638
@@ -6682,8 +6682,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 491223805}
   m_HandleRect: {fileID: 491223804}
   m_Direction: 2
-  m_Value: -0.0000145638605
-  m_Size: 0.93713117
+  m_Value: -0.0000016182067
+  m_Size: 0.93713707
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -7952,7 +7952,7 @@ MonoBehaviour:
   emptyScenesText: {fileID: 1970580587}
   backButton: {fileID: 1725606155}
   addSceneButton: {fileID: 1300096317}
-  createSceneButton: {fileID: 0}
+  createSceneButton: {fileID: 285356950}
   createScenePopup: {fileID: 1722157723}
 --- !u!4 &1744041824
 Transform:
@@ -8236,8 +8236,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.0005236255, y: 0.00019505798}
-  m_SizeDelta: {x: 656.5375, y: 0}
+  m_AnchoredPosition: {x: 0.0002594, y: 0.00020448421}
+  m_SizeDelta: {x: 158.13, y: 92.545}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1798465100
 MonoBehaviour:
@@ -8252,7 +8252,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
   m_HorizontalFit: 0
-  m_VerticalFit: 2
+  m_VerticalFit: 0
 --- !u!114 &1798465101
 MonoBehaviour:
   m_ObjectHideFlags: 0
