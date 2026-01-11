@@ -4690,7 +4690,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 18.85895}
+  m_AnchoredPosition: {x: 0, y: 18.859306}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &1009047638
@@ -6682,7 +6682,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 491223805}
   m_HandleRect: {fileID: 491223804}
   m_Direction: 2
-  m_Value: -0.0000016182067
+  m_Value: -0.000022654895
   m_Size: 0.93713707
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -7948,7 +7948,7 @@ MonoBehaviour:
   inviteCodeText: {fileID: 510389128}
   campaignLogoImage: {fileID: 649817701}
   scenesListContainer: {fileID: 750808945}
-  sceneItemPrefab: {fileID: 3262505126138018181, guid: 832bb7f2078cebe43bf5495c398b297f, type: 3}
+  sceneItemPrefab: {fileID: 7572770667196628077, guid: 68fee1874aa62ab4d95290ed0ef124c2, type: 3}
   emptyScenesText: {fileID: 1970580587}
   backButton: {fileID: 1725606155}
   addSceneButton: {fileID: 1300096317}
