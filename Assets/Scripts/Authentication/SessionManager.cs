@@ -20,11 +20,7 @@ public class SessionManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            // Load from PlayerPrefs if available
-            if (PlayerPrefs.HasKey(PlayerPrefsKey))
-            {
-                CurrentUsername = PlayerPrefs.GetString(PlayerPrefsKey);
-            }
+            // Don't load from PlayerPrefs - fresh login required each app launch
         }
         else
         {
@@ -36,17 +32,11 @@ public class SessionManager : MonoBehaviour
     public void SetCurrentUser(string username)
     {
         CurrentUsername = username.Trim();
-        PlayerPrefs.SetString(PlayerPrefsKey, CurrentUsername);
-        PlayerPrefs.Save();
-        Debug.Log($"User set: {CurrentUsername}");
     }
 
     //Clear the current user
     public void SignOut()
     {
         CurrentUsername = null;
-        PlayerPrefs.DeleteKey(PlayerPrefsKey);
-        PlayerPrefs.Save();
-        Debug.Log("User signed out");
     }
 }

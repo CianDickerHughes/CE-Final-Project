@@ -26,21 +26,18 @@ public class UserAuthentication : MonoBehaviour
     
     void Start()
     {
-        //If already signed in, hide panel immediately
-        //This can happen if returning from another scene
-        //This is where things can get a bit tricky - in edit mode the SessionManager might persist which is useful for testing but prevents this from popping up again
-        //Not a problem just something to be aware of
-        /*if (SessionManager.Instance != null && SessionManager.Instance.IsLoggedIn)
-        {
-            panel.SetActive(false);
-            return;
-        }*/
         //Show the panel on start
         panel.SetActive(true);
         //Load and display existing users
         LoadUsers();
         //Set up create button
         createUserButton.onClick.AddListener(OnCreateUserClicked);
+        
+        //If already signed in (from navigating between scenes in same session), hide panel
+        if (SessionManager.Instance != null && !string.IsNullOrEmpty(SessionManager.Instance.CurrentUsername))
+        {
+            panel.SetActive(false);
+        }
     }
     
     //Load all users and populate the list
