@@ -23,6 +23,7 @@ public class RelayHostManager : MonoBehaviour
 
     [Header("Network Prefabs")]
     [SerializeField] NetworkObject chatNetworkPrefab;
+    [SerializeField] NetworkObject characterTransferPrefab;
 
     [Header("Settings")]
     [SerializeField] int maxConnections = 3;
@@ -146,6 +147,18 @@ public class RelayHostManager : MonoBehaviour
             else
             {
                 Debug.LogWarning("RelayHostManager: ChatNetwork prefab not assigned. Chat won't sync across network.");
+            }
+
+            // Spawn character transfer handler so clients can upload sheets
+            if (characterTransferPrefab != null)
+            {
+                var transfer = Instantiate(characterTransferPrefab);
+                transfer.Spawn();
+                Debug.Log("RelayHostManager: Spawned CharacterTransferNetwork prefab");
+            }
+            else
+            {
+                Debug.LogWarning("RelayHostManager: CharacterTransferNetwork prefab not assigned. Character uploads won't reach host.");
             }
         }
         catch (System.Exception ex)
