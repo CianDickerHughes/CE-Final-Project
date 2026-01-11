@@ -54,6 +54,8 @@ public class CampaignSelector : MonoBehaviour
                 }
             }
         }
+
+        Debug.Log($"Loaded {userCampaigns.Count} campaigns for user {SessionManager.Instance.CurrentUsername}");
     }
 
     //Populates the scroll view with campaign items
