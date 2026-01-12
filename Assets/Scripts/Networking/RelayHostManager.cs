@@ -20,6 +20,7 @@ public class RelayHostManager : MonoBehaviour
     [SerializeField] Button hostButton;
     [SerializeField] TextMeshProUGUI codeText;
     [SerializeField] Button copyButton;
+    [SerializeField] Button backButton;
 
     [Header("Network Prefabs")]
     [SerializeField] NetworkObject chatNetworkPrefab;
@@ -70,6 +71,16 @@ public class RelayHostManager : MonoBehaviour
         {
             copyButton.interactable = false;
             copyButton.onClick.AddListener(CopyJoinCodeToClipboard);
+        }
+
+        // Setup back button listener to shutdown the relay/host
+        if (backButton != null)
+        {
+            backButton.onClick.AddListener(ShutdownRelay);
+        }
+        else
+        {
+            Debug.LogWarning($"RelayHostManager: 'backButton' is not assigned on '{gameObject.name}'. Back functionality will be disabled.");
         }
     }
 
@@ -182,5 +193,35 @@ public class RelayHostManager : MonoBehaviour
 
         GUIUtility.systemCopyBuffer = currentJoinCode;
         Debug.Log("RelayHostManager: Join code copied to clipboard");
+    }
+
+    /// <summary>
+    /// Shuts down Netcode/Relay when user presses back.
+    /// </summary>
+    public void ShutdownRelay()
+    {
+        try
+        {
+            if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+            {
+                NetworkManager.Singleton.Shutdown();
+                Debug.Log("RelayHostManager: Network shutdown");
+            }
+
+            currentJoinCode = string.Empty;
+
+            if (codeText != null)
+            {
+                codeText.text = string.Empty;
+            }
+            if (copyButton != null)
+            {
+                copyButton.interactable = false;
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning($"RelayHostManager: Exception while shutting down: {ex}");
+        }
     }
 }

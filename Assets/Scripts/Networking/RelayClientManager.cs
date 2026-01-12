@@ -138,4 +138,44 @@ public class RelayClientManager : MonoBehaviour
             }
         }
     }
+
+    /// <summary>
+    /// Shuts down Netcode/Relay when user presses back.
+    /// </summary>
+    public void ShutdownRelay()
+    {
+        try
+        {
+            if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+            {
+                NetworkManager.Singleton.Shutdown();
+                Debug.Log("RelayClientManager: Network shutdown");
+            }
+
+            if (statusText != null)
+            {
+                statusText.text = "Disconnected";
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning($"RelayClientManager: Exception while shutting down: {ex}");
+        }
+    }
+
+    public static void Shutdown()
+    {
+        try
+        {
+            if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+            {
+                NetworkManager.Singleton.Shutdown();
+                Debug.Log("RelayClientManager: Network shutdown (static)");
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning($"RelayClientManager: Exception while shutting down (static): {ex}");
+        }
+    }
 }

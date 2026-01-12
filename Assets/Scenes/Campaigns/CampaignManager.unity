@@ -4535,6 +4535,7 @@ MonoBehaviour:
   hostButton: {fileID: 968432744}
   codeText: {fileID: 510389128}
   copyButton: {fileID: 1048778478}
+  backButton: {fileID: 1725606155}
   chatNetworkPrefab: {fileID: 6134980698075567069, guid: a714c5386baa76e4db41571ebd56c1b0, type: 3}
   characterTransferPrefab: {fileID: 6134980698075567069, guid: 7367c7fb0a053b54289e74710f98da05, type: 3}
   maxConnections: 10
