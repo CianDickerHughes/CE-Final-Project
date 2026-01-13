@@ -6726,7 +6726,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 491223805}
   m_HandleRect: {fileID: 491223804}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -8007,7 +8007,7 @@ MonoBehaviour:
   inviteCodeText: {fileID: 510389128}
   campaignLogoImage: {fileID: 649817701}
   scenesListContainer: {fileID: 1002363357}
-  sceneItemPrefab: {fileID: 7572770667196628077, guid: 68fee1874aa62ab4d95290ed0ef124c2, type: 3}
+  sceneItemPrefab: {fileID: 7449782293837151303, guid: 162f2098caa20f748a7e472bd1fecf06, type: 3}
   emptyScenesText: {fileID: 1970580587}
   backButton: {fileID: 1725606155}
   addSceneButton: {fileID: 1300096317}

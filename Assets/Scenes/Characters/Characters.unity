@@ -448,6 +448,7 @@ GameObject:
   - component: {fileID: 440403163}
   - component: {fileID: 440403162}
   - component: {fileID: 440403161}
+  - component: {fileID: 440403164}
   m_Layer: 5
   m_Name: Viewport
   m_TagString: Untagged
@@ -482,7 +483,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 440403159}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 31a19414c41e5ae4aae2af33fee712f6, type: 3}
   m_Name: 
@@ -526,6 +527,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 440403159}
   m_CullTransparentMesh: 1
+--- !u!114 &440403164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 440403159}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RectMask2D
+  m_Padding: {x: 0, y: 0, z: 0, w: 0}
+  m_Softness: {x: 0, y: 0}
 --- !u!1 &511496914
 GameObject:
   m_ObjectHideFlags: 0
@@ -574,7 +589,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df203e250a7144641acf497389e66d9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterListController
-  itemPrefab: {fileID: 3021428213142830607, guid: 9f7438261d6c69845b5d9beba9fbed1d, type: 3}
+  itemPrefab: {fileID: 6587999788681721236, guid: baf8d8d2a3ff37b448f8198d16e804ba, type: 3}
   contentParent: {fileID: 1196234920}
   createNewButton: {fileID: 1328190393}
   emptyText: {fileID: 1573064519}
@@ -1059,7 +1074,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1823882446}
   m_Direction: 0
   m_Value: 0
-  m_Size: 1
+  m_Size: 0.99999136
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1272,7 +1287,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.000061035156, y: 0.00021362305}
+  m_AnchoredPosition: {x: 0.000061035156, y: -0.000034809113}
   m_SizeDelta: {x: -1613, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1196234921
