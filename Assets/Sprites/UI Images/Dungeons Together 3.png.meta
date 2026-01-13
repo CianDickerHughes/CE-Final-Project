@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 4450ac2ac4e95aa478705ee47369081a
+guid: 9a7c1765e700380459b88d4311db7559
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6828211881244779995
-    second: dnd-beyond-vector-logo_0
+      213: -2395778260514115436
+    second: Dungeons Together 3_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,12 +100,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: dnd-beyond-vector-logo_0
+      name: Dungeons Together 3_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 900
+        width: 500
         height: 500
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 52a9d4fa8715d31a0800000000000000
-      internalID: -6828211881244779995
+      spriteID: 490f37d8d5c70ced0800000000000000
+      internalID: -2395778260514115436
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      dnd-beyond-vector-logo_0: -6828211881244779995
+      Dungeons Together 3_0: -2395778260514115436
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
