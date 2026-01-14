@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2794859770974038583}
   - component: {fileID: 9028257612670179754}
   - component: {fileID: 7779984979707883012}
+  - component: {fileID: 6647064980343451933}
   m_Layer: 5
   m_Name: Background 2
   m_TagString: Untagged
@@ -76,6 +77,21 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &6647064980343451933
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000568735176293118}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.1, b: 0.1, a: 1}
+  m_EffectDistance: {x: 3, y: -3}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1121560299446082749
 GameObject:
   m_ObjectHideFlags: 0
@@ -380,7 +396,7 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 1
+  m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
@@ -692,6 +708,8 @@ GameObject:
   - component: {fileID: 6448456040825415113}
   - component: {fileID: 8140396309286136865}
   - component: {fileID: 7507480795259400470}
+  - component: {fileID: 5695280455144599824}
+  - component: {fileID: 5493373847438617749}
   m_Layer: 5
   m_Name: CampaignItem
   m_TagString: Untagged
@@ -718,10 +736,10 @@ RectTransform:
   - {fileID: 3062033427384987851}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.2716042, y: 0.5472593}
-  m_AnchorMax: {x: 0.7245417, y: 0.7361482}
-  m_AnchoredPosition: {x: -3.4227295, y: -0.9500122}
-  m_SizeDelta: {x: 8.328857, y: 0.105285645}
+  m_AnchorMin: {x: 1, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: -967.4227, y: 152.04999}
+  m_SizeDelta: {x: 878.32886, y: 204.10529}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6448456040825415113
 CanvasRenderer:
@@ -778,6 +796,36 @@ MonoBehaviour:
   campaignDescriptionText: {fileID: 6372350423040097359}
   playButton: {fileID: 8995599725612234128}
   deleteButton: {fileID: 7604600919237670377}
+--- !u!114 &5695280455144599824
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7783010492633106339}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.1, b: 0.1, a: 1}
+  m_EffectDistance: {x: 5, y: -5}
+  m_UseGraphicAlpha: 1
+--- !u!114 &5493373847438617749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7783010492633106339}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 5, y: -5}
+  m_UseGraphicAlpha: 1
 --- !u!1 &8842093817036018962
 GameObject:
   m_ObjectHideFlags: 0
@@ -925,6 +973,7 @@ GameObject:
   - component: {fileID: 4031784968513970794}
   - component: {fileID: 7128520809889071641}
   - component: {fileID: 6776097381606636211}
+  - component: {fileID: 1247763109098580109}
   m_Layer: 5
   m_Name: Background 1
   m_TagString: Untagged
@@ -990,6 +1039,21 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1247763109098580109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8938142036880665142}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.1, b: 0.1, a: 1}
+  m_EffectDistance: {x: 3, y: -3}
+  m_UseGraphicAlpha: 1
 --- !u!1 &9079412622002006832
 GameObject:
   m_ObjectHideFlags: 0
