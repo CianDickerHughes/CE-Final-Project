@@ -19,6 +19,8 @@ public class DiceControllerScript : MonoBehaviour
     public Color normalColor = Color.white;
     public Color highlightColor = new Color(0.6f, 0.9f, 1f);
 
+    private string playerName = "Player";
+
     //Private Variables - helping to control behaviour
     private int selectedSides = 0;
     public int selectedDiceType = 0;
@@ -61,6 +63,12 @@ public class DiceControllerScript : MonoBehaviour
         if (rollButton != null)
         {
             rollButton.onClick.AddListener(OnRollButtonClicked);
+        }
+
+        //Pull player name from session if available
+        if (SessionManager.Instance != null && !string.IsNullOrEmpty(SessionManager.Instance.CurrentUsername))
+        {
+            playerName = SessionManager.Instance.CurrentUsername;
         }
 
         //Initializing the result being displayed to the player
@@ -139,6 +147,14 @@ public class DiceControllerScript : MonoBehaviour
         {
             resultOfRoll.text = total.ToString();
         }
+
+        //Also broadcast the roll to chat so everyone can see it
+        if (ChatNetwork.Instance != null)
+        {
+            string expression = BuildDiceExpression(qty, selectedSides, modifier);
+            string message = $"Rolled {expression}: {total}";
+            ChatNetwork.Instance.SendMessage(message, playerName);
+        }
     }
 
     //Method for parsing the inputs - needed for number of dice & modifier e.g. "+3"
@@ -168,5 +184,11 @@ public class DiceControllerScript : MonoBehaviour
             return v;
         }
         return fallback;
+    }
+
+    private string BuildDiceExpression(int qty, int sides, int modifier)
+    {
+        string modText = modifier == 0 ? string.Empty : (modifier > 0 ? $"+{modifier}" : modifier.ToString());
+        return $"{qty}d{sides}{modText}";
     }
 }
