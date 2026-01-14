@@ -132,6 +132,11 @@ public class ChatManager : MonoBehaviour
         if (textComponent != null)
         {
             textComponent.text = $"{senderName}: {message}";
+            textComponent.enableAutoSizing = true;
+            textComponent.fontSizeMin = 6f;
+            textComponent.fontSizeMax = 10f;
+            textComponent.enableWordWrapping = true;
+            textComponent.overflowMode = TextOverflowModes.Truncate;
         }
 
         // Add to list
@@ -145,11 +150,12 @@ public class ChatManager : MonoBehaviour
             Destroy(oldMessage);
         }
 
-        // Scroll to bottom
+        // Scroll to bottom (ensure it happens after layout updates)
         if (scrollRect != null)
         {
             Canvas.ForceUpdateCanvases();
             scrollRect.verticalNormalizedPosition = 0f;
+            StartCoroutine(ScrollToBottomNextFrame());
         }
     }
 
@@ -161,6 +167,16 @@ public class ChatManager : MonoBehaviour
         if (!string.IsNullOrWhiteSpace(name))
         {
             playerName = name;
+        }
+    }
+
+    private System.Collections.IEnumerator ScrollToBottomNextFrame()
+    {
+        yield return null; // wait one frame so layout can rebuild
+        if (scrollRect != null)
+        {
+            Canvas.ForceUpdateCanvases();
+            scrollRect.verticalNormalizedPosition = 0f;
         }
     }
 }
