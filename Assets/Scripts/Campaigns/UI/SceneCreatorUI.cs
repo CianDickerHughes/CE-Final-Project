@@ -3,6 +3,10 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
 
+//UI for creating a new scene within a campaign
+//Allows the DM to input scene name, select type, and create the scene
+//Then transitions to the Scene Maker with the new scene data prepared
+
 public class SceneCreatorUI : MonoBehaviour
 {
     [Header("UI Elements")]

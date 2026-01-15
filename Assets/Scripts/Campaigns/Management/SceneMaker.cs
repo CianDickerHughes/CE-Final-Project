@@ -6,6 +6,10 @@ using System.IO;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
+//Script for managing the Scene Maker UI and functionality
+//This allows DMs to create and edit scenes for their campaigns
+//Handles things such as loading existing scene data, saving changes, and initializing the grid
+
 public class SceneMaker : MonoBehaviour
 {
     [Header("References")]

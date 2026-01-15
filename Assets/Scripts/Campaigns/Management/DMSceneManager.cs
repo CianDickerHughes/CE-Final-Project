@@ -7,6 +7,7 @@ using TMPro;
 //SCENE MANAGEMENT FOR DM
 //This script provides the DM with an interface to manage which characters are in which scenes
 //Potentially remove it later but for now it helps with testing scene management
+//A lot of the methods may be unfinished until the game begins to function properly and we figure out what is and isnt needed
 
 //A lot of these fields/listeners could very well change as we go on because the UI needs to be fleshed out more
 public class DMSceneManager : MonoBehaviour

@@ -3,6 +3,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+//This class basically helps to represent a single campaign item in the Campaign Selector UI scroll view
+//It shows the campaign logo, name, description, and has buttons to select/play or delete the campaign
+//Basically just sets up UI and stores references to the campaign data for when buttons are clicked
+
 public class CampaignItem : MonoBehaviour
 {
     //UI References for variables

@@ -6,6 +6,9 @@ using TMPro;
 //Player enters join code and username, connects via netcode, THEN selects character
 
 //NOTE - A LOT OF THESE PIECES ARE PLACEHOLDERS FOR NOW UNTIL NETCODE IS FULLY IMPLEMENTED/ WONT WORK PROPERLY AT ALL YET
+
+//CLASS WILL MOST LIKELY BE SCRAPPED OR CHANGED NOW THAT WE HAVE NETCODE WORKING NEARLY COMPLETELY
+
 public class CampaignJoinUI : MonoBehaviour
 {
     [Header("UI References")]
