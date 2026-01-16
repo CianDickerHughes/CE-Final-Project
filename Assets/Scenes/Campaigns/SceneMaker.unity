@@ -4609,9 +4609,9 @@ MonoBehaviour:
   tokenStartPosition: {x: 0, y: 0}
   spawnTokenButton: {fileID: 0}
   IsEditMode: 0
-  columnsInput: {fileID: 0}
-  rowsInput: {fileID: 0}
-  resizeButton: {fileID: 0}
+  columnsInput: {fileID: 416135879}
+  rowsInput: {fileID: 366364624}
+  resizeButton: {fileID: 1193884837}
 --- !u!4 &1645900121
 Transform:
   m_ObjectHideFlags: 0

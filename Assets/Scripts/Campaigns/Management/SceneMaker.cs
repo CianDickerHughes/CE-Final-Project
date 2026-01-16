@@ -108,10 +108,13 @@ public class SceneMaker : MonoBehaviour
         //If grid is already existing, we load the map data into it
         //If its new we intialize a blank grid
         if(isNewScene){
+            Debug.Log("SceneMaker: Creating new scene with 15x15 grid");
             gridManager.InitializeGrid(15, 15); //Default size for new scenes
         }
         else{
-            gridManager.InitializeGrid(currentScene.mapData.width, currentScene.mapData.height);
+            Debug.Log($"SceneMaker: Loading existing scene '{currentScene.sceneName}' - mapData: {currentScene.mapData?.width}x{currentScene.mapData?.height}, tiles: {currentScene.mapData?.tiles?.Length ?? 0}");
+            
+            // Don't call InitializeGrid - LoadMapData handles resizing
             gridManager.LoadMapData(currentScene.mapData);
         }
     }
@@ -123,18 +126,22 @@ public class SceneMaker : MonoBehaviour
         // Get map data from grid
         currentScene.mapData = gridManager.SaveMapData();
         
+        Debug.Log($"SceneMaker: Saving scene '{currentScene.sceneName}' with mapData {currentScene.mapData.width}x{currentScene.mapData.height}, tiles array length: {currentScene.mapData.tiles?.Length ?? 0}");
+        
         // Update the scene in SceneDataTransfer
         SceneDataTransfer.Instance.UpdatePendingScene(currentScene);
         
         // Add scene to campaign if new (via CampaignManager)
         if (isNewScene)
         {
-            CampaignManager.Instance.AddSceneWithData(currentScene);
+            bool added = CampaignManager.Instance.AddSceneWithData(currentScene);
+            Debug.Log($"SceneMaker: AddSceneWithData returned {added}");
         }
         else
         {
             // Update existing scene in campaign
-            CampaignManager.Instance.UpdateScene(currentScene);
+            bool updated = CampaignManager.Instance.UpdateScene(currentScene);
+            Debug.Log($"SceneMaker: UpdateScene returned {updated}");
         }
         
         statusText.text = "Scene saved!";
