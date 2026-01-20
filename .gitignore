@@ -159,3 +159,7 @@ $RECYCLE.BIN/
 /Assets/Campaigns/
 # (redundant explicit match to cover nested files)
 /Assets/Campaigns/**
+
+# Ignore UserData folder and users.json
+/Assets/UserData/
+/Assets/UserData/**

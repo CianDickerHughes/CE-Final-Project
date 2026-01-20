@@ -183,12 +183,29 @@ public class CampaignViewUI : MonoBehaviour
         {
             Debug.Log($"Loading scene for play: {scene.sceneName}");
             
-            if (SceneDataTransfer.Instance != null)
-            {
-                SceneDataTransfer.Instance.PreparePlayScene(currentCampaign.campaignId, scene);
-                //Load the Gameplay scene - Now its dynamic and should work for either roleplay or combat
-                SceneManager.LoadScene("GameplayScene");
-            }
+            //Save the current scene to CurrentScene.json
+            SaveCurrentScene(scene);
+        }
+    }
+    
+    //Save the selected scene to CurrentScene.json
+    private void SaveCurrentScene(SceneData scene)
+    {
+        if (scene == null) return;
+        
+        try
+        {
+            string campaignsFolder = CampaignManager.GetCampaignsFolder();
+            string currentScenePath = Path.Combine(campaignsFolder, "CurrentScene.json");
+            
+            string json = JsonUtility.ToJson(scene, true);
+            File.WriteAllText(currentScenePath, json);
+            
+            Debug.Log($"Current scene saved to: {currentScenePath}");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"Failed to save current scene: {ex.Message}");
         }
     }
     
