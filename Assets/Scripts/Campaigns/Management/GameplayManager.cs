@@ -30,7 +30,7 @@ public class GameplayManager : MonoBehaviour
     [Header("Combat Specific State")]
     private List<string> turnOrder;
     private int currentTurnIndex = 0;
-    private bool isCombatActive = false;
+    //private bool isCombatActive = false;
     public bool isPlayerTurn;
 
     [Header("Player/NPC Management")]
@@ -59,26 +59,51 @@ public class GameplayManager : MonoBehaviour
 
     void Start()
     {
+        Debug.Log("=== GameplayManager Start() ===");
+        
         //Loading the scene data using the SceneDataTransfer singleton
         if (SceneDataTransfer.Instance != null)
         {
             currentSceneData = SceneDataTransfer.Instance.GetPendingScene();
             campaignId = SceneDataTransfer.Instance.GetCurrentCampaignId();
             
+            Debug.Log($"SceneDataTransfer found! Scene: {currentSceneData?.sceneName ?? "NULL"}");
+            Debug.Log($"MapData: {(currentSceneData?.mapData != null ? $"{currentSceneData.mapData.width}x{currentSceneData.mapData.height}" : "NULL")}");
+            
             //Need to set up the mode of this scene based on the loaded scene type
             currentMode = currentSceneData.sceneType == SceneType.Combat ? GameMode.Combat : GameMode.Roleplay;
         }
+        else
+        {
+            Debug.LogError("SceneDataTransfer.Instance is NULL! Make sure it exists in an earlier scene.");
+        }
         
         //Load the map from the specific scene data
-        if (gridManager != null && currentSceneData?.mapData != null)
+        if (gridManager != null)
         {
-            gridManager.LoadMapData(currentSceneData.mapData);
-            gridManager.SetEditMode(false); //Disable painting in gameplay
+            Debug.Log("GridManager reference is assigned.");
+            
+            if (currentSceneData?.mapData != null)
+            {
+                Debug.Log($"Loading map: {currentSceneData.mapData.width}x{currentSceneData.mapData.height}");
+                gridManager.LoadMapData(currentSceneData.mapData);
+                gridManager.SetEditMode(false); //Disable painting in gameplay
+            }
+            else
+            {
+                Debug.LogError("currentSceneData or mapData is NULL - cannot load map!");
+            }
+        }
+        else
+        {
+            Debug.LogError("GridManager reference is NULL! Assign it in the Inspector.");
         }
         
         // Initialize lists
         turnOrder = new List<string>();
         playerIds = new List<string>();
+        
+        Debug.Log("=== GameplayManager Start() Complete ===");
     }
     
     //Roleplay: Anyone can move anytime
@@ -123,7 +148,7 @@ public class GameplayManager : MonoBehaviour
 
         turnOrder = new List<string>(participants);
         currentTurnIndex = 0;
-        isCombatActive = true;
+        //isCombatActive = true;
         Debug.Log("Combat started with participants: " + string.Join(", ", participants));
     }
 
