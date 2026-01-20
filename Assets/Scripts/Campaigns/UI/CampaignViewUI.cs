@@ -26,6 +26,7 @@ public class CampaignViewUI : MonoBehaviour
     [SerializeField] private Button backButton;
     [SerializeField] private Button addSceneButton;
     [SerializeField] private Button createSceneButton;
+    [SerializeField] private Button startGameButton;
 
     [Header("Popups")]
     [SerializeField] private GameObject createScenePopup;
@@ -42,6 +43,9 @@ public class CampaignViewUI : MonoBehaviour
             
         if (addSceneButton != null)
             addSceneButton.onClick.AddListener(OnAddSceneClicked);
+        
+        if (startGameButton != null)
+            startGameButton.onClick.AddListener(OnStartGameClicked);
         
         //Load the campaign from context
         LoadCampaignFromContext();
@@ -269,6 +273,28 @@ public class CampaignViewUI : MonoBehaviour
         {
             createScenePopup.SetActive(true);
         }
+    }
+    
+    //Called when the Start Game button is clicked
+    private void OnStartGameClicked()
+    {
+        //Load the CurrentScene.json to get the scene data
+        SceneData currentScene = SceneDataNetwork.Instance?.LoadCurrentScene();
+        
+        if (currentScene == null)
+        {
+            Debug.LogWarning("No current scene selected. Please select a scene first.");
+            return;
+        }
+        
+        //Prepare the scene data for loading
+        if (SceneDataTransfer.Instance != null)
+        {
+            SceneDataTransfer.Instance.PreparePlayScene(currentCampaign.campaignId, currentScene);
+        }
+        
+        //Load the GameplayScene
+        SceneManager.LoadScene("GameplayScene");
     }
     
     //Called when the Back button is clicked
