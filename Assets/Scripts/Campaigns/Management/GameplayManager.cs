@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using UnityEngine.SceneManagement;
+using TMPro;
+using UnityEngine.UI;
 
 //This class will help outline and control the basic behaviour we'll need to implement
 //This included - if scene is combat or roleplay
@@ -37,6 +40,10 @@ public class GameplayManager : MonoBehaviour
     //Players linked to their character data
     private List<string> playerIds;
     private Dictionary<string, CharacterData> playerCharacters;
+    private Dictionary<string, Token> playerTokens; // Track spawned tokens
+
+    [Header("DM/Player state management Buttons")]
+    [SerializeField] private Button saveAndExitButton;
 
     //Making this class a singleton - all management classes are a singleton because they manage global state
     public static GameplayManager Instance { get; private set; }
@@ -98,16 +105,109 @@ public class GameplayManager : MonoBehaviour
         {
             Debug.LogError("GridManager reference is NULL! Assign it in the Inspector.");
         }
+
+        //Setting up buttons for DM/Player actions
+        saveAndExitButton.onClick.AddListener(saveAndExit);
         
         // Initialize lists
         turnOrder = new List<string>();
         playerIds = new List<string>();
+        playerTokens = new Dictionary<string, Token>();
         
         Debug.Log("=== GameplayManager Start() Complete ===");
     }
+
+    // ==================== UTILITY METHODS ====================
+    //Save & Exit - self explanatory where we save current progress and exit back to the campaign manager page
+    public void saveAndExit(){
+        Debug.Log("Saving current scene data and exiting to Campaign Manager...");
+        //Saving the current map data back to the scene data
+        if(gridManager != null && currentSceneData != null){
+            currentSceneData.mapData = gridManager.SaveMapData();
+            Debug.Log("Map data saved to current scene.");
+        } else {
+            Debug.LogWarning("Cannot save map data - GridManager or currentSceneData is null.");
+        }
+        //Here we would also save state information relating to this scene
+        //For now it just move the dm back to the Campaign Manager scene
+
+        //For now, we just log and move
+        Debug.Log("Exiting to Campaign Manager scene...");
+        SceneManager.LoadScene("CampaignManager");
+    }
     
-    //Roleplay: Anyone can move anytime
-    //Combat: Only current turn player can move
+    // ==================== TOKEN MANAGEMENT ====================
+    
+    public Token SpawnPlayerToken(string playerId, CharacterData character, int gridX, int gridY)
+    {
+        if (gridManager == null)
+        {
+            Debug.LogError("Cannot spawn token - GridManager is null!");
+            return null;
+        }
+        
+        // Use GridManager's spawn functionality
+        Token token = gridManager.SpawnTokenAt(new Vector2Int(gridX, gridY));
+        
+        if (token != null)
+        {
+            token.name = $"Token_{character.charName}";
+            playerTokens[playerId] = token;
+            
+            // TODO: Set token sprite based on character data
+            // token.SetSprite(character.spriteId);
+            
+            Debug.Log($"Spawned token for {character.charName} at ({gridX}, {gridY})");
+        }
+        
+        return token;
+    }
+    
+    public bool MoveToken(string playerId, int targetX, int targetY)
+    {
+        // Check if player can move
+        if (!CanPlayerMove(playerId))
+        {
+            Debug.Log($"Player {playerId} cannot move - not their turn!");
+            return false;
+        }
+        
+        // Get the player's token
+        if (!playerTokens.TryGetValue(playerId, out Token token))
+        {
+            Debug.LogWarning($"No token found for player {playerId}");
+            return false;
+        }
+        
+        // Get the target tile
+        Tile targetTile = gridManager.GetTileAtPosition(new Vector2(targetX, targetY));
+        if (targetTile == null)
+        {
+            Debug.Log("Target position is out of bounds!");
+            return false;
+        }
+        
+        // Check if tile is walkable
+        if (!targetTile.IsWalkable())
+        {
+            Debug.Log("Target tile is not walkable!");
+            return false;
+        }
+        
+        // Move the token
+        token.MoveToTile(targetTile);
+        Debug.Log($"Token moved to ({targetX}, {targetY})");
+        
+        return true;
+    }
+    
+    public Token GetPlayerToken(string playerId)
+    {
+        playerTokens.TryGetValue(playerId, out Token token);
+        return token;
+    }
+    
+    // ==================== MOVEMENT RULES ====================
     public bool CanPlayerMove(string playerId)
     {
         if (currentMode == GameMode.Roleplay)

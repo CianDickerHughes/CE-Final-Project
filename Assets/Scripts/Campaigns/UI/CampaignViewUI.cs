@@ -183,8 +183,17 @@ public class CampaignViewUI : MonoBehaviour
         {
             Debug.Log($"Loading scene for play: {scene.sceneName}");
             
-            //Save the current scene to CurrentScene.json
+            //Save the current scene to CurrentScene.json (for networking sync)
             SaveCurrentScene(scene);
+            
+            //Also prepare the scene via SceneDataTransfer (for local loading)
+            if (SceneDataTransfer.Instance != null)
+            {
+                SceneDataTransfer.Instance.PreparePlayScene(currentCampaign.campaignId, scene);
+            }
+            
+            //Now load the GameplayScene
+            SceneManager.LoadScene("GameplayScene");
         }
     }
     
