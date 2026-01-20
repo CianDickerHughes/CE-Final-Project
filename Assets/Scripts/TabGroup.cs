@@ -8,7 +8,9 @@ public class TabGroup : MonoBehaviour
     public List<TabButton> tabButtons;
     public Sprite tabIdleSprite;
     public Sprite tabHoverSprite;
-    public Sprite tabSelectedSprite;
+    public Sprite tabActiveSprite;
+    public TabButton selectedTab; // Changed from Image to TabButton, renamed for clarity
+    public List<GameObject> objectsToSwap;
 
     //Method to subscribe a tab button to the group
     public void Subscribe(TabButton button)
@@ -24,7 +26,9 @@ public class TabGroup : MonoBehaviour
     public void OnTabEnter(TabButton button)
     {
         ResetTabs();
-        button.background.sprite = tabHoverSprite;
+        if(selectedTab == null || button != selectedTab) {
+            button.background.sprite = tabHoverSprite;
+        }
     }
 
     public void OnTabExit(TabButton button)
@@ -34,8 +38,21 @@ public class TabGroup : MonoBehaviour
 
     public void OnTabSelected(TabButton button)
     {
+        selectedTab = button;
         ResetTabs();
-        button.background.sprite = tabSelectedSprite;
+        button.background.sprite = tabActiveSprite;
+        int index = button.transform.GetSiblingIndex();
+        for (int i = 0; i < objectsToSwap.Count; i++)
+        {
+            if (i == index)
+            {
+                objectsToSwap[i].SetActive(true);
+            }
+            else
+            {
+                objectsToSwap[i].SetActive(false);
+            }
+        }
     }
 
     //Method to reset all tabs to default color
@@ -43,6 +60,7 @@ public class TabGroup : MonoBehaviour
     {
         foreach (TabButton button in tabButtons)
         {
+            if(selectedTab != null && button == selectedTab) {continue;}
             button.background.sprite = tabIdleSprite;
         }
     }
