@@ -185,19 +185,10 @@ public class CampaignViewUI : MonoBehaviour
             
             //Save the current scene to CurrentScene.json (for networking sync)
             SaveCurrentScene(scene);
-            
-            //Also prepare the scene via SceneDataTransfer (for local loading)
-            if (SceneDataTransfer.Instance != null)
-            {
-                SceneDataTransfer.Instance.PreparePlayScene(currentCampaign.campaignId, scene);
-            }
-            
-            //Now load the GameplayScene
-            SceneManager.LoadScene("GameplayScene");
         }
     }
     
-    //Save the selected scene to CurrentScene.json
+    //Save the selected scene to CurrentScene.json and broadcast to clients
     private void SaveCurrentScene(SceneData scene)
     {
         if (scene == null) return;
@@ -211,6 +202,16 @@ public class CampaignViewUI : MonoBehaviour
             File.WriteAllText(currentScenePath, json);
             
             Debug.Log($"Current scene saved to: {currentScenePath}");
+
+            // Broadcast to connected clients via SceneDataNetwork
+            if (SceneDataNetwork.Instance != null)
+            {
+                SceneDataNetwork.Instance.SendSceneToClients(scene);
+            }
+            else
+            {
+                Debug.LogWarning("SceneDataNetwork instance not found; scene data not sent to clients.");
+            }
         }
         catch (System.Exception ex)
         {

@@ -6980,6 +6980,7 @@ MonoBehaviour:
   backButton: {fileID: 1725606155}
   chatNetworkPrefab: {fileID: 6134980698075567069, guid: a714c5386baa76e4db41571ebd56c1b0, type: 3}
   characterTransferPrefab: {fileID: 6134980698075567069, guid: 7367c7fb0a053b54289e74710f98da05, type: 3}
+  sceneDataNetworkPrefab: {fileID: 6134980698075567069, guid: 0625de863209fa343978e612ab935b16, type: 3}
   maxConnections: 10
 --- !u!1 &968432742
 GameObject:
@@ -12771,8 +12772,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 2.3909, y: 107.6}
-  m_SizeDelta: {x: -79.386, y: -314.68}
+  m_AnchoredPosition: {x: 2.3908997, y: -4.539795}
+  m_SizeDelta: {x: -79.386, y: -90.4003}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1949062709
 MonoBehaviour:
@@ -13362,8 +13363,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 1.3175964, y: -31.035004}
-  m_SizeDelta: {x: -42.945, y: -194.97}
+  m_AnchoredPosition: {x: 1.3175964, y: 109.13983}
+  m_SizeDelta: {x: -42.945, y: -475.3196}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2058032249
 MonoBehaviour:

@@ -25,6 +25,7 @@ public class RelayHostManager : MonoBehaviour
     [Header("Network Prefabs")]
     [SerializeField] NetworkObject chatNetworkPrefab;
     [SerializeField] NetworkObject characterTransferPrefab;
+    [SerializeField] NetworkObject sceneDataNetworkPrefab;
 
     [Header("Settings")]
     [SerializeField] int maxConnections = 3;
@@ -170,6 +171,18 @@ public class RelayHostManager : MonoBehaviour
             else
             {
                 Debug.LogWarning("RelayHostManager: CharacterTransferNetwork prefab not assigned. Character uploads won't reach host.");
+            }
+
+            // Spawn scene data network so DM can sync CurrentScene.json to clients
+            if (sceneDataNetworkPrefab != null)
+            {
+                var sceneNetwork = Instantiate(sceneDataNetworkPrefab);
+                sceneNetwork.Spawn();
+                Debug.Log("RelayHostManager: Spawned SceneDataNetwork prefab");
+            }
+            else
+            {
+                Debug.LogWarning("RelayHostManager: SceneDataNetwork prefab not assigned. Scene data will not sync to clients.");
             }
         }
         catch (System.Exception ex)
