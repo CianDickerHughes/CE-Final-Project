@@ -1195,7 +1195,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.00030517578, y: -0.00018013813}
+  m_AnchoredPosition: {x: 0.00018310547, y: -0.00018013813}
   m_SizeDelta: {x: -1613, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &698943466
@@ -1225,17 +1225,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.VerticalLayoutGroup
   m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
+    m_Left: 10
+    m_Right: 10
+    m_Top: 10
+    m_Bottom: 10
   m_ChildAlignment: 1
-  m_Spacing: 0
+  m_Spacing: 10
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
-  m_ChildControlWidth: 0
-  m_ChildControlHeight: 0
-  m_ChildScaleWidth: 0
+  m_ChildControlWidth: 1
+  m_ChildControlHeight: 1
+  m_ChildScaleWidth: 1
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
 --- !u!1 &796544123
@@ -1343,7 +1343,6 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1372232378}
   - {fileID: 1883175625}
   - {fileID: 1885605828}
   - {fileID: 297625504}
@@ -1427,6 +1426,7 @@ MonoBehaviour:
   gameplaySceneName: GameplayScene
   loadGameplayAfterSend: 1
   explicitCharacterJsonPath: 
+  allowContinueWithoutCharacter: 1
 --- !u!4 &908039198
 Transform:
   m_ObjectHideFlags: 0
@@ -2226,7 +2226,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1249355289}
-  - component: {fileID: 1249355288}
+  - component: {fileID: 1249355290}
   m_Layer: 0
   m_Name: CharacterListController
   m_TagString: Untagged
@@ -2234,22 +2234,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1249355288
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249355287}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: df203e250a7144641acf497389e66d9e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CharacterListController
-  itemPrefab: {fileID: 5964330816624310107, guid: 5f087224fe5680a459c4f3c68b54197d, type: 3}
-  contentParent: {fileID: 698943465}
-  createNewButton: {fileID: 0}
-  emptyText: {fileID: 1885605829}
 --- !u!4 &1249355289
 Transform:
   m_ObjectHideFlags: 0
@@ -2265,6 +2249,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1249355290
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249355287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9064c59f1de6624295eb118f1a61b7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WaitingRoomCharacterLoader
+  itemPrefab: {fileID: 5964330816624310107, guid: 5f087224fe5680a459c4f3c68b54197d, type: 3}
+  contentParent: {fileID: 698943465}
+  emptyText: {fileID: 1885605829}
+  selectedCharacterText: {fileID: 0}
 --- !u!1 &1266483400
 GameObject:
   m_ObjectHideFlags: 0
@@ -2588,98 +2588,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1297971186}
   m_CullTransparentMesh: 1
---- !u!1 &1372232377
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1372232378}
-  - component: {fileID: 1372232380}
-  - component: {fileID: 1372232379}
-  - component: {fileID: 1372232381}
-  m_Layer: 5
-  m_Name: LoadedCharacters
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &1372232378
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1372232377}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 809324848}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -140.12, y: -120.90405}
-  m_SizeDelta: {x: -572.25, y: -407.1199}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1372232379
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1372232377}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 160154789899534285, guid: 8d05a8d737bd0b642880b8633ebf1a45, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!222 &1372232380
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1372232377}
-  m_CullTransparentMesh: 1
---- !u!114 &1372232381
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1372232377}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: df203e250a7144641acf497389e66d9e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CharacterListController
-  itemPrefab: {fileID: 3021428213142830607, guid: 60495b5c532d1164bbc6ba963b155a9f, type: 3}
-  contentParent: {fileID: 698943465}
-  createNewButton: {fileID: 0}
-  emptyText: {fileID: 1885605829}
 --- !u!1 &1418592352
 GameObject:
   m_ObjectHideFlags: 0
@@ -2930,7 +2838,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1170668643}
   m_Direction: 0
   m_Value: 0
-  m_Size: 1
+  m_Size: 0.9999985
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
