@@ -10,9 +10,15 @@ public class SessionManager : MonoBehaviour
     private const string PlayerPrefsKey = "CurrentUsername";
     //The current logged-in user's name
     public string CurrentUsername { get; private set; }
+    
+    //The character selected for the current game session
+    public CharacterData SelectedCharacter { get; private set; }
 
     //Check if a user is logged in
     public bool IsLoggedIn => !string.IsNullOrEmpty(CurrentUsername);
+    
+    //Check if a character is selected
+    public bool HasSelectedCharacter => SelectedCharacter != null;
 
     void Awake()
     {
@@ -33,10 +39,24 @@ public class SessionManager : MonoBehaviour
     {
         CurrentUsername = username.Trim();
     }
+    
+    //Set the selected character for gameplay
+    public void SetSelectedCharacter(CharacterData character)
+    {
+        SelectedCharacter = character;
+        Debug.Log($"Character selected for session: {character?.charName ?? "None"}");
+    }
+    
+    //Clear the selected character
+    public void ClearSelectedCharacter()
+    {
+        SelectedCharacter = null;
+    }
 
     //Clear the current user
     public void SignOut()
     {
         CurrentUsername = null;
+        SelectedCharacter = null;
     }
 }
