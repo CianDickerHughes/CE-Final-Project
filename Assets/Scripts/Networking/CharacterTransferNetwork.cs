@@ -63,7 +63,7 @@ public class CharacterTransferNetwork : NetworkBehaviour
     }
 
     /// <summary>
-    /// Runs on host: saves files to Assets/Characters (Editor) or persistent data (builds), then notifies clients.
+    /// Runs on host: saves files to the campaign's PlayerCharacters folder, then notifies clients.
     /// </summary>
     [Rpc(SendTo.Server)]
     private void SendCharacterServerRpc(string jsonFileName, string jsonContent, string tokenFileName, byte[] tokenBytes, RpcParams rpcParams = default)
@@ -72,7 +72,14 @@ public class CharacterTransferNetwork : NetworkBehaviour
 
         try
         {
-            string folder = CharacterIO.GetCharactersFolder();
+            // Get the PlayerCharacters folder for the current campaign
+            string folder = GetPlayerCharactersFolder();
+            
+            if (string.IsNullOrEmpty(folder))
+            {
+                Debug.LogError($"CharacterTransferNetwork: Could not determine PlayerCharacters folder for current campaign.");
+                return;
+            }
 
             // Sanitize names and ensure extensions
             string jsonName = BuildJsonFileName(jsonFileName);
@@ -99,6 +106,84 @@ public class CharacterTransferNetwork : NetworkBehaviour
         {
             Debug.LogError($"CharacterTransferNetwork: Failed to store character from client {senderId}: {ex}");
         }
+    }
+    
+    /// <summary>
+    /// Gets the PlayerCharacters folder for the current campaign.
+    /// Creates it if it doesn't exist.
+    /// </summary>
+    private string GetPlayerCharactersFolder()
+    {
+        // Try multiple sources to get the campaign info
+        string campaignId = null;
+        string campaignFilePath = null;
+        
+        // 1. Try SceneDataTransfer first
+        if (SceneDataTransfer.Instance != null)
+        {
+            campaignId = SceneDataTransfer.Instance.GetCurrentCampaignId();
+            Debug.Log($"CharacterTransferNetwork: Got campaign ID from SceneDataTransfer: {campaignId ?? "null"}");
+        }
+        
+        // 2. Fall back to CampaignSelectionContext (static, persists across scenes)
+        if (string.IsNullOrEmpty(campaignId) && CampaignSelectionContext.HasSelection)
+        {
+            campaignId = CampaignSelectionContext.SelectedCampaignId;
+            campaignFilePath = CampaignSelectionContext.SelectedCampaignFilePath;
+            Debug.Log($"CharacterTransferNetwork: Got campaign ID from CampaignSelectionContext: {campaignId}");
+        }
+        
+        if (string.IsNullOrEmpty(campaignId))
+        {
+            Debug.LogWarning("CharacterTransferNetwork: No campaign ID found, falling back to global Characters folder.");
+            return CharacterIO.GetCharactersFolder();
+        }
+        
+        // If we have the campaign file path, get the folder directly from it
+        string campaignFolder = null;
+        if (!string.IsNullOrEmpty(campaignFilePath) && File.Exists(campaignFilePath))
+        {
+            campaignFolder = Path.GetDirectoryName(campaignFilePath);
+            Debug.Log($"CharacterTransferNetwork: Got campaign folder from file path: {campaignFolder}");
+        }
+        else
+        {
+            // Find the campaign folder by searching for the campaign JSON
+            string campaignsFolder = CampaignManager.GetCampaignsFolder();
+            Debug.Log($"CharacterTransferNetwork: Searching for campaign in: {campaignsFolder}");
+            
+            if (Directory.Exists(campaignsFolder))
+            {
+                foreach (string folder in Directory.GetDirectories(campaignsFolder))
+                {
+                    string campaignJsonPath = Path.Combine(folder, $"{campaignId}.json");
+                    if (File.Exists(campaignJsonPath))
+                    {
+                        campaignFolder = folder;
+                        Debug.Log($"CharacterTransferNetwork: Found campaign folder: {campaignFolder}");
+                        break;
+                    }
+                }
+            }
+        }
+        
+        if (string.IsNullOrEmpty(campaignFolder))
+        {
+            Debug.LogWarning($"CharacterTransferNetwork: Campaign folder not found for ID {campaignId}, falling back to global Characters folder.");
+            return CharacterIO.GetCharactersFolder();
+            return CharacterIO.GetCharactersFolder();
+            return CharacterIO.GetCharactersFolder();
+        }
+        
+        // Create PlayerCharacters subfolder if it doesn't exist
+        string playerCharactersFolder = Path.Combine(campaignFolder, "PlayerCharacters");
+        if (!Directory.Exists(playerCharactersFolder))
+        {
+            Directory.CreateDirectory(playerCharactersFolder);
+            Debug.Log($"CharacterTransferNetwork: Created PlayerCharacters folder at {playerCharactersFolder}");
+        }
+        
+        return playerCharactersFolder;
     }
 
     [Rpc(SendTo.ClientsAndHost)]
