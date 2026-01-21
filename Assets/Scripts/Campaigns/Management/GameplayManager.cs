@@ -26,9 +26,15 @@ public class GameplayManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private GridManager gridManager;
 
+    [Header("Header Information")]
+    [SerializeField] private TextMeshProUGUI sceneName;
+    [SerializeField] private TextMeshProUGUI playerName;
+
     [Header("Scene Info")]
     private SceneData currentSceneData;
     private string campaignId;
+    //Use this to populate the players name in the header
+    private SessionManager sessionManager;
 
     [Header("Combat Specific State")]
     private List<string> turnOrder;
@@ -108,6 +114,28 @@ public class GameplayManager : MonoBehaviour
 
         //Setting up buttons for DM/Player actions
         saveAndExitButton.onClick.AddListener(saveAndExit);
+
+        //Setting up the header fields - purely UI related
+        if (sceneName != null && currentSceneData != null)
+        {
+            sceneName.text = currentSceneData.sceneName;
+            Debug.Log($"Scene name set to: {currentSceneData.sceneName}");
+        }
+        else
+        {
+            Debug.LogWarning("sceneName TextMeshProUGUI or currentSceneData is NULL.");
+        }
+        //Setting up the session manager to get player info
+        sessionManager = SessionManager.Instance;
+        if (sessionManager != null && playerName != null)
+        {
+            playerName.text = sessionManager.CurrentUsername;
+            Debug.Log($"Player name set to: {playerName.text}");
+        }
+        else
+        {
+            Debug.LogWarning("playerName TextMeshProUGUI or SessionManager instance is NULL.");
+        }
         
         // Initialize lists
         turnOrder = new List<string>();
