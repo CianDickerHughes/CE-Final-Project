@@ -35,7 +35,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 30.718323, y: 79.221}
+  m_AnchoredPosition: {x: 30.718262, y: 79.22101}
   m_SizeDelta: {x: -494.7246, y: -203.41}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5342984131620180421
@@ -570,6 +570,7 @@ GameObject:
   - component: {fileID: 3358848378460498343}
   - component: {fileID: 1894315387973533106}
   - component: {fileID: 6222349641019303098}
+  - component: {fileID: 3030054682139308071}
   m_Layer: 5
   m_Name: PlayableCharacterItem
   m_TagString: Untagged
@@ -598,7 +599,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -147.08698, y: -11.8261}
+  m_AnchoredPosition: {x: -147.08691, y: -11.82605}
   m_SizeDelta: {x: -627.5582, y: -794.0159}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1894315387973533106
@@ -639,6 +640,26 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &3030054682139308071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5964330816624310107}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71f956254e821f14f89f786867db284e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayableCharacterItem
+  characterImg: {fileID: 2669702632892965026}
+  charNameText: {fileID: 6964365699016208441}
+  charRaceText: {fileID: 6477830884616573796}
+  charClassText: {fileID: 517232194386711294}
+  selectButton: {fileID: 9144848757963015183}
+  backgroundImage: {fileID: 0}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 0.8, g: 1, b: 0.8, a: 1}
 --- !u!1 &6063381956622645871
 GameObject:
   m_ObjectHideFlags: 0
