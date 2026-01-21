@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4e6b71cdaefdd944593df0615e644af7
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 167779
+  packageName: Hero Knight
+  packageVersion: 1.0
+  assetPath: Assets/Hero_Knight/Animations/animation.controller
+  uploadId: 380670
