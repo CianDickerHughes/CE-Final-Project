@@ -4774,9 +4774,9 @@ RectTransform:
   - {fileID: 1581838481}
   m_Father: {fileID: 647266055}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.5}
-  m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 2130, y: 0.0000083447}
+  m_AnchorMin: {x: 1, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: 210, y: -1.5925}
   m_SizeDelta: {x: 420, y: 816.22}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1258784134
@@ -4845,7 +4845,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SlideMenu
   hiddenPosition: {x: 2130, y: 0}
-  shownPosition: {x: 171, y: 0}
+  shownPosition: {x: -210, y: 0}
   duration: 0.35
   ease:
     serializedVersion: 2
@@ -5851,7 +5851,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.000045776367, y: 322}
+  m_AnchoredPosition: {x: 0, y: 322}
   m_SizeDelta: {x: -40.8465, y: -725.0338}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1476394129
