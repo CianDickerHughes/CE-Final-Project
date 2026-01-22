@@ -171,8 +171,6 @@ public class CharacterTransferNetwork : NetworkBehaviour
         {
             Debug.LogWarning($"CharacterTransferNetwork: Campaign folder not found for ID {campaignId}, falling back to global Characters folder.");
             return CharacterIO.GetCharactersFolder();
-            return CharacterIO.GetCharactersFolder();
-            return CharacterIO.GetCharactersFolder();
         }
         
         // Create PlayerCharacters subfolder if it doesn't exist

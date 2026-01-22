@@ -135,7 +135,7 @@ public class ChatManager : MonoBehaviour
             textComponent.enableAutoSizing = true;
             textComponent.fontSizeMin = 6f;
             textComponent.fontSizeMax = 10f;
-            textComponent.enableWordWrapping = true;
+            textComponent.textWrappingMode = TextWrappingModes.Normal;
             textComponent.overflowMode = TextOverflowModes.Truncate;
         }
 

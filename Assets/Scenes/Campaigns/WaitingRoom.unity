@@ -152,7 +152,7 @@ MonoBehaviour:
   inputField: {fileID: 1067957997}
   contentParent: {fileID: 1418592353}
   scrollRect: {fileID: 153950051}
-  chatMessagePrefab: {fileID: 2867137679412485494, guid: 2cd160a3f49180c4582b1898294c81fd, type: 3}
+  chatMessagePrefab: {fileID: 2867137679412485494, guid: 0cfccdfe3e408ea4c864bac5bbf82a9b, type: 3}
   maxMessages: 50
   playerName: Player
 --- !u!4 &6122784
@@ -1195,7 +1195,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.00018310547, y: -0.00018013813}
+  m_AnchoredPosition: {x: 0, y: -0.00018013813}
   m_SizeDelta: {x: -1613, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &698943466
@@ -2838,7 +2838,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1170668643}
   m_Direction: 0
   m_Value: 0
-  m_Size: 0.9999985
+  m_Size: 0.9999991
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
