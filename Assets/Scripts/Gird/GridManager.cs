@@ -39,6 +39,15 @@ public class GridManager : MonoBehaviour {
     public TMP_InputField rowsInput;
     public Button resizeButton;
  
+    void Awake()
+    {
+        // Initialize tiles dictionary early to prevent null reference issues
+        if (tiles == null)
+        {
+            tiles = new Dictionary<Vector2, Tile>();
+        }
+    }
+
     void Start() {
         //NOT WORKING - SPAWING STUFF ISNT WORKING/BEGUN IMPLEMENTATION
         //Wire spawn button if assigned - clicking will spawn a token at the configured start position
@@ -235,6 +244,11 @@ public class GridManager : MonoBehaviour {
 
     //Method to save the map data to a CampaignData object
     public MapData SaveMapData(){
+        if (tiles == null || tiles.Count == 0)
+        {
+            Debug.LogWarning("SaveMapData: tiles dictionary is null or empty!");
+            return new MapData(width, height);
+        }
         MapData mapData = new MapData(width, height);
         int nonFloorCount = 0;
         foreach (var kvp in tiles)

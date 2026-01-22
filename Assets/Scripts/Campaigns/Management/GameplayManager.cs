@@ -65,8 +65,57 @@ public class GameplayManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("GameplayManager duplicate destroyed.");
+            // Transfer fresh UI references from this new instance to the persistent singleton
+            Instance.TransferUIReferences(this);
+            Debug.Log("GameplayManager duplicate destroyed, UI references transferred.");
             Destroy(gameObject);
+            return;
+        }
+    }
+
+    // Called by duplicate instances to transfer their fresh scene references to the singleton
+    public void TransferUIReferences(GameplayManager newInstance)
+    {
+        // Transfer all serialized UI references from the new scene instance
+        saveAndExitButton = newInstance.saveAndExitButton;
+        sceneName = newInstance.sceneName;
+        playerName = newInstance.playerName;
+        gridManager = newInstance.gridManager;
+
+        // Re-bind button listener
+        if (saveAndExitButton != null)
+        {
+            saveAndExitButton.onClick.RemoveAllListeners();
+            saveAndExitButton.onClick.AddListener(saveAndExit);
+            Debug.Log("GameplayManager: Transferred and re-bound saveAndExitButton listener.");
+        }
+    }
+
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // UI references are now transferred via TransferUIReferences in Awake
+        // This is kept for any additional scene-load logic if needed
+        Debug.Log($"GameplayManager: Scene '{scene.name}' loaded.");
+    }
+
+    private void RebindUIReferences()
+    {
+        // Re-add listener if button exists (remove first to prevent duplicates)
+        if (saveAndExitButton != null)
+        {
+            saveAndExitButton.onClick.RemoveAllListeners();
+            saveAndExitButton.onClick.AddListener(saveAndExit);
+            Debug.Log("GameplayManager: Re-bound saveAndExitButton listener.");
         }
     }
 
@@ -113,7 +162,8 @@ public class GameplayManager : MonoBehaviour
         }
 
         //Setting up buttons for DM/Player actions
-        saveAndExitButton.onClick.AddListener(saveAndExit);
+        // Use RebindUIReferences to handle button setup (prevents duplicate listeners)
+        RebindUIReferences();
 
         //Setting up the header fields - purely UI related
         if (sceneName != null && currentSceneData != null)
