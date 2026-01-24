@@ -98,16 +98,25 @@ public class CampaignViewUI : MonoBehaviour
     //Fill in the campaign info UI elements
     private void PopulateCampaignInfo()
     {
-        if (currentCampaign == null) return;
+        if (currentCampaign == null) 
+        {
+            return;
+        }
         
         if (campaignTitleText != null)
+        {
             campaignTitleText.text = currentCampaign.campaignName;
+        }
             
         if (campaignDescriptionText != null)
+        {
             campaignDescriptionText.text = currentCampaign.campaignDescription;
+        }
             
         if (inviteCodeText != null)
-            inviteCodeText.text = $"Invite Code: {currentCampaign.inviteCode}";
+        {
+            inviteCodeText.text = $"{currentCampaign.inviteCode}";
+        }
         
         //Load logo if available
         if (campaignLogoImage != null && !string.IsNullOrEmpty(currentCampaign.campaignLogoPath))

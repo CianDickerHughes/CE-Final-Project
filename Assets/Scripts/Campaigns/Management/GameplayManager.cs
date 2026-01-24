@@ -51,6 +51,15 @@ public class GameplayManager : MonoBehaviour
     [Header("DM/Player state management Buttons")]
     [SerializeField] private Button saveAndExitButton;
 
+    [Header("Token Spawining")]
+    [SerializeField] private Token tokenPrefab;
+    private List<Token> spawnedTokens;
+
+    //Clicking to spawn tokens for players/enemies
+    private CharacterData selectedCharacterToSpawn;
+    private CharacterType selectedCharacterType;
+    private bool isInSpawnMode = false;
+
     //Making this class a singleton - all management classes are a singleton because they manage global state
     public static GameplayManager Instance { get; private set; }
 
@@ -216,29 +225,53 @@ public class GameplayManager : MonoBehaviour
     
     // ==================== TOKEN MANAGEMENT ====================
     
-    public Token SpawnPlayerToken(string playerId, CharacterData character, int gridX, int gridY)
+    public Token SpawnTokenAtTile(Tile tile, CharacterData character, CharacterType type)
     {
-        if (gridManager == null)
+        if (tile == null || tokenPrefab == null) 
         {
-            Debug.LogError("Cannot spawn token - GridManager is null!");
             return null;
         }
-        
-        // Use GridManager's spawn functionality
-        Token token = gridManager.SpawnTokenAt(new Vector2Int(gridX, gridY));
-        
-        if (token != null)
-        {
-            token.name = $"Token_{character.charName}";
-            playerTokens[playerId] = token;
-            
-            // TODO: Set token sprite based on character data
-            // token.SetSprite(character.spriteId);
-            
-            Debug.Log($"Spawned token for {character.charName} at ({gridX}, {gridY})");
-        }
+    
+        Token token = Instantiate(tokenPrefab, tile.transform.position, Quaternion.identity);
+        token.Inialize(character, type, tile);
+        spawnedTokens.Add(token);
         
         return token;
+    }
+
+    //Simple method to check if we're in spawn mode
+    public bool IsInSpawnMode()
+    {
+        return isInSpawnMode;
+    }
+
+    //UTILITY METHODS FOR TOKEN SPAWINING
+    //Setting the selected character and type for spawning
+    public void SetSelectedForSpawn(CharacterData data, CharacterType type)
+    {
+        selectedCharacterToSpawn = data;
+        selectedCharacterType = type;
+        isInSpawnMode = true;
+    }
+
+    //Clearing the selection after spawning - similar to the whole "context" thing we use in this app
+    public void ClearSpawnSelection()
+    {
+        selectedCharacterToSpawn = null;
+        isInSpawnMode = false;
+    }
+
+    //Attempting to spawn at a specific tile
+    public void TrySpawnAtTile(Tile tile)
+    {
+        if (!isInSpawnMode || tile == null)
+        {
+            Debug.Log("Not in spawn mode or invalid tile.");
+            return;
+        }
+        
+        SpawnTokenAtTile(tile, selectedCharacterToSpawn, selectedCharacterType);
+        ClearSpawnSelection();
     }
     
     public bool MoveToken(string playerId, int targetX, int targetY)

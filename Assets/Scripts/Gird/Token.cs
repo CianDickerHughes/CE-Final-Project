@@ -2,20 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Simple Token that can be placed on the grid. It provides helper APIs to
-/// snap/move the token to tiles managed by `GridManager`.
-///
-/// Usage:
-/// - Add this script to a circular token GameObject (SpriteRenderer).
-/// - Assign `GridManager` in the inspector or let it auto-find one in the scene.
-/// - Call `PlaceAtGridPosition(new Vector2Int(x,y))` or `SnapToNearestTile()` to snap the token.
-/// </summary>
 public class Token : MonoBehaviour
 {
     [Header("References")]
-    [Tooltip("Optional: assign your GridManager. If left empty the script will try FindObjectOfType<GridManager>()")]
     [SerializeField] private GridManager gridManager;
+
+    [Header("Identification")]
+    private CharacterData characterData;
+    private CharacterType characterType;
+    //FOR NETWORKING CIAN - SO WE CAN TRACK WHO OWNS WHAT TOKEN
+    private ulong ownerId;
 
     private Tile currentTile;
     private SpriteRenderer spriteRenderer;
@@ -43,6 +39,21 @@ public class Token : MonoBehaviour
 #else
             gridManager = FindObjectOfType<GridManager>();
 #endif
+        }
+    }
+
+    public void Inialize(CharacterData data, CharacterType type, Tile startTile)
+    {
+        characterData = data;
+        characterType = type;
+        currentTile = startTile;
+        
+        // Set visual based on character
+        if (data != null)
+        {
+            name = $"Token_{data.charName}";
+            Debug.Log($"Token: Initializing token for character {data.charName} of type {type}.");
+            //TODO: Load sprite from data.tokenFileName
         }
     }
 
@@ -106,4 +117,12 @@ public class Token : MonoBehaviour
     /// Returns the tile the token is currently on (if any).
     /// </summary>
     public Tile GetCurrentTile() => currentTile;
+}
+
+//Tracking what "Type" of character this token represents - who are they
+public enum CharacterType
+{
+    Player,
+    NPC,
+    Enemy
 }

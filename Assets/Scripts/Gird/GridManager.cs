@@ -15,16 +15,6 @@ public class GridManager : MonoBehaviour {
     [SerializeField] private Tile tilePrefab;
  
     [SerializeField] private Transform cam;
-    
-    //SUBJECT TO CHANGE - MAYBE TOKENS WILL BE HANDLED ELSEWHERE (MOST LIKELY FOR SOMETHING LIKE DM CONTROL SCRIPT OR SOMETHING LIKE THAT)
-    [Header("Token")]
-    [SerializeField] private Token tokenPrefab;
-    [SerializeField] private UnityEngine.Vector2Int tokenStartPosition = new UnityEngine.Vector2Int(0, 0);
-    [SerializeField] private UnityEngine.UI.Button spawnTokenButton;
-
-    private Token activeToken;
-    //Sequential counter for naming spawned tokens (Token 1, Token 2, ...)
-    private int tokenCounter = 0;
 
     //Tracking to see if the map is in edit mode
     public bool IsEditMode;
@@ -50,12 +40,6 @@ public class GridManager : MonoBehaviour {
 
     void Start() {
         //NOT WORKING - SPAWING STUFF ISNT WORKING/BEGUN IMPLEMENTATION
-        //Wire spawn button if assigned - clicking will spawn a token at the configured start position
-        if (spawnTokenButton != null)
-        {
-            spawnTokenButton.onClick.AddListener(() => SpawnTokenAt(tokenStartPosition));
-        }
-
         if (resizeButton != null)
         {
             resizeButton.onClick.AddListener(OnResizeButtonClicked);
@@ -121,36 +105,6 @@ public class GridManager : MonoBehaviour {
         //Otherwise return null if not found
         return null;
     }
-
-    //WIP - MAYBE CHANGE LATER
-    //Meant to spawn a token at a specific grid position - probably will remove this in favour of "drag and drop" system
-    public Token SpawnTokenAt(UnityEngine.Vector2Int gridPos)
-    {
-        if (tokenPrefab == null)
-        {
-            Debug.LogWarning("GridManager: No Token prefab assigned.");
-            return null;
-        }
-
-        UnityEngine.Vector2 key = new UnityEngine.Vector2(gridPos.x, gridPos.y);
-        Tile tile = GetTileAtPosition(key);
-        UnityEngine.Vector3 spawnPos = tile != null ? tile.transform.position : new UnityEngine.Vector3(gridPos.x, gridPos.y);
-        //Increment counter and use sequential naming for tokens
-        tokenCounter++;
-        var token = Instantiate(tokenPrefab, spawnPos, Quaternion.identity);
-        token.name = $"Token {tokenCounter}";
-        if (tile != null) token.MoveToTile(tile);
-
-        activeToken = token;
-        return token;
-    }
-
-    public void OnSpawnTokenButtonClicked()
-    {
-        SpawnTokenAt(tokenStartPosition);
-    }
-
-    public Token GetActiveToken() => activeToken;
     
     //Called when the resize button is clicked
     //Literally just parses input and calls ResizeGrid
