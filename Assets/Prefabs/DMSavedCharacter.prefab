@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 342099014455138616}
   - component: {fileID: 7939857085197203163}
   - component: {fileID: 6144348321634486903}
+  - component: {fileID: 1855468809338307203}
   m_Layer: 5
   m_Name: DMSavedCharacter
   m_TagString: Untagged
@@ -94,6 +95,24 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
   m_EffectDistance: {x: 4, y: -4}
   m_UseGraphicAlpha: 1
+--- !u!114 &1855468809338307203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1173046809421041127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d41fcbeb3c77084ebf2bbc505b589c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SavedCharacterItem
+  thumbImage: {fileID: 4324944122347531077}
+  nameText: {fileID: 143392482581868772}
+  timestampText: {fileID: 0}
+  charClass: {fileID: 700741641028190550}
+  charRace: {fileID: 6595591793651141963}
+  loadButton: {fileID: 0}
 --- !u!1 &4372551991000194332
 GameObject:
   m_ObjectHideFlags: 0
