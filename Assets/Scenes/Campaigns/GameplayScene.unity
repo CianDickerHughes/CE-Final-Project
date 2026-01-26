@@ -1356,6 +1356,7 @@ MonoBehaviour:
   playerName: {fileID: 168072684}
   isPlayerTurn: 0
   saveAndExitButton: {fileID: 472519636}
+  tokenPrefab: {fileID: 5171615286274877732, guid: 8cc39377f7b26e74e96c5f9c8aaf7c8d, type: 3}
 --- !u!1 &168072682
 GameObject:
   m_ObjectHideFlags: 0
@@ -5136,7 +5137,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.00050325104}
+  m_AnchoredPosition: {x: 0, y: 0.0000017015227}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &825922708
@@ -9061,9 +9062,6 @@ MonoBehaviour:
   height: 0
   tilePrefab: {fileID: 4486543169891831586, guid: adecb27cdad579d4abd772308c0fc208, type: 3}
   cam: {fileID: 1044519059}
-  tokenPrefab: {fileID: 0}
-  tokenStartPosition: {x: 0, y: 0}
-  spawnTokenButton: {fileID: 0}
   IsEditMode: 0
   columnsInput: {fileID: 0}
   rowsInput: {fileID: 0}
@@ -9369,7 +9367,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.00050325104}
+  m_AnchoredPosition: {x: 0, y: -0.000028815712}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &1433990693

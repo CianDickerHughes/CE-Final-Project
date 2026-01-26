@@ -12,12 +12,15 @@ public class SavedCharacterItem : MonoBehaviour
     public TextMeshProUGUI charClass;
     public TextMeshProUGUI charRace;
     public Button loadButton;
+    public Button spawnButton;
     private string filePath;
+    private CharacterData characterData;
 
     //Setup called after instantiation
     public void Setup(string jsonFilePath, CharacterData data, Action<string> onSelect)
     {
         filePath = jsonFilePath;
+        characterData = data;
 
         if (nameText != null)
         {
@@ -72,5 +75,21 @@ public class SavedCharacterItem : MonoBehaviour
             loadButton.onClick.RemoveAllListeners();
             loadButton.onClick.AddListener(() => onSelect?.Invoke(filePath));
         }
+
+        //Wiring up the spawn button - not working yet
+        /*
+        if(spawnButton != null){
+            spawnButton.onClick.RemoveAllListeners();
+            spawnButton.onClick.AddListener(() => SelectForSpawning(characterData.characterType));
+        }
+        */
+    }
+
+    public void SelectForSpawning(CharacterType type){
+        if(characterData != null && GameplayManager.Instance != null){
+
+            GameplayManager.Instance.SetSelectedForSpawn(characterData, type);
+            Debug.Log($"Selected {characterData.charName} for spawning as {type}");
+        } 
     }
 }

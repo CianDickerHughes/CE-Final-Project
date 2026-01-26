@@ -200,6 +200,7 @@ public class GameplayManager : MonoBehaviour
         turnOrder = new List<string>();
         playerIds = new List<string>();
         playerTokens = new Dictionary<string, Token>();
+        spawnedTokens = new List<Token>();
         
         Debug.Log("=== GameplayManager Start() Complete ===");
     }

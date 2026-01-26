@@ -77,6 +77,13 @@ public class Tile : MonoBehaviour {
     //Add OnMouseDown for clicking:
     void OnMouseDown()
     {
+        //Check for token spawning mode - maybe find some other way to do this but not sure
+        if(GameplayManager.Instance != null && GameplayManager.Instance.IsInSpawnMode())
+        {
+            GameplayManager.Instance.TrySpawnAtTile(this);
+            return;
+        }
+        //Checking if we're in edit mode
         if (gridManager != null && gridManager.IsEditMode)
         {
             gridManager.PaintTile(this);
