@@ -118,11 +118,3 @@ public class Token : MonoBehaviour
     /// </summary>
     public Tile GetCurrentTile() => currentTile;
 }
-
-//Tracking what "Type" of character this token represents - who are they
-public enum CharacterType
-{
-    Player,
-    NPC,
-    Enemy
-}
