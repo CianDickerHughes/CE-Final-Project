@@ -269,6 +269,9 @@ MonoBehaviour:
   raceText: {fileID: 6822243932392587916}
   classText: {fileID: 3399699999467669940}
   characterImage: {fileID: 6974382473457049685}
+  assignmentDropdown: {fileID: 0}
+  assignedPlayerText: {fileID: 0}
+  assignmentPanel: {fileID: 0}
 --- !u!1 &4094577939664773410
 GameObject:
   m_ObjectHideFlags: 0

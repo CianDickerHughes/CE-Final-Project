@@ -76,7 +76,7 @@ public class SavedCharacterItem : MonoBehaviour
             loadButton.onClick.AddListener(() => onSelect?.Invoke(filePath));
         }
 
-        //Wiring up the spawn button - not working yet
+        //Wiring up the spawn button
         if(spawnButton != null){
             spawnButton.onClick.RemoveAllListeners();
             spawnButton.onClick.AddListener(() => SelectForSpawning(CharacterType.Player));

@@ -44,5 +44,8 @@ TagManager:
   - name: Top
     uniqueID: 2288401895
     locked: 0
+  - name: Tokens
+    uniqueID: 1127558419
+    locked: 0
   m_RenderingLayers:
   - Default

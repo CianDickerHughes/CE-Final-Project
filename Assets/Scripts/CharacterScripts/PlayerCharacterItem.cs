@@ -16,6 +16,7 @@ public class PlayerCharacterItem : MonoBehaviour
     [SerializeField] private TextMeshProUGUI raceText;
     [SerializeField] private TextMeshProUGUI classText;
     [SerializeField] private Image characterImage;
+    [SerializeField] private Button spawnButton;
     
     [Header("Assignment UI (Optional - for DM)")]
     [SerializeField] private TMP_Dropdown assignmentDropdown;
@@ -88,6 +89,14 @@ public class PlayerCharacterItem : MonoBehaviour
         
         // Setup assignment UI if present
         SetupAssignmentUI();
+
+        // Wire up spawn button if present
+        //Wiring up the spawn button
+        if(spawnButton != null){
+            spawnButton.onClick.RemoveAllListeners();
+            spawnButton.onClick.AddListener(() => SelectForSpawning(CharacterType.Player));
+        }
+
         isInitialized = true;
     }
     
@@ -281,5 +290,13 @@ public class PlayerCharacterItem : MonoBehaviour
         {
             UpdateAssignmentDisplay();
         }
+    }
+
+    //Pasted method for spawning/selecting the player character in the scene
+    public void SelectForSpawning(CharacterType type){
+        if(characterData != null && GameplayManager.Instance != null){
+            GameplayManager.Instance.SetSelectedForSpawn(characterData, type);
+            Debug.Log($"Selected {characterData.charName} for spawning as {type}");
+        } 
     }
 }
