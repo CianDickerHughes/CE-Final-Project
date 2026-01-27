@@ -7486,7 +7486,7 @@ MonoBehaviour:
   m_ChildAlignment: 0
   m_Spacing: 10
   m_ChildForceExpandWidth: 1
-  m_ChildForceExpandHeight: 1
+  m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
   m_ChildControlHeight: 1
   m_ChildScaleWidth: 0
@@ -10123,6 +10123,7 @@ MonoBehaviour:
   chatMessagePrefab: {fileID: 2867137679412485494, guid: 0cfccdfe3e408ea4c864bac5bbf82a9b, type: 3}
   maxMessages: 1000
   playerName: Player
+  loadSavedMessagesOnStart: 1
 --- !u!4 &1916346178
 Transform:
   m_ObjectHideFlags: 0
