@@ -113,7 +113,8 @@ MonoBehaviour:
   timestampText: {fileID: 0}
   charClass: {fileID: 700741641028190550}
   charRace: {fileID: 6595591793651141963}
-  loadButton: {fileID: 894275397688858638}
+  loadButton: {fileID: 0}
+  spawnButton: {fileID: 894275397688858638}
 --- !u!1 &4372551991000194332
 GameObject:
   m_ObjectHideFlags: 0

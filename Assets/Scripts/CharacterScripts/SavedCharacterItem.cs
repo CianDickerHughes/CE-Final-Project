@@ -77,12 +77,10 @@ public class SavedCharacterItem : MonoBehaviour
         }
 
         //Wiring up the spawn button - not working yet
-        /*
         if(spawnButton != null){
             spawnButton.onClick.RemoveAllListeners();
-            spawnButton.onClick.AddListener(() => SelectForSpawning(characterData.characterType));
+            spawnButton.onClick.AddListener(() => SelectForSpawning(CharacterType.Player));
         }
-        */
     }
 
     public void SelectForSpawning(CharacterType type){

@@ -7,14 +7,20 @@ public class Token : MonoBehaviour
     [Header("References")]
     [SerializeField] private GridManager gridManager;
 
+    //Error handling for a default sprite if the character doesnt have one/doesnt load
+    [Header("Default Visuals")]
+    [SerializeField] private Sprite defaultSprite;
+
     [Header("Identification")]
     private CharacterData characterData;
     private CharacterType characterType;
     //FOR NETWORKING CIAN - SO WE CAN TRACK WHO OWNS WHAT TOKEN
     private ulong ownerId;
 
+    //Other variables
     private Tile currentTile;
     private SpriteRenderer spriteRenderer;
+    private float pixelsPerUnit;
 
     void OnValidate()
     {
@@ -53,14 +59,53 @@ public class Token : MonoBehaviour
         {
             name = $"Token_{data.charName}";
             Debug.Log($"Token: Initializing token for character {data.charName} of type {type}.");
-            //TODO: Load sprite from data.tokenFileName
+            //Actually setting up the sprite - has to be the characters saved token image
+            if(!string.IsNullOrEmpty(data.tokenFileName))
+            {
+                //Getting the token image from file - need to change this behavior when loading the players characters
+                //This should work for dm player characters though
+                string folder = CharacterIO.GetCharactersFolder();
+                string tokenPath = System.IO.Path.Combine(folder, data.tokenFileName);
+                
+                //Now actually trying to set up the sprite
+                if (System.IO.File.Exists(tokenPath))
+                {
+                    try{
+                        //Extract the bytes from the loaded file and create a texture
+                        byte[] bytes = System.IO.File.ReadAllBytes(tokenPath);
+                        Texture2D texture = new Texture2D(2,2);
+                        texture.LoadImage(bytes);
+                        //Calculate pixels per unit so the sprite fits exactly in 1 tile (1 unit)
+                        //Use the larger dimension to ensure it fits within the tile
+                        pixelsPerUnit = Mathf.Max(texture.width, texture.height);
+                        //Using the sprite renderer to set the sprite
+                        spriteRenderer.sprite = Sprite.Create(texture, new Rect(0,0,texture.width, texture.height), new Vector2(0.5f, 0.5f), pixelsPerUnit);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        Debug.LogWarning($"Token: Failed to load token image from {tokenPath}: {ex.Message}");
+                    }
+                }
+            }
+
+            //If the sprite wont load then we use the default one
+            if(spriteRenderer != null && spriteRenderer.sprite == null && defaultSprite != null)
+            {
+                spriteRenderer.sprite = defaultSprite;
+            }
+
+
+            //Ensure token renders above tiles using sorting layer
+            if(spriteRenderer != null){
+                //Set sorting layer to "Tokens" - create this layer in Project Settings > Tags and Layers!
+                spriteRenderer.sortingLayerName = "Tokens";
+                spriteRenderer.sortingOrder = 0;
+            }
         }
     }
 
-    /// <summary>
-    /// Place token at a grid integer position (column, row).
-    /// Uses GridManager.GetTileAtPosition with integer Vector2 keys.
-    /// </summary>
+    //Place token at a grid integer position (column, row).
+    //Uses GridManager.GetTileAtPosition with integer Vector2 keys.
     public void PlaceAtGridPosition(Vector2Int gridPos)
     {
         if (gridManager == null)
@@ -74,10 +119,8 @@ public class Token : MonoBehaviour
         else Debug.LogWarning($"Token: No tile at {gridPos.x},{gridPos.y}");
     }
 
-    /// <summary>
-    /// Round the token's current world position to the nearest grid integer
-    /// coordinates and snap to that tile if available.
-    /// </summary>
+    //Round the token's current world position to the nearest grid integer
+    //coordinates and snap to that tile if available.
     public void SnapToNearestTile()
     {
         if (gridManager == null)
@@ -102,9 +145,7 @@ public class Token : MonoBehaviour
         else Debug.LogWarning($"Token: No tile at {nearest}");
     }
 
-    /// <summary>
-    /// Moves the token to the exact tile position and stores the reference.
-    /// </summary>
+    //Moves the token to the exact tile position and stores the reference.
     public void MoveToTile(Tile tile)
     {
         if (tile == null) return;
@@ -113,8 +154,6 @@ public class Token : MonoBehaviour
         transform.position = tile.transform.position;
     }
 
-    /// <summary>
-    /// Returns the tile the token is currently on (if any).
-    /// </summary>
+    //Returns the tile the token is currently on (if any).
     public Tile GetCurrentTile() => currentTile;
 }
