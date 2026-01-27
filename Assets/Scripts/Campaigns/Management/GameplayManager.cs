@@ -233,9 +233,11 @@ public class GameplayManager : MonoBehaviour
             return null;
         }
     
-        Token token = Instantiate(tokenPrefab, tile.transform.position, Quaternion.identity);
+        Token token = Instantiate(tokenPrefab, new Vector3(tile.transform.position.x, tile.transform.position.y, -1), Quaternion.identity);
         token.Inialize(character, type, tile);
         spawnedTokens.Add(token);
+
+        Debug.Log("Character Spawned: " + character.charName + " at Tile (" + token.transform.position + ")");
         
         return token;
     }

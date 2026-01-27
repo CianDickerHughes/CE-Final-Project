@@ -6,7 +6,6 @@ using UnityEngine.UI;
 using TMPro;
  
  //Manages a grid of tiles, allowing for dynamic generation and resizing.
- //Also handles spawning tokens at specified grid positions - when we get to that point
  
 public class GridManager : MonoBehaviour {
     [Header("Grid Settings")]
