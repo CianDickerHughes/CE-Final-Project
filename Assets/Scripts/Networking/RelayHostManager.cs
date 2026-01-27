@@ -26,6 +26,7 @@ public class RelayHostManager : MonoBehaviour
     [SerializeField] NetworkObject chatNetworkPrefab;
     [SerializeField] NetworkObject characterTransferPrefab;
     [SerializeField] NetworkObject sceneDataNetworkPrefab;
+    [SerializeField] NetworkObject playerConnectionManagerPrefab;
 
     [Header("Settings")]
     [SerializeField] int maxConnections = 3;
@@ -183,6 +184,18 @@ public class RelayHostManager : MonoBehaviour
             else
             {
                 Debug.LogWarning("RelayHostManager: SceneDataNetwork prefab not assigned. Scene data will not sync to clients.");
+            }
+
+            // Spawn player connection manager to track connected players and handle character assignments
+            if (playerConnectionManagerPrefab != null)
+            {
+                var connectionManager = Instantiate(playerConnectionManagerPrefab);
+                connectionManager.Spawn();
+                Debug.Log("RelayHostManager: Spawned PlayerConnectionManager prefab");
+            }
+            else
+            {
+                Debug.LogWarning("RelayHostManager: PlayerConnectionManager prefab not assigned. Player tracking and character assignments won't work.");
             }
         }
         catch (System.Exception ex)

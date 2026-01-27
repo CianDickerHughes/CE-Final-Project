@@ -18,6 +18,10 @@ public class Campaign
     public string createdDate;
     public string campaignLogoPath;
     
+    // Tracks which players are assigned to which characters (persists across sessions)
+    // Uses Unity Authentication PlayerId for persistence
+    public CampaignCharacterAssignments characterAssignments;
+    
     //Constructor for the main source of initialization
     public Campaign(string name, string dmName, string description = "")
     {
@@ -29,6 +33,7 @@ public class Campaign
         scenes = new List<SceneData>();
         inviteCode = GenerateInviteCode();
         createdDate = DateTime.Now.ToString("o");
+        characterAssignments = new CampaignCharacterAssignments();
     }
     
     //Generating the invite code to send to the players to actually join
