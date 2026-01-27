@@ -1,11 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using TMPro;
 using System.Collections.Generic;
 
 /// <summary>
 /// Simple chat manager - connects SendButton, InputMessage, Content, and message prefabs
 /// Handles UI display. Uses ChatNetwork for networked messaging.
+/// Now supports loading saved messages on scene change.
 /// </summary>
 public class ChatManager : MonoBehaviour
 {
@@ -28,8 +30,13 @@ public class ChatManager : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private int maxMessages = 50;
     [SerializeField] private string playerName = "Player";
+    
+    [Header("Message Persistence")]
+    [Tooltip("Load saved messages when the scene starts")]
+    [SerializeField] private bool loadSavedMessagesOnStart = true;
 
     private List<GameObject> messageObjects = new List<GameObject>();
+    private HashSet<string> displayedMessageIds = new HashSet<string>(); // Track displayed messages to avoid duplicates
 
     private void Start()
     {
@@ -53,6 +60,12 @@ public class ChatManager : MonoBehaviour
 
         // Try to find ChatNetwork - will retry in Update if not found yet
         TryConnectToChatNetwork();
+        
+        // Load saved messages if enabled
+        if (loadSavedMessagesOnStart)
+        {
+            LoadSavedMessages();
+        }
     }
 
     private void Update()
@@ -71,6 +84,7 @@ public class ChatManager : MonoBehaviour
         if (ChatNetwork.Instance != null && !isConnectedToNetwork)
         {
             ChatNetwork.Instance.OnMessageReceived += DisplayMessage;
+            ChatNetwork.Instance.OnChatHistoryLoaded += OnChatHistoryLoaded;
             isConnectedToNetwork = true;
             Debug.Log("ChatManager: Connected to ChatNetwork");
         }
@@ -82,7 +96,45 @@ public class ChatManager : MonoBehaviour
         if (ChatNetwork.Instance != null)
         {
             ChatNetwork.Instance.OnMessageReceived -= DisplayMessage;
+            ChatNetwork.Instance.OnChatHistoryLoaded -= OnChatHistoryLoaded;
         }
+    }
+    
+    /// <summary>
+    /// Load saved messages from ChatMessageStore and display them
+    /// </summary>
+    private void LoadSavedMessages()
+    {
+        // Try to initialize storage if not already done
+        if (!ChatMessageStore.IsInitialized())
+        {
+            if (CampaignManager.Instance != null)
+            {
+                string campaignFolder = CampaignManager.Instance.GetCurrentCampaignFolder();
+                if (!string.IsNullOrEmpty(campaignFolder))
+                {
+                    ChatMessageStore.Initialize(campaignFolder);
+                }
+            }
+        }
+        
+        // Get and display saved messages
+        List<ChatMessage> savedMessages = ChatMessageStore.GetMessages();
+        Debug.Log($"ChatManager: Loading {savedMessages.Count} saved messages");
+        
+        foreach (var msg in savedMessages)
+        {
+            DisplayMessageInternal(msg.senderId, msg.senderName, msg.message, msg.timestamp);
+        }
+    }
+    
+    /// <summary>
+    /// Called when chat history is loaded from server
+    /// </summary>
+    private void OnChatHistoryLoaded(List<ChatMessage> messages)
+    {
+        Debug.Log($"ChatManager: Chat history loaded with {messages.Count} messages");
+        // Messages are already displayed via OnMessageReceived events
     }
 
     /// <summary>
@@ -118,11 +170,30 @@ public class ChatManager : MonoBehaviour
     /// </summary>
     private void DisplayMessage(ulong senderId, string senderName, string message)
     {
+        // Generate a simple ID for deduplication (new messages won't have timestamp yet)
+        DisplayMessageInternal(senderId, senderName, message, null);
+    }
+    
+    /// <summary>
+    /// Internal method to display a message with optional timestamp for deduplication
+    /// </summary>
+    private void DisplayMessageInternal(ulong senderId, string senderName, string message, string timestamp)
+    {
         if (chatMessagePrefab == null || contentParent == null)
         {
             Debug.LogWarning("ChatManager: Assign Chat Message Prefab and Content in inspector!");
             return;
         }
+        
+        // Create a unique ID for this message to prevent duplicates
+        string messageId = $"{senderId}_{senderName}_{message}_{timestamp ?? "new"}";
+        
+        // Check for duplicates (skip if already displayed)
+        if (displayedMessageIds.Contains(messageId))
+        {
+            return;
+        }
+        displayedMessageIds.Add(messageId);
 
         // Create message from prefab in Content
         GameObject messageObj = Instantiate(chatMessagePrefab, contentParent);
@@ -168,6 +239,31 @@ public class ChatManager : MonoBehaviour
         {
             playerName = name;
         }
+    }
+    
+    /// <summary>
+    /// Clear all displayed messages from the UI
+    /// </summary>
+    public void ClearDisplayedMessages()
+    {
+        foreach (var messageObj in messageObjects)
+        {
+            if (messageObj != null)
+            {
+                Destroy(messageObj);
+            }
+        }
+        messageObjects.Clear();
+        displayedMessageIds.Clear();
+    }
+    
+    /// <summary>
+    /// Refresh the chat by clearing and reloading saved messages
+    /// </summary>
+    public void RefreshChat()
+    {
+        ClearDisplayedMessages();
+        LoadSavedMessages();
     }
 
     private System.Collections.IEnumerator ScrollToBottomNextFrame()

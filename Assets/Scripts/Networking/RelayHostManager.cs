@@ -33,6 +33,29 @@ public class RelayHostManager : MonoBehaviour
 
     string currentJoinCode;
 
+    void Awake()
+    {
+        // Try to restore join code immediately on Awake (before async Start)
+        // This ensures UI is updated as soon as possible when returning to this scene
+        RestoreJoinCodeIfActive();
+    }
+
+    void OnEnable()
+    {
+        // Also try in OnEnable in case serialized fields weren't ready in Awake
+        RestoreJoinCodeIfActive();
+    }
+
+    void LateUpdate()
+    {
+        // One-time UI update check - ensures text gets set after all initialization
+        if (!string.IsNullOrEmpty(currentJoinCode) && codeText != null && codeText.text != currentJoinCode)
+        {
+            codeText.text = currentJoinCode;
+            Debug.Log($"RelayHostManager: LateUpdate set codeText to: {currentJoinCode}");
+        }
+    }
+
     async void Start()
     {
         try
@@ -56,6 +79,9 @@ public class RelayHostManager : MonoBehaviour
             return;
         }
 
+        // Check if we already have an active relay session (returning from another scene)
+        RestoreJoinCodeIfActive();
+
         // Setup host button listener
         if (hostButton != null)
         {
@@ -71,7 +97,8 @@ public class RelayHostManager : MonoBehaviour
 
         if (copyButton != null)
         {
-            copyButton.interactable = false;
+            // Enable copy button if we already have a join code
+            copyButton.interactable = !string.IsNullOrEmpty(currentJoinCode);
             copyButton.onClick.AddListener(CopyJoinCodeToClipboard);
         }
 
@@ -83,6 +110,57 @@ public class RelayHostManager : MonoBehaviour
         else
         {
             Debug.LogWarning($"RelayHostManager: 'backButton' is not assigned on '{gameObject.name}'. Back functionality will be disabled.");
+        }
+    }
+
+    /// <summary>
+    /// Restores the join code from storage if we're returning to this scene with an active relay.
+    /// </summary>
+    void RestoreJoinCodeIfActive()
+    {
+        // First check if we have a stored join code
+        string storedCode = RelayCodeStore.GetJoinCode();
+        
+        if (string.IsNullOrEmpty(storedCode))
+        {
+            Debug.Log("RelayHostManager: No stored join code found");
+            return;
+        }
+        
+        // Check if NetworkManager is running as host (meaning relay is still active)
+        bool isHosting = NetworkManager.Singleton != null && 
+                         NetworkManager.Singleton.IsHost && 
+                         NetworkManager.Singleton.IsListening;
+        
+        Debug.Log($"RelayHostManager: Checking restore - StoredCode: {storedCode}, IsHosting: {isHosting}");
+        
+        if (isHosting || RelayCodeStore.HasActiveRelay())
+        {
+            currentJoinCode = storedCode;
+            
+            // Update UI
+            if (codeText != null)
+            {
+                codeText.text = currentJoinCode;
+                Debug.Log($"RelayHostManager: Set codeText to: {currentJoinCode}");
+            }
+            else
+            {
+                Debug.LogWarning("RelayHostManager: codeText is null, cannot display join code");
+            }
+            
+            if (copyButton != null)
+            {
+                copyButton.interactable = true;
+            }
+            
+            // Disable host button since we're already hosting
+            if (hostButton != null)
+            {
+                hostButton.interactable = false;
+            }
+            
+            Debug.Log($"RelayHostManager: Restored join code from storage: {currentJoinCode}");
         }
     }
 
@@ -100,6 +178,9 @@ public class RelayHostManager : MonoBehaviour
             string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
             currentJoinCode = joinCode;
             
+            // Store the join code so it persists across scene changes
+            RelayCodeStore.SetJoinCode(joinCode);
+            
             // Display the join code
             if (codeText != null)
             {
@@ -113,6 +194,12 @@ public class RelayHostManager : MonoBehaviour
             else
             {
                 Debug.Log($"RelayHostManager: Join Code: {joinCode} (no UI text assigned)");
+            }
+            
+            // Disable host button since we're now hosting
+            if (hostButton != null)
+            {
+                hostButton.interactable = false;
             }
             
             Debug.Log($"RelayHostManager: Relay created successfully with join code: {joinCode}");
@@ -235,6 +322,9 @@ public class RelayHostManager : MonoBehaviour
             }
 
             currentJoinCode = string.Empty;
+            
+            // Clear the stored join code
+            RelayCodeStore.Clear();
 
             if (codeText != null)
             {
@@ -243,6 +333,10 @@ public class RelayHostManager : MonoBehaviour
             if (copyButton != null)
             {
                 copyButton.interactable = false;
+            }
+            if (hostButton != null)
+            {
+                hostButton.interactable = true;
             }
         }
         catch (System.Exception ex)
