@@ -14,6 +14,11 @@ public class CharacterData
     public string charName;
     public string race;
     public string charClass;
+    //Level, AC, HP, Speed
+    public int level;
+    public int AC;
+    public int HP;
+    public int speed;
     //Individual stats for the character
     public int strength;
     public int dexterity;
@@ -37,7 +42,6 @@ public class CharacterData
     // Check if this character is owned by the currently logged-in user
     public bool IsOwnedByCurrentUser()
     {
-        return SessionManager.Instance.IsLoggedIn &&
-               ownerUsername == SessionManager.Instance.CurrentUsername;
+        return SessionManager.Instance.IsLoggedIn && ownerUsername == SessionManager.Instance.CurrentUsername;
     }
 }

@@ -15,12 +15,21 @@ public class CharacterCreatorUI : MonoBehaviour
     public TMP_InputField nameInput;
     public TMP_Dropdown raceDropdown;
     public TMP_Dropdown classDropdown;
+    public TMP_Dropdown weaponDropdown;
+    public TMP_Dropdown equipmentDropdown;
     public TMP_InputField strengthInput;
     public TMP_InputField dexInput;
     public TMP_InputField conInput;
     public TMP_InputField intInput;
     public TMP_InputField wisInput;
     public TMP_InputField chaInput;
+    public TMP_InputField levelInput;
+    public TextMeshProUGUI ACText;
+    public TextMeshProUGUI HPText;
+    private int AC;
+    private int HP;
+    private string[] weapons;
+    private string[] equipment;
     public Image tokenImage;
     public Button uploadButton;
     public Button saveButton;
@@ -66,6 +75,16 @@ public class CharacterCreatorUI : MonoBehaviour
             "Artificer", "Barbarian", "Bard", "Cleric", "Druid", "Fighter",
             "Monk", "Paladin", "Ranger", "Rogue", "Sorcerer", "Warlock", "Wizard"
         });
+
+        weaponDropdown.ClearOptions();
+        weaponDropdown.AddOptions(new System.Collections.Generic.List<string> {
+            "Sword", "Axe", "Bow", "Crossbow", "Dagger", "Staff"
+        });
+
+        equipmentDropdown.ClearOptions();
+        equipmentDropdown.AddOptions(new System.Collections.Generic.List<string> {
+            "Health Potion", "Shield", "Rope", "Master Key", "Bag of Holding"
+        });
     }
 
     void ClearStatus() => statusText.text = "";
@@ -82,7 +101,7 @@ public class CharacterCreatorUI : MonoBehaviour
         intInput.text = "10";
         wisInput.text = "10";
         chaInput.text = "10";
-        tokenTexture = null;
+        levelInput.text = "1";
         tokenImage.sprite = null;
     }
 
@@ -91,13 +110,13 @@ public class CharacterCreatorUI : MonoBehaviour
     // At runtime (non-editor builds) a very simple prompt coroutine is used instead.
     public void OnUploadClicked()
     {
-    #if UNITY_EDITOR
-            string path = EditorUtility.OpenFilePanel("Choose token image", "", "png,jpg,jpeg");
-            if (string.IsNullOrEmpty(path)) return;
-            LoadTextureFromFile(path);
-    #else
-            // Runtime fallback (left simple)
-    #endif
+        #if UNITY_EDITOR
+                string path = EditorUtility.OpenFilePanel("Choose token image", "", "png,jpg,jpeg");
+                if (string.IsNullOrEmpty(path)) return;
+                LoadTextureFromFile(path);
+        #else
+                // Runtime fallback (left simple)
+        #endif
     }
 
     void LoadTextureFromFile(string path)
@@ -135,6 +154,17 @@ public class CharacterCreatorUI : MonoBehaviour
         data.intelligence = ParseIntOrDefault(intInput.text, 10);
         data.wisdom = ParseIntOrDefault(wisInput.text, 10);
         data.charisma = ParseIntOrDefault(chaInput.text, 10);
+        data.level = ParseIntOrDefault(levelInput.text, 1);
+        data.speed = 30; // Default speed, could be modified later 
+
+        //Calculating the Health Pool based on Constitution modifier/score
+        int conMod = (data.constitution - 10) / 2;
+        data.HP = 10 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+
+        //Calculating Armor Class based on Dexterity modifier/score
+        //Possibly add more detail to this later - what class is this character, do they have a shield?
+        int dexMod = (data.dexterity - 10) / 2;
+        data.AC = 10 + dexMod;
 
         // If editFilePath is null -> create new file; else overwrite the existing file
         if (string.IsNullOrEmpty(editFilePath))
@@ -231,6 +261,7 @@ public class CharacterCreatorUI : MonoBehaviour
         intInput.text = d.intelligence.ToString();
         wisInput.text = d.wisdom.ToString();
         chaInput.text = d.charisma.ToString();
+        levelInput.text = d.level.ToString();
 
         // Load token if exists
         if (!string.IsNullOrEmpty(d.tokenFileName))
