@@ -1,0 +1,26 @@
+{
+    "id": "RedDragon",
+    "name": "Red Dragon",
+    "size": "Gargantuan",
+    "type": "Dragon",
+    "alignment": "Chaotic Evil",
+    "armor_class": 22,
+    "hp": 256,
+    "speed":{
+        "walk": 40,
+        "fly": 80
+    },
+    "tokenFileName": "RedDragon.png",
+    "abilityScores": {
+        "STR": 27,
+        "DEX": 10,
+        "CON": 25,
+        "INT": 16,
+        "WIS": 13,
+        "CHA": 21
+    },
+    "immunities": [
+        "fire"
+    ],
+    "challengeRating": 17
+}

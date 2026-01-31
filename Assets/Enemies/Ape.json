@@ -1,0 +1,23 @@
+{
+    "id": "Ape",
+    "name": "Ape",
+    "size": "Medium",
+    "type": "Beast",
+    "alignment": "Neutral",
+    "armor_class": 12,
+    "hp": 19,
+    "speed": {
+        "walk": 30
+    },
+    "tokenFileName": "Ape.png",
+    "abilityScores": {
+        "STR": 16,
+        "DEX": 14,
+        "CON": 14,
+        "INT": 6,
+        "WIS": 12,
+        "CHA": 7
+    },
+    "immunities": [],
+    "challengeRating": 0.5
+}
