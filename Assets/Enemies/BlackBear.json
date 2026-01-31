@@ -1,0 +1,24 @@
+{
+    "id": "BlackBear",
+    "name": "Black Bear",
+    "size": "Medium",
+    "type": "Beast",
+    "alignment": "Unaligned",
+    "armor_class": 11,
+    "hp": 19,
+    "speed": {
+        "walk": 40,
+        "climb": 30
+    },
+    "tokenFileName": "BlackBear.png",
+    "abilityScores": {
+        "STR": 15,
+        "DEX": 10,
+        "CON": 14,
+        "INT": 2,
+        "WIS": 12,
+        "CHA": 7
+    },
+    "immunities": [],
+    "challengeRating": 1
+}

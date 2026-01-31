@@ -1,0 +1,23 @@
+{
+    "id": "Assassin",
+    "name": "Assassin",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Evil Alignment",
+    "armor_class": 15,
+    "hp": 78,
+    "speed": {
+        "walk": 30
+    },
+    "tokenFileName": "Assassin.png",
+    "abilityScores": {
+        "STR": 11,
+        "DEX": 16,
+        "CON": 14,
+        "INT": 13,
+        "WIS": 11,
+        "CHA": 10
+    },
+    "immunities": [],
+    "challengeRating": 8
+}

@@ -3,7 +3,7 @@
     "name": "Ape",
     "size": "Medium",
     "type": "Beast",
-    "alignment": "Neutral",
+    "alignment": "Unaligned",
     "armor_class": 12,
     "hp": 19,
     "speed": {

@@ -1,0 +1,26 @@
+{
+    "id": "AnimatedArmor",
+    "name": "Animated Armor",
+    "size": "Medium",
+    "type": "Construct",
+    "alignment": "Unaligned",
+    "armor_class": 18,
+    "hp": 33,
+    "speed": {
+        "walk": 25
+    },
+    "tokenFileName": "AnimatedArmor.png",
+    "abilityScores": {
+        "STR": 14,
+        "DEX": 11,
+        "CON": 13,
+        "INT": 1,
+        "WIS": 3,
+        "CHA": 1
+    },
+    "immunities": [
+        "poison",
+        "psychic"
+    ],
+    "challengeRating": 1
+}

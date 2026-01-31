@@ -1,0 +1,23 @@
+{
+    "id": "ArchMage",
+    "name": "Arch Mage",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Any Alignment",
+    "armor_class": 12,
+    "hp": 99,
+    "speed": {
+        "walk": 30
+    },
+    "tokenFileName": "ArchMage.png",
+    "abilityScores": {
+        "STR": 10,
+        "DEX": 14,
+        "CON": 12,
+        "INT": 20,
+        "WIS": 15,
+        "CHA": 16
+    },
+    "immunities": [],
+    "challengeRating": 12
+}

@@ -1,0 +1,23 @@
+{
+    "id": "Drow",
+    "name": "Drow",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Chaotic Evil",
+    "armor_class": 15,
+    "hp": 13,
+    "speed": {
+        "walk": 30
+    },
+    "tokenFileName": "Drow.png",
+    "abilityScores": {
+        "STR": 10,
+        "DEX": 14,
+        "CON": 10,
+        "INT": 11,
+        "WIS": 11,
+        "CHA": 12
+    },
+    "immunities": [],
+    "challengeRating": 0.25
+}
