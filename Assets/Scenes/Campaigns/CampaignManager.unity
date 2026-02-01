@@ -1659,8 +1659,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -0.06498718, y: 0.000015258789}
-  m_SizeDelta: {x: 154.84, y: 97.347}
+  m_AnchoredPosition: {x: 20.699783, y: 25.214294}
+  m_SizeDelta: {x: 364.1637, y: 263.0546}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &337036629
 MonoBehaviour:
@@ -9781,7 +9781,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.0012588501, y: -0.0000038146973}
+  m_AnchoredPosition: {x: -0.0012512207, y: 0}
   m_SizeDelta: {x: 154.84, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1798465101
@@ -10119,7 +10119,7 @@ MonoBehaviour:
   sendButton: {fileID: 1202281200}
   inputField: {fileID: 838039741}
   contentParent: {fileID: 1798465099}
-  scrollRect: {fileID: 0}
+  scrollRect: {fileID: 1475581674}
   chatMessagePrefab: {fileID: 2867137679412485494, guid: 0cfccdfe3e408ea4c864bac5bbf82a9b, type: 3}
   maxMessages: 1000
   playerName: Player

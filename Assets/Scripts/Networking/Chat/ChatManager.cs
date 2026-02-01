@@ -203,9 +203,10 @@ public class ChatManager : MonoBehaviour
         if (textComponent != null)
         {
             textComponent.text = $"{senderName}: {message}";
-            textComponent.enableAutoSizing = true;
-            textComponent.fontSizeMin = 6f;
-            textComponent.fontSizeMax = 10f;
+            
+            // Use fixed font size for consistent appearance across all scenes
+            textComponent.enableAutoSizing = false;
+            textComponent.fontSize = 24f;
             textComponent.textWrappingMode = TextWrappingModes.Normal;
             textComponent.overflowMode = TextOverflowModes.Truncate;
         }
