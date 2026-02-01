@@ -13,23 +13,31 @@ public class CharacterCreatorUI : MonoBehaviour
 {
     [Header("UI refs")]
     public TMP_InputField nameInput;
+    public TextMeshProUGUI nameText;
     public TMP_Dropdown raceDropdown;
+    public TextMeshProUGUI raceText;
     public TMP_Dropdown classDropdown;
+    public TextMeshProUGUI classText;
     public TMP_Dropdown weaponDropdown;
-    public TMP_Dropdown equipmentDropdown;
     public TMP_InputField strengthInput;
+    public TextMeshProUGUI strengthText;
     public TMP_InputField dexInput;
+    public TextMeshProUGUI dexText;
     public TMP_InputField conInput;
+    public TextMeshProUGUI conText;
     public TMP_InputField intInput;
+    public TextMeshProUGUI intText;
     public TMP_InputField wisInput;
+    public TextMeshProUGUI wisText;
     public TMP_InputField chaInput;
+    public TextMeshProUGUI chaText;
     public TMP_InputField levelInput;
+    public TextMeshProUGUI levelText;
     public TextMeshProUGUI ACText;
     public TextMeshProUGUI HPText;
     private int AC;
     private int HP;
     private string[] weapons;
-    private string[] equipment;
     public Image tokenImage;
     public Button uploadButton;
     public Button saveButton;
@@ -80,11 +88,6 @@ public class CharacterCreatorUI : MonoBehaviour
         weaponDropdown.AddOptions(new System.Collections.Generic.List<string> {
             "Sword", "Axe", "Bow", "Crossbow", "Dagger", "Staff"
         });
-
-        equipmentDropdown.ClearOptions();
-        equipmentDropdown.AddOptions(new System.Collections.Generic.List<string> {
-            "Health Potion", "Shield", "Rope", "Master Key", "Bag of Holding"
-        });
     }
 
     void ClearStatus() => statusText.text = "";
@@ -102,7 +105,17 @@ public class CharacterCreatorUI : MonoBehaviour
         wisInput.text = "10";
         chaInput.text = "10";
         levelInput.text = "1";
+        levelText.text = "Level: 1";
         tokenImage.sprite = null;
+        nameText.text = "";
+        raceText.text = "";
+        classText.text = "";
+        strengthText.text = "10";
+        dexText.text = "10";
+        conText.text = "10";
+        intText.text = "10";
+        wisText.text = "10";
+        chaText.text = "10";
     }
 
     // Upload image: editor-only file picker, else ask user to paste a file path (simple fallback)
@@ -254,14 +267,25 @@ public class CharacterCreatorUI : MonoBehaviour
     {
         nameInput.text = d.charName;
         raceDropdown.value = Math.Max(0, raceDropdown.options.FindIndex(o => o.text == d.race));
+        raceText.text = "Race: " + d.race.ToString();
         classDropdown.value = Math.Max(0, classDropdown.options.FindIndex(o => o.text == d.charClass));
+        classText.text = "Class: " + d.charClass.ToString();
         strengthInput.text = d.strength.ToString();
+        strengthText.text = d.strength.ToString();
         dexInput.text = d.dexterity.ToString();
+        dexText.text = d.dexterity.ToString();
         conInput.text = d.constitution.ToString();
+        conText.text = d.constitution.ToString();
         intInput.text = d.intelligence.ToString();
+        intText.text = d.intelligence.ToString();
         wisInput.text = d.wisdom.ToString();
+        wisText.text = d.wisdom.ToString();
         chaInput.text = d.charisma.ToString();
+        chaText.text = d.charisma.ToString();
         levelInput.text = d.level.ToString();
+        levelText.text = "Level: " + d.level.ToString();
+        ACText.text = "AC: " + d.AC.ToString();
+        HPText.text = "HP: " + d.HP.ToString();
 
         // Load token if exists
         if (!string.IsNullOrEmpty(d.tokenFileName))
