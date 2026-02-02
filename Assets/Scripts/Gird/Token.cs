@@ -12,6 +12,7 @@ public class Token : MonoBehaviour
     [SerializeField] private Sprite defaultSprite;
 
     [Header("Identification")]
+    private EnemyData enemyData;
     private CharacterData characterData;
     private CharacterType characterType;
     //FOR NETWORKING CIAN - SO WE CAN TRACK WHO OWNS WHAT TOKEN
@@ -48,7 +49,7 @@ public class Token : MonoBehaviour
         }
     }
 
-    public void Inialize(CharacterData data, CharacterType type, Tile startTile)
+    public void Initialize(CharacterData data, CharacterType type, Tile startTile)
     {
         characterData = data;
         characterType = type;
@@ -100,6 +101,53 @@ public class Token : MonoBehaviour
                 //Set sorting layer to "Tokens" - create this layer in Project Settings > Tags and Layers!
                 spriteRenderer.sortingLayerName = "Tokens";
                 spriteRenderer.sortingOrder = 0;
+            }
+        }
+    }
+
+    public void Initialize(EnemyData data, CharacterType type, Tile startTile)
+    {
+        enemyData = data;
+        characterType = type;
+        currentTile = startTile;
+
+        // Set visual based on enemy
+        if (data != null)
+        {
+            name = $"Token_{data.name}";
+            Debug.Log($"Token: Initializing token for enemy {data.name} of type {type}.");
+            //Actually setting up the sprite - has to be the enemies saved token image
+            if(!string.IsNullOrEmpty(data.tokenFileName))
+            {
+                //Getting the token image from file
+                string folder = CharacterIO.GetEnemiesFolder();
+                string tokenPath = System.IO.Path.Combine(folder, data.tokenFileName);
+                
+                //Now actually trying to set up the sprite
+                if (System.IO.File.Exists(tokenPath))
+                {
+                    try{
+                        //Extract the bytes from the loaded file and create a texture
+                        byte[] bytes = System.IO.File.ReadAllBytes(tokenPath);
+                        Texture2D texture = new Texture2D(2,2);
+                        texture.LoadImage(bytes);
+                        //Calculate pixels per unit so the sprite fits exactly in 1 tile (1 unit)
+                        //Use the larger dimension to ensure it fits within the tile
+                        pixelsPerUnit = Mathf.Max(texture.width, texture.height);
+                        //Using the sprite renderer to set the sprite
+                        spriteRenderer.sprite = Sprite.Create(texture, new Rect(0,0,texture.width, texture.height), new Vector2(0.5f, 0.5f), pixelsPerUnit);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        Debug.LogWarning($"Token: Failed to load token image from {tokenPath}: {ex.Message}");
+                    }
+                }
+            }
+
+            //If the sprite wont load then we use the default one
+            if(spriteRenderer != null && spriteRenderer.sprite == null && defaultSprite != null)
+            {
+                spriteRenderer.sprite = defaultSprite;
             }
         }
     }

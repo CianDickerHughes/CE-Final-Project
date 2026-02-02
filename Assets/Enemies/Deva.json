@@ -6,10 +6,7 @@
     "alignment": "Lawful Good",
     "armor_class": 17,
     "hp": 136,
-    "speed": {
-        "walk": 30,
-        "fly": 90
-    },
+    "speed": 30,
     "tokenFileName": "Deva.png",
     "abilityScores": {
         "STR": 18,

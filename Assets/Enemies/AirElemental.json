@@ -6,11 +6,7 @@
     "alignment": "Neutral",
     "armor_class": 15,
     "hp": 90,
-    "speed": {
-        "fly": 90,
-        "walk": 0,
-        "hover": true
-    },
+    "speed": 90,
     "tokenFileName": "AirElemental.png",
     "abilityScores": {
         "STR": 14,

@@ -56,6 +56,7 @@ public class GameplayManager : MonoBehaviour
     private List<Token> spawnedTokens;
 
     //Clicking to spawn tokens for players/enemies
+    private EnemyData selectedEnemyToSpawn;
     private CharacterData selectedCharacterToSpawn;
     private CharacterType selectedCharacterType;
     private bool isInSpawnMode = false;
@@ -234,10 +235,27 @@ public class GameplayManager : MonoBehaviour
         }
     
         Token token = Instantiate(tokenPrefab, new Vector3(tile.transform.position.x, tile.transform.position.y, -1), Quaternion.identity);
-        token.Inialize(character, type, tile);
+        token.Initialize(character, type, tile);
         spawnedTokens.Add(token);
 
         Debug.Log("Character Spawned: " + character.charName + " at Tile (" + token.transform.position + ")");
+        
+        return token;
+    }
+
+    //Spawning enemies method (tokens)
+    public Token SpawnEnemyTokenAtTile(Tile tile, EnemyData enemy, CharacterType type)
+    {
+        if (tile == null || tokenPrefab == null) 
+        {
+            return null;
+        }
+    
+        Token token = Instantiate(tokenPrefab, new Vector3(tile.transform.position.x, tile.transform.position.y, -1), Quaternion.identity);
+        token.Initialize(enemy, type, tile);
+        spawnedTokens.Add(token);
+
+        Debug.Log("Enemy Spawned: " + enemy.name + " at Tile (" + token.transform.position + ")");
         
         return token;
     }
@@ -257,10 +275,21 @@ public class GameplayManager : MonoBehaviour
         isInSpawnMode = true;
     }
 
+    //Method for spawning enemies - same as one above but for enemies
+    //Could potentially have an overloaded method but for clarity having two separate methods is better
+    public void SetSelectedEnemyForSpawn(EnemyData data, CharacterType type)
+    {
+        //Add in behaviour soon 
+        selectedEnemyToSpawn = data;
+        selectedCharacterType = type;
+        isInSpawnMode = true;
+    }
+
     //Clearing the selection after spawning - similar to the whole "context" thing we use in this app
     public void ClearSpawnSelection()
     {
         selectedCharacterToSpawn = null;
+        selectedEnemyToSpawn = null;
         isInSpawnMode = false;
     }
 
@@ -272,9 +301,21 @@ public class GameplayManager : MonoBehaviour
             Debug.Log("Not in spawn mode or invalid tile.");
             return;
         }
-        
-        SpawnTokenAtTile(tile, selectedCharacterToSpawn, selectedCharacterType);
-        ClearSpawnSelection();
+
+        //Selecting a character to spawn
+        if(selectedCharacterToSpawn != null)
+        {
+            SpawnTokenAtTile(tile, selectedCharacterToSpawn, selectedCharacterType);
+            ClearSpawnSelection();
+            return;
+        }
+        //Selecting an enemy to spawn
+        else if(selectedEnemyToSpawn != null)
+        {
+            SpawnEnemyTokenAtTile(tile, selectedEnemyToSpawn, selectedCharacterType);
+            ClearSpawnSelection();
+            return;
+        }
     }
     
     public bool MoveToken(string playerId, int targetX, int targetY)

@@ -6,10 +6,7 @@
     "alignment": "Chaotic Evil",
     "armor_class": 22,
     "hp": 256,
-    "speed":{
-        "walk": 40,
-        "fly": 80
-    },
+    "speed": 40,
     "tokenFileName": "RedDragon.png",
     "abilityScores": {
         "STR": 27,

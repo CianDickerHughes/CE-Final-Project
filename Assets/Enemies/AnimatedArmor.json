@@ -6,9 +6,7 @@
     "alignment": "Unaligned",
     "armor_class": 18,
     "hp": 33,
-    "speed": {
-        "walk": 25
-    },
+    "speed": 25,
     "tokenFileName": "AnimatedArmor.png",
     "abilityScores": {
         "STR": 14,

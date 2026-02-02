@@ -6,9 +6,7 @@
     "alignment": "Unaligned",
     "armor_class": 12,
     "hp": 19,
-    "speed": {
-        "walk": 30
-    },
+    "speed": 30,
     "tokenFileName": "Ape.png",
     "abilityScores": {
         "STR": 16,

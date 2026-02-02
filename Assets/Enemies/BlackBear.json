@@ -6,10 +6,7 @@
     "alignment": "Unaligned",
     "armor_class": 11,
     "hp": 19,
-    "speed": {
-        "walk": 40,
-        "climb": 30
-    },
+    "speed": 40,
     "tokenFileName": "BlackBear.png",
     "abilityScores": {
         "STR": 15,

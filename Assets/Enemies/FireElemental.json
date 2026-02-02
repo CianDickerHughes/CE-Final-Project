@@ -6,9 +6,7 @@
     "alignment": "Neutral",
     "armor_class": 13,
     "hp": 102,
-    "speed": {
-        "walk": 50
-    },
+    "speed": 50,
     "tokenFileName": "FireElemental.png",
     "abilityScores": {
         "STR": 10,

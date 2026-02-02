@@ -6,9 +6,7 @@
     "alignment": "Chaotic Evil",
     "armor_class": 15,
     "hp": 13,
-    "speed": {
-        "walk": 30
-    },
+    "speed": 30,
     "tokenFileName": "Drow.png",
     "abilityScores": {
         "STR": 10,
