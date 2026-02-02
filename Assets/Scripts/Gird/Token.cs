@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Collider2D))]
 public class Token : MonoBehaviour
 {
     [Header("References")]
@@ -46,6 +47,18 @@ public class Token : MonoBehaviour
 #else
             gridManager = FindObjectOfType<GridManager>();
 #endif
+        }
+        
+        //Ensure we have a collider for click detection
+        Collider2D col = GetComponent<Collider2D>();
+        if (col == null)
+        {
+            col = gameObject.AddComponent<BoxCollider2D>();
+        }
+        //Size the collider to match a tile (1x1 unit)
+        if (col is BoxCollider2D box)
+        {
+            box.size = new Vector2(1f, 1f);
         }
     }
 
@@ -211,4 +224,27 @@ public class Token : MonoBehaviour
 
     //Returns the tile the token is currently on (if any).
     public Tile GetCurrentTile() => currentTile;
+    
+    //Click to select this token
+    void OnMouseDown()
+    {
+        //Don't select if in spawn mode
+        if (GameplayManager.Instance != null && GameplayManager.Instance.IsInSpawnMode())
+            return;
+            
+        GameplayManager.Instance?.SelectToken(this);
+    }
+    
+    //Visual feedback for selection (simple color tint)
+    private bool isSelected = false;
+    
+    public void SetSelected(bool selected)
+    {
+        isSelected = selected;
+        if (spriteRenderer != null)
+        {
+            //Tint the sprite when selected
+            spriteRenderer.color = selected ? new Color(0.7f, 1f, 0.7f, 1f) : Color.white;
+        }
+    }
 }

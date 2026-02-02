@@ -47,6 +47,7 @@ public class GameplayManager : MonoBehaviour
     private List<string> playerIds;
     private Dictionary<string, CharacterData> playerCharacters;
     private Dictionary<string, Token> playerTokens; // Track spawned tokens
+    private Token selectedToken;
 
     [Header("DM/Player state management Buttons")]
     [SerializeField] private Button saveAndExitButton;
@@ -301,6 +302,14 @@ public class GameplayManager : MonoBehaviour
             Debug.Log("Not in spawn mode or invalid tile.");
             return;
         }
+        
+        //Check if tile is walkable before spawning
+        if (!tile.IsWalkable())
+        {
+            Debug.Log($"Cannot spawn on non-walkable tile at ({tile.GridX}, {tile.GridY})");
+            ClearSpawnSelection();
+            return;
+        }
 
         //Selecting a character to spawn
         if(selectedCharacterToSpawn != null)
@@ -361,7 +370,96 @@ public class GameplayManager : MonoBehaviour
         playerTokens.TryGetValue(playerId, out Token token);
         return token;
     }
+
+    // ==================== TOKEN SELECTION & MOVEMENT ====================
     
+    //Select a token for movement
+    public void SelectToken(Token t)
+    {
+        //Deselect previous if any
+        if (selectedToken != null)
+        {
+            selectedToken.SetSelected(false);
+        }
+        selectedToken = t;
+        if (selectedToken != null)
+        {
+            selectedToken.SetSelected(true);
+            Debug.Log($"Token selected: {selectedToken.name}");
+        }
+    }
+    
+    //Deselect current token
+    public void DeselectToken()
+    {
+        if (selectedToken != null)
+        {
+            selectedToken.SetSelected(false);
+            Debug.Log($"Token deselected: {selectedToken.name}");
+        }
+        selectedToken = null;
+    }
+    
+    //Check if we have a token selected
+    public bool HasSelectedToken()
+    {
+        return selectedToken != null;
+    }
+    
+    //Try to move selected token to a tile
+    public void TryMoveSelectedTokenToTile(Tile tile)
+    {
+        if (selectedToken == null || tile == null) return;
+        
+        //Check if tile is walkable
+        if (!tile.IsWalkable())
+        {
+            Debug.Log("Cannot move to non-walkable tile.");
+            return;
+        }
+        
+        selectedToken.MoveToTile(tile);
+        Debug.Log($"Moved {selectedToken.name} to tile ({tile.GridX}, {tile.GridY})");
+    }
+    
+    //Arrow key movement for selected token
+    void Update()
+    {
+        if (selectedToken == null || gridManager == null) return;
+        
+        //Don't process movement if in spawn mode
+        if (isInSpawnMode) return;
+        
+        Vector2Int direction = Vector2Int.zero;
+        
+        if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
+            direction = Vector2Int.up;
+        else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
+            direction = Vector2Int.down;
+        else if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
+            direction = Vector2Int.left;
+        else if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
+            direction = Vector2Int.right;
+        
+        if (direction != Vector2Int.zero)
+        {
+            Tile currentTile = selectedToken.GetCurrentTile();
+            if (currentTile != null)
+            {
+                int newX = currentTile.GridX + direction.x;
+                int newY = currentTile.GridY + direction.y;
+                Tile targetTile = gridManager.GetTileAtPosition(new Vector2(newX, newY));
+                TryMoveSelectedTokenToTile(targetTile);
+            }
+        }
+        
+        //Escape to deselect
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            DeselectToken();
+        }
+    }
+
     // ==================== MOVEMENT RULES ====================
     public bool CanPlayerMove(string playerId)
     {

@@ -77,16 +77,21 @@ public class Tile : MonoBehaviour {
     //Add OnMouseDown for clicking:
     void OnMouseDown()
     {
-        //Debug logging to diagnose click issues on different tile types
-        Debug.Log($"Tile clicked: ({gridX}, {gridY}), Type: {tileType}, Walkable: {IsWalkable()}");
-        
-        //Check for token spawning mode - maybe find some other way to do this but not sure
+        //Check for token spawning mode first
         if(GameplayManager.Instance != null && GameplayManager.Instance.IsInSpawnMode())
         {
-            Debug.Log($"Attempting to spawn at tile ({gridX}, {gridY})");
+            Debug.Log($"Attempting to spawn at tile ({gridX}, {gridY}), Walkable: {IsWalkable()}");
             GameplayManager.Instance.TrySpawnAtTile(this);
             return;
         }
+        
+        //Check if we have a selected token - move it to this tile
+        if(GameplayManager.Instance != null && GameplayManager.Instance.HasSelectedToken())
+        {
+            GameplayManager.Instance.TryMoveSelectedTokenToTile(this);
+            return;
+        }
+        
         //Checking if we're in edit mode
         if (gridManager != null && gridManager.IsEditMode)
         {
