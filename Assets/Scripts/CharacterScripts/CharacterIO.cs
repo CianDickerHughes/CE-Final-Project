@@ -41,6 +41,19 @@ public class CharacterIO : MonoBehaviour
         return full;
     }
 
+    //New method for getting the enemy folder
+    public static string GetEnemiesFolder()
+    {
+        #if UNITY_EDITOR
+                string folder = Path.Combine(Application.dataPath, "Enemies");
+        #else
+                string folder = Path.Combine(Application.persistentDataPath, "Enemies");
+        #endif
+                if (!Directory.Exists(folder))
+                    Directory.CreateDirectory(folder);
+                return folder;
+    }
+
     //Save texture2D as PNG
     public static string SaveTokenImage(Texture2D tex, string baseFileName)
     {
@@ -65,6 +78,13 @@ public class CharacterIO : MonoBehaviour
     public static string[] GetSavedCharacterFilePaths()
     {
         string folder = GetCharactersFolder();
+        return Directory.GetFiles(folder, "*.json");
+    }
+
+    //Enemy Character Loading
+    public static string[] GetSavedEnemyFilePaths()
+    {
+        string folder = GetEnemiesFolder();
         return Directory.GetFiles(folder, "*.json");
     }
 
