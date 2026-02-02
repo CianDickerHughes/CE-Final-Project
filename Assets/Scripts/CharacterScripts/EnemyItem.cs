@@ -18,9 +18,10 @@ public class EnemyItem : MonoBehaviour
     private EnemyData enemyData;
 
     //Setup method to initialize the enemy item with data
-    void SetUp(string jsonFilePath, EnemyData data)
+    public void Setup(string jsonFilePath, EnemyData data)
     {
         filePath = jsonFilePath;
+        enemyData = data;
 
         if (enemyNameText != null)
         {

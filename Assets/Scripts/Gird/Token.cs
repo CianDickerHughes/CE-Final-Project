@@ -149,6 +149,13 @@ public class Token : MonoBehaviour
             {
                 spriteRenderer.sprite = defaultSprite;
             }
+
+            //Ensure token renders above tiles using sorting layer
+            if(spriteRenderer != null){
+                //Set sorting layer to "Tokens" - create this layer in Project Settings > Tags and Layers!
+                spriteRenderer.sortingLayerName = "Tokens";
+                spriteRenderer.sortingOrder = 0;
+            }
         }
     }
 
