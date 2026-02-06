@@ -4,6 +4,8 @@ using System;
 using UnityEngine.SceneManagement;
 using TMPro;
 using UnityEngine.UI;
+using Unity.Netcode;
+using Unity.Services.Authentication;
 
 //This class will help outline and control the basic behaviour we'll need to implement
 //This included - if scene is combat or roleplay
@@ -35,6 +37,7 @@ public class GameplayManager : MonoBehaviour
     private string campaignId;
     //Use this to populate the players name in the header
     private SessionManager sessionManager;
+    private PlayerAssignmentHelper playerAssignmentHelper;
 
     [Header("Combat Specific State")]
     private List<string> turnOrder;
@@ -197,6 +200,14 @@ public class GameplayManager : MonoBehaviour
         {
             Debug.LogWarning("playerName TextMeshProUGUI or SessionManager instance is NULL.");
         }
+
+        //Setting up instances for the player assignment helper and network manager
+        playerAssignmentHelper = PlayerAssignmentHelper.Instance;
+        if(playerAssignmentHelper == null)
+        {
+            Debug.LogError("PlayerAssignmentHelper instance is null, make sure it exists in the scene");
+        }
+
         
         // Initialize lists
         turnOrder = new List<string>();
@@ -384,9 +395,43 @@ public class GameplayManager : MonoBehaviour
         selectedToken = t;
         if (selectedToken != null)
         {
-            selectedToken.SetSelected(true);
-            Debug.Log($"Token selected: {selectedToken.name}");
+            //Verifying the caller/player can control this token before we select it
+            if(CanCurrentPlayerControlToken(selectedToken))
+            {
+                selectedToken.SetSelected(true);
+                Debug.Log($"Token selected: {selectedToken.name}");
+            }
+            else
+            {
+                Debug.Log("Cant select token - player doesnt have control!");
+                return;
+            }
         }
+    }
+
+    //Utility method for seeing if the current player control the token
+    //Gets character id from the token and checks if the player has control over that character
+    public bool CanCurrentPlayerControlToken(Token token){
+        if(token == null)
+        {
+            return false;
+        }
+
+        //Ensuring the host/dm can control all tokens
+        if(NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
+        {
+            return true;
+        }
+
+        //Retrieving the character data from the token to check ownership
+        CharacterData characterData = token.getCharacterData();
+        if(characterData != null)
+        {
+            //Returning whether player can control this token - ownership
+            return playerAssignmentHelper.CanControlCharacter(characterData.id);
+        }
+
+        return false;
     }
     
     //Deselect current token
@@ -409,7 +454,17 @@ public class GameplayManager : MonoBehaviour
     //Try to move selected token to a tile
     public void TryMoveSelectedTokenToTile(Tile tile)
     {
-        if (selectedToken == null || tile == null) return;
+        if (selectedToken == null || tile == null)
+        {
+            return;
+        }
+
+        //Checking if a player can move this token
+        if(!CanCurrentPlayerControlToken(selectedToken))
+        {
+            Debug.Log("Cant move token - player doesnt have control");
+            return;
+        }
         
         //Check if tile is walkable
         if (!tile.IsWalkable())

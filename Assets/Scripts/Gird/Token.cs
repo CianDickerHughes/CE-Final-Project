@@ -18,6 +18,9 @@ public class Token : MonoBehaviour
     private CharacterType characterType;
     //FOR NETWORKING CIAN - SO WE CAN TRACK WHO OWNS WHAT TOKEN
     private ulong ownerId;
+    //Used to trach whichever character this token is representing
+    //Can be useful for the player assignment and checking movement permissions etc.
+    private string characterId;
 
     //Other variables
     private Tile currentTile;
@@ -29,11 +32,11 @@ public class Token : MonoBehaviour
         if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
         if (gridManager == null)
         {
-#if UNITY_2023_2_OR_NEWER
-            gridManager = FindAnyObjectByType<GridManager>();
-#else
-            gridManager = FindObjectOfType<GridManager>();
-#endif
+            #if UNITY_2023_2_OR_NEWER
+                        gridManager = FindAnyObjectByType<GridManager>();
+            #else
+                        gridManager = FindObjectOfType<GridManager>();
+            #endif
         }
     }
 
@@ -42,11 +45,11 @@ public class Token : MonoBehaviour
         if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
         if (gridManager == null)
         {
-#if UNITY_2023_2_OR_NEWER
-            gridManager = FindAnyObjectByType<GridManager>();
-#else
-            gridManager = FindObjectOfType<GridManager>();
-#endif
+            #if UNITY_2023_2_OR_NEWER
+                        gridManager = FindAnyObjectByType<GridManager>();
+            #else
+                        gridManager = FindObjectOfType<GridManager>();
+            #endif
         }
         
         //Ensure we have a collider for click detection
@@ -67,6 +70,8 @@ public class Token : MonoBehaviour
         characterData = data;
         characterType = type;
         currentTile = startTile;
+        //Store the id of the character - so the token "knows" who it is
+        characterId = data.id;
         
         // Set visual based on character
         if (data != null)
@@ -231,6 +236,16 @@ public class Token : MonoBehaviour
         //Don't select if in spawn mode
         if (GameplayManager.Instance != null && GameplayManager.Instance.IsInSpawnMode())
             return;
+
+        PlayerAssignmentHelper assignmentHelper = PlayerAssignmentHelper.Instance;
+        if (assignmentHelper != null){
+            //Check if this token's character is assigned to this player - if not dont allow selection
+            if(characterData != null && !assignmentHelper.CanControlCharacter(characterData.id))
+            {
+                Debug.Log($"Token: Cant be selected for character {characterData.charName}");
+                return;
+            }
+        }
             
         GameplayManager.Instance?.SelectToken(this);
     }
@@ -246,5 +261,11 @@ public class Token : MonoBehaviour
             //Tint the sprite when selected
             spriteRenderer.color = selected ? new Color(0.7f, 1f, 0.7f, 1f) : Color.white;
         }
+    }
+
+    //Getter for the character data the token represents
+    public CharacterData getCharacterData()
+    {
+        return characterData;
     }
 }
