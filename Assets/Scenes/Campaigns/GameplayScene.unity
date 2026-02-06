@@ -12237,6 +12237,7 @@ GameObject:
   - component: {fileID: 1589989848}
   - component: {fileID: 1589989847}
   - component: {fileID: 1589989850}
+  - component: {fileID: 1589989851}
   m_Layer: 5
   m_Name: DMPanel
   m_TagString: Untagged
@@ -12360,6 +12361,19 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1589989851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1589989845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9188f81fc3e36ca479c557f639ca6438, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DMOnlyPanel
+  dmPanel: {fileID: 1589989845}
 --- !u!1 &1612476767
 GameObject:
   m_ObjectHideFlags: 0
