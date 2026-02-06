@@ -2,6 +2,8 @@ using System;
 using UnityEngine;
 using Unity.Netcode;
 using Unity.Services.Authentication;
+using UnityEngine.UI;
+using TMPro;
 
 /// <summary>
 /// Helper component for clients/PCs to check their own character assignment.
@@ -11,6 +13,15 @@ using Unity.Services.Authentication;
 public class PlayerAssignmentHelper : MonoBehaviour
 {
     public static PlayerAssignmentHelper Instance { get; private set; }
+
+    //Fields for setting up the players assigned character data so i can make specific pieces of info show up in the gameplay scene UI
+    public TextMeshProUGUI characterName;
+    public TextMeshProUGUI characterClass;
+    public TextMeshProUGUI characterLevel;
+    public TextMeshProUGUI characterRace;
+    public TextMeshProUGUI characterHP;
+    public TextMeshProUGUI characterAC;
+    public Image characterImg;
     
     // Event fired when the local player's assignment changes
     public event Action<CharacterData> OnMyAssignmentChanged;
@@ -106,6 +117,14 @@ public class PlayerAssignmentHelper : MonoBehaviour
         {
             if (pc.characterData?.id == assignment.characterId)
             {
+                //Updating the UI fields with those of the assigned characters data
+                characterName.text = pc.characterData.charName;
+                characterClass.text = pc.characterData.charClass;
+                characterLevel.text = $"Level {pc.characterData.level}";
+                characterRace.text = pc.characterData.race;
+                characterHP.text = $"{pc.characterData.HP}";
+                characterAC.text = $"{pc.characterData.AC}";
+                characterImg.sprite = Resources.Load<Sprite>($"CharacterTokens/{pc.characterData.tokenFileName}");
                 return pc.characterData;
             }
         }
