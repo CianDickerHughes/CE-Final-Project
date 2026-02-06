@@ -476,6 +476,20 @@ public class GameplayManager : MonoBehaviour
         selectedToken.MoveToTile(tile);
         Debug.Log($"Moved {selectedToken.name} to tile ({tile.GridX}, {tile.GridY})");
     }
+
+    public Token GetTokenForCharacter(string characterId)
+    {
+        foreach(var token in spawnedTokens)
+        {
+            if(token.getCharacterData() != null && token.getCharacterData().id == characterId)
+            {
+                return token;
+            }
+        }
+
+        Debug.LogWarning($"No token found for character ID: {characterId}");
+        return null;
+    }
     
     //Arrow key movement for selected token
     void Update()

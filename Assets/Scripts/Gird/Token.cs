@@ -120,6 +120,14 @@ public class Token : MonoBehaviour
                 spriteRenderer.sortingLayerName = "Tokens";
                 spriteRenderer.sortingOrder = 0;
             }
+
+            //Checking ig this player owns this character and applying a simple visual around it if so
+            PlayerAssignmentHelper assignmentHelper = PlayerAssignmentHelper.Instance;
+            if(assignmentHelper != null && assignmentHelper.IsMyCharacter(characterId))
+            {
+                //Applying a glow around the token to indicate ownership
+                spriteRenderer.color = new Color(0.7f, 1f, 0.7f, 1f);
+            }
         }
     }
 
