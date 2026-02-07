@@ -276,4 +276,16 @@ public class Token : MonoBehaviour
     {
         return characterData;
     }
+    
+    //Getter for the enemy data the token represents
+    public EnemyData getEnemyData()
+    {
+        return enemyData;
+    }
+    
+    //Getter for the character type (Player, NPC, or Enemy)
+    public CharacterType getCharacterType()
+    {
+        return characterType;
+    }
 }

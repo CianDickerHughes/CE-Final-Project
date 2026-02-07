@@ -137,6 +137,12 @@ public class GameplayManager : MonoBehaviour
     {
         Debug.Log("=== GameplayManager Start() ===");
         
+        // Initialize lists early so they're ready for token loading
+        turnOrder = new List<string>();
+        playerIds = new List<string>();
+        playerTokens = new Dictionary<string, Token>();
+        spawnedTokens = new List<Token>();
+        
         //Loading the scene data using the SceneDataTransfer singleton
         if (SceneDataTransfer.Instance != null)
         {
@@ -164,6 +170,9 @@ public class GameplayManager : MonoBehaviour
                 Debug.Log($"Loading map: {currentSceneData.mapData.width}x{currentSceneData.mapData.height}");
                 gridManager.LoadMapData(currentSceneData.mapData);
                 gridManager.SetEditMode(false); //Disable painting in gameplay
+                
+                //Load any saved tokens after the map is ready
+                LoadTokensFromSceneData();
             }
             else
             {
@@ -207,13 +216,6 @@ public class GameplayManager : MonoBehaviour
         {
             Debug.LogError("PlayerAssignmentHelper instance is null, make sure it exists in the scene");
         }
-
-        
-        // Initialize lists
-        turnOrder = new List<string>();
-        playerIds = new List<string>();
-        playerTokens = new Dictionary<string, Token>();
-        spawnedTokens = new List<Token>();
         
         Debug.Log("=== GameplayManager Start() Complete ===");
     }
@@ -226,15 +228,226 @@ public class GameplayManager : MonoBehaviour
         if(gridManager != null && currentSceneData != null){
             currentSceneData.mapData = gridManager.SaveMapData();
             Debug.Log("Map data saved to current scene.");
+            
+            //Save all token positions to the scene data
+            SaveTokensToSceneData();
+            Debug.Log("Token data saved to current scene.");
+            
+            //Persist the scene data to CurrentScene.json
+            SaveCurrentSceneToFile();
         } else {
             Debug.LogWarning("Cannot save map data - GridManager or currentSceneData is null.");
         }
-        //Here we would also save state information relating to this scene
-        //For now it just move the dm back to the Campaign Manager scene
 
         //For now, we just log and move
         Debug.Log("Exiting to Campaign Manager scene...");
         SceneManager.LoadScene("CampaignManager");
+    }
+    
+    //Collect all token positions and save them to currentSceneData
+    private void SaveTokensToSceneData()
+    {
+        if (currentSceneData == null || spawnedTokens == null)
+        {
+            Debug.LogWarning("Cannot save tokens - scene data or spawned tokens list is null.");
+            return;
+        }
+        
+        //Clear existing token data and rebuild
+        currentSceneData.tokens = new List<TokenData>();
+        
+        foreach (Token token in spawnedTokens)
+        {
+            if (token == null) continue;
+            
+            Tile currentTile = token.GetCurrentTile();
+            if (currentTile == null)
+            {
+                Debug.LogWarning($"Token {token.name} has no current tile, skipping.");
+                continue;
+            }
+            
+            //Get the character or enemy ID based on token type
+            string charId = "";
+            string enemyId = "";
+            CharacterType tokenType = token.getCharacterType();
+            
+            if (tokenType == CharacterType.Enemy)
+            {
+                EnemyData enemyData = token.getEnemyData();
+                if (enemyData != null)
+                {
+                    enemyId = enemyData.id;
+                }
+            }
+            else
+            {
+                CharacterData charData = token.getCharacterData();
+                if (charData != null)
+                {
+                    charId = charData.id;
+                }
+            }
+            
+            //Create and add the token data
+            TokenData tokenData = new TokenData(charId, enemyId, tokenType, currentTile.GridX, currentTile.GridY);
+            currentSceneData.tokens.Add(tokenData);
+            
+            Debug.Log($"Saved token: Type={tokenType}, CharId={charId}, EnemyId={enemyId}, Position=({currentTile.GridX}, {currentTile.GridY})");
+        }
+        
+        Debug.Log($"Total tokens saved: {currentSceneData.tokens.Count}");
+    }
+    
+    //Save the current scene data to CurrentScene.json
+    private void SaveCurrentSceneToFile()
+    {
+        if (currentSceneData == null)
+        {
+            Debug.LogWarning("Cannot save to file - currentSceneData is null.");
+            return;
+        }
+        
+        try
+        {
+            string campaignsFolder = CampaignManager.GetCampaignsFolder();
+            string currentScenePath = System.IO.Path.Combine(campaignsFolder, "CurrentScene.json");
+            
+            string json = JsonUtility.ToJson(currentSceneData, true);
+            System.IO.File.WriteAllText(currentScenePath, json);
+            
+            Debug.Log($"Scene data saved to: {currentScenePath}");
+            
+            //Also update the SceneDataTransfer singleton so other scenes have the updated data
+            if (SceneDataTransfer.Instance != null)
+            {
+                SceneDataTransfer.Instance.UpdatePendingScene(currentSceneData);
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"Failed to save scene to file: {ex.Message}");
+        }
+    }
+    
+    //Auto-save tokens whenever they are spawned or moved
+    private void AutoSaveTokens()
+    {
+        SaveTokensToSceneData();
+        SaveCurrentSceneToFile();
+    }
+    
+    //Load tokens from the scene data and spawn them on the grid
+    private void LoadTokensFromSceneData()
+    {
+        if (currentSceneData == null || currentSceneData.tokens == null || currentSceneData.tokens.Count == 0)
+        {
+            Debug.Log("No tokens to load from scene data.");
+            return;
+        }
+        
+        Debug.Log($"Loading {currentSceneData.tokens.Count} tokens from scene data...");
+        
+        foreach (TokenData tokenData in currentSceneData.tokens)
+        {
+            //Get the tile at the saved position
+            Tile tile = gridManager.GetTileAtPosition(new Vector2(tokenData.gridX, tokenData.gridY));
+            if (tile == null)
+            {
+                Debug.LogWarning($"Cannot spawn token - no tile at ({tokenData.gridX}, {tokenData.gridY})");
+                continue;
+            }
+            
+            //Spawn based on token type
+            if (tokenData.tokenType == CharacterType.Enemy && !string.IsNullOrEmpty(tokenData.enemyId))
+            {
+                //Find the enemy data by ID
+                EnemyData enemyData = FindEnemyById(tokenData.enemyId);
+                if (enemyData != null)
+                {
+                    SpawnEnemyTokenAtTile(tile, enemyData, tokenData.tokenType);
+                    Debug.Log($"Loaded enemy token: {enemyData.name} at ({tokenData.gridX}, {tokenData.gridY})");
+                }
+                else
+                {
+                    Debug.LogWarning($"Could not find enemy with ID: {tokenData.enemyId}");
+                }
+            }
+            else if (!string.IsNullOrEmpty(tokenData.characterId))
+            {
+                //Find the character data by ID
+                CharacterData charData = FindCharacterById(tokenData.characterId);
+                if (charData != null)
+                {
+                    SpawnTokenAtTile(tile, charData, tokenData.tokenType);
+                    Debug.Log($"Loaded character token: {charData.charName} at ({tokenData.gridX}, {tokenData.gridY})");
+                }
+                else
+                {
+                    Debug.LogWarning($"Could not find character with ID: {tokenData.characterId}");
+                }
+            }
+        }
+    }
+    
+    //Find a character by ID from all saved character files
+    private CharacterData FindCharacterById(string characterId)
+    {
+        if (string.IsNullOrEmpty(characterId)) return null;
+        
+        try
+        {
+            //First check the CharacterManager if available
+            if (CharacterManager.Instance != null)
+            {
+                CharacterData fromManager = CharacterManager.Instance.GetCharacterById(characterId);
+                if (fromManager != null) return fromManager;
+            }
+            
+            //Otherwise search through all character JSON files
+            string[] files = CharacterIO.GetSavedCharacterFilePaths();
+            foreach (string filePath in files)
+            {
+                string json = System.IO.File.ReadAllText(filePath);
+                CharacterData data = JsonUtility.FromJson<CharacterData>(json);
+                if (data != null && data.id == characterId)
+                {
+                    return data;
+                }
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"Error finding character by ID: {ex.Message}");
+        }
+        
+        return null;
+    }
+    
+    //Find an enemy by ID from all saved enemy files
+    private EnemyData FindEnemyById(string enemyId)
+    {
+        if (string.IsNullOrEmpty(enemyId)) return null;
+        
+        try
+        {
+            string[] files = CharacterIO.GetSavedEnemyFilePaths();
+            foreach (string filePath in files)
+            {
+                string json = System.IO.File.ReadAllText(filePath);
+                EnemyData data = JsonUtility.FromJson<EnemyData>(json);
+                if (data != null && data.id == enemyId)
+                {
+                    return data;
+                }
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"Error finding enemy by ID: {ex.Message}");
+        }
+        
+        return null;
     }
     
     // ==================== TOKEN MANAGEMENT ====================
@@ -327,6 +540,7 @@ public class GameplayManager : MonoBehaviour
         {
             SpawnTokenAtTile(tile, selectedCharacterToSpawn, selectedCharacterType);
             ClearSpawnSelection();
+            AutoSaveTokens(); //Auto-save after spawning
             return;
         }
         //Selecting an enemy to spawn
@@ -334,6 +548,7 @@ public class GameplayManager : MonoBehaviour
         {
             SpawnEnemyTokenAtTile(tile, selectedEnemyToSpawn, selectedCharacterType);
             ClearSpawnSelection();
+            AutoSaveTokens(); //Auto-save after spawning
             return;
         }
     }
@@ -372,6 +587,8 @@ public class GameplayManager : MonoBehaviour
         // Move the token
         token.MoveToTile(targetTile);
         Debug.Log($"Token moved to ({targetX}, {targetY})");
+        
+        AutoSaveTokens(); //Auto-save after moving
         
         return true;
     }
@@ -475,6 +692,8 @@ public class GameplayManager : MonoBehaviour
         
         selectedToken.MoveToTile(tile);
         Debug.Log($"Moved {selectedToken.name} to tile ({tile.GridX}, {tile.GridY})");
+        
+        AutoSaveTokens(); //Auto-save after moving
     }
 
     public Token GetTokenForCharacter(string characterId)

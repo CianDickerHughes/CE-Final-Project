@@ -111,6 +111,8 @@ public class SceneData
     public MapData mapData;
     //This is to help us keep track of which characters are active in this scene - i.e. who is playing or what players are here
     public List<string> activeCharacterIds;
+    //List of tokens (players and enemies) on the grid with their positions
+    public List<TokenData> tokens;
     
     public SceneData(string name, SceneType type, string desc)
     {
@@ -122,6 +124,7 @@ public class SceneData
         status = "Not Started";
         mapData = new MapData();
         activeCharacterIds = new List<string>();
+        tokens = new List<TokenData>();
     }
     
     //Add a character to this scene
@@ -269,6 +272,35 @@ public class MapData
 
         TileType type = GetTileAt(x, y);
         return TileTypeProperties.IsWalkable(type);
+    }
+}
+
+//Serializable class to store token position and identification data for saving/loading
+[System.Serializable]
+public class TokenData
+{
+    public string characterId;  // ID of the character (for player/NPC tokens)
+    public string enemyId;      // ID of the enemy (for enemy tokens)
+    public CharacterType tokenType;  // Player, NPC, or Enemy
+    public int gridX;           // X position on grid
+    public int gridY;           // Y position on grid
+    
+    public TokenData()
+    {
+        characterId = "";
+        enemyId = "";
+        tokenType = CharacterType.Player;
+        gridX = 0;
+        gridY = 0;
+    }
+    
+    public TokenData(string charId, string enemyIdVal, CharacterType type, int x, int y)
+    {
+        characterId = charId ?? "";
+        enemyId = enemyIdVal ?? "";
+        tokenType = type;
+        gridX = x;
+        gridY = y;
     }
 }
 
