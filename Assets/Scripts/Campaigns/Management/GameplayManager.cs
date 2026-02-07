@@ -96,6 +96,9 @@ public class GameplayManager : MonoBehaviour
         playerName = newInstance.playerName;
         gridManager = newInstance.gridManager;
 
+        //Reloading a scene - might fix error when returning to it
+        ReinitializeScene();
+
         // Re-bind button listener
         if (saveAndExitButton != null)
         {
@@ -218,6 +221,59 @@ public class GameplayManager : MonoBehaviour
         }
         
         Debug.Log("=== GameplayManager Start() Complete ===");
+    }
+
+    //This should fix the ui issure we're getting with the map not loading
+    public void ReinitializeScene()
+    {
+        Debug.Log("=== GameplayManager ReinitializeScene() ===");
+
+        //Re-loading the map from specific scene data
+        if(SceneDataTransfer.Instance != null)
+        {
+            currentSceneData = SceneDataTransfer.Instance.GetPendingScene();
+            campaignId = SceneDataTransfer.Instance.GetCurrentCampaignId();
+
+            Debug.Log($"Scene loaded: {currentSceneData?.sceneName ?? "NULL"}");
+
+            currentMode = currentSceneData.sceneType == SceneType.Combat ? GameMode.Combat : GameMode.Roleplay;
+        }
+
+        //Clearing the old tokens
+        if(spawnedTokens != null)
+        {
+            foreach (var token in spawnedTokens)
+            {
+                if(token != null)
+                {
+                    Destroy(token.gameObject);
+                }
+                spawnedTokens.Clear();
+            }
+        }
+
+        //Loading the map again
+        if(gridManager != null && currentSceneData?.mapData != null)
+        {
+            Debug.Log($"Loading map for scene: {currentSceneData.sceneName}");
+            gridManager.LoadMapData(currentSceneData.mapData);
+            gridManager.SetEditMode(false);
+            LoadTokensFromSceneData();
+        }
+
+        //Reloading the UI references
+        if(sceneName != null && currentSceneData != null)
+        {
+            sceneName.text = currentSceneData.sceneName;
+        }
+        if(playerName != null && sessionManager !=null)
+        {
+            playerName.text = sessionManager.CurrentUsername;
+        }
+
+        RebindUIReferences();
+
+        Debug.Log("Scene reloading complete.");
     }
 
     // ==================== UTILITY METHODS ====================
@@ -802,27 +858,5 @@ public class GameplayManager : MonoBehaviour
     //Method to track combat
     public void TrackCombat(){
         Debug.Log("Tracking combat state - looping until combat ends. - checking enemies vs players");
-    }
-}
-
-public class GameplayUI : MonoBehaviour
-{
-    //Need to configure the different UI elements for DM and Players
-    //POSSIBLY CHANGE THIS - IDK IF THERES A DIFFERENT/BETTER WAY TO DO IT WITH NETWORKING
-    [Header("DM Only UI")]
-    [SerializeField] private GameObject dmPanel; 
-    
-    [Header("Player Only UI")]
-    [SerializeField] private GameObject playerPanel;  
-    
-    [Header("Combat Only UI")]
-    [SerializeField] private GameObject combatPanel;
-    
-    [Header("Shared UI")]
-    [SerializeField] private GameObject sharedPanel;
-    
-    void Start()
-    {
-        //Need to figure out how we're going to do this
     }
 }
