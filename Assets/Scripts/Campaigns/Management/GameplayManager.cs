@@ -74,16 +74,26 @@ public class GameplayManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            //DontDestroyOnLoad(gameObject);
             Debug.Log("GameplayManager initialized and will persist across scenes.");
         }
         else
         {
             // Transfer fresh UI references from this new instance to the persistent singleton
-            Instance.TransferUIReferences(this);
+            //Instance.TransferUIReferences(this);
             Debug.Log("GameplayManager duplicate destroyed, UI references transferred.");
             Destroy(gameObject);
             return;
+        }
+    }
+
+    //Simplified Destroy method - testing to see if things will work better
+    void OnDestroy()
+    {
+        if(Instance == this)
+        {
+            Instance = null;
+            Debug.Log("GameplayManager instance destroyed.");
         }
     }
 
@@ -221,6 +231,44 @@ public class GameplayManager : MonoBehaviour
         }
         
         Debug.Log("=== GameplayManager Start() Complete ===");
+    }
+
+    //Arrow key movement for selected token
+    void Update()
+    {
+        if (selectedToken == null || gridManager == null) return;
+        
+        //Don't process movement if in spawn mode
+        if (isInSpawnMode) return;
+        
+        Vector2Int direction = Vector2Int.zero;
+        
+        if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
+            direction = Vector2Int.up;
+        else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
+            direction = Vector2Int.down;
+        else if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
+            direction = Vector2Int.left;
+        else if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
+            direction = Vector2Int.right;
+        
+        if (direction != Vector2Int.zero)
+        {
+            Tile currentTile = selectedToken.GetCurrentTile();
+            if (currentTile != null)
+            {
+                int newX = currentTile.GridX + direction.x;
+                int newY = currentTile.GridY + direction.y;
+                Tile targetTile = gridManager.GetTileAtPosition(new Vector2(newX, newY));
+                TryMoveSelectedTokenToTile(targetTile);
+            }
+        }
+        
+        //Escape to deselect
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            DeselectToken();
+        }
     }
 
     //This should fix the ui issure we're getting with the map not loading
@@ -765,44 +813,6 @@ public class GameplayManager : MonoBehaviour
         Debug.LogWarning($"No token found for character ID: {characterId}");
         return null;
     }
-    
-    //Arrow key movement for selected token
-    void Update()
-    {
-        if (selectedToken == null || gridManager == null) return;
-        
-        //Don't process movement if in spawn mode
-        if (isInSpawnMode) return;
-        
-        Vector2Int direction = Vector2Int.zero;
-        
-        if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
-            direction = Vector2Int.up;
-        else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
-            direction = Vector2Int.down;
-        else if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
-            direction = Vector2Int.left;
-        else if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
-            direction = Vector2Int.right;
-        
-        if (direction != Vector2Int.zero)
-        {
-            Tile currentTile = selectedToken.GetCurrentTile();
-            if (currentTile != null)
-            {
-                int newX = currentTile.GridX + direction.x;
-                int newY = currentTile.GridY + direction.y;
-                Tile targetTile = gridManager.GetTileAtPosition(new Vector2(newX, newY));
-                TryMoveSelectedTokenToTile(targetTile);
-            }
-        }
-        
-        //Escape to deselect
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            DeselectToken();
-        }
-    }
 
     // ==================== MOVEMENT RULES ====================
     public bool CanPlayerMove(string playerId)
@@ -830,33 +840,5 @@ public class GameplayManager : MonoBehaviour
         }
             
         return turnOrder[currentTurnIndex];
-    }
-
-    //Method to stat combat
-    //UNFINISHED - CLASSES WILL BE CHANGED SO THIS METHOD IS SUBJECT TO CHANGE
-    //NEED TO FIGURE OUT HOW TO CALCULATE INITIATIVE
-    public void StartCombat(List<string> participants)
-    {
-        if (currentMode != GameMode.Combat)
-        {
-            Debug.LogError("Cannot start combat in Roleplay mode.");
-            return;
-        }
-
-        turnOrder = new List<string>(participants);
-        currentTurnIndex = 0;
-        //isCombatActive = true;
-        Debug.Log("Combat started with participants: " + string.Join(", ", participants));
-    }
-
-    //Combat ends
-    public void EndCombat()
-    {
-        //Ending combat and preventing players from moving etc
-    }
-
-    //Method to track combat
-    public void TrackCombat(){
-        Debug.Log("Tracking combat state - looping until combat ends. - checking enemies vs players");
     }
 }
