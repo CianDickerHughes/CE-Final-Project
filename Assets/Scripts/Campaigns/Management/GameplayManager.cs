@@ -326,26 +326,82 @@ public class GameplayManager : MonoBehaviour
 
     // ==================== UTILITY METHODS ====================
     //Save & Exit - self explanatory where we save current progress and exit back to the campaign manager page
+    //Now uses Compass version control system to commit changes to the main campaign branch
     public void saveAndExit(){
-        Debug.Log("Saving current scene data and exiting to Campaign Manager...");
+        Debug.Log("Compass: Saving current scene data and exiting to Campaign Manager...");
         //Saving the current map data back to the scene data
         if(gridManager != null && currentSceneData != null){
             currentSceneData.mapData = gridManager.SaveMapData();
-            Debug.Log("Map data saved to current scene.");
+            Debug.Log("Compass: Map data saved to current scene.");
             
             //Save all token positions to the scene data
             SaveTokensToSceneData();
-            Debug.Log("Token data saved to current scene.");
+            Debug.Log("Compass: Token data saved to current scene.");
             
-            //Persist the scene data to CurrentScene.json
-            SaveCurrentSceneToFile();
+            //Use Compass to commit changes to the main branch
+            CommitWithCompass();
         } else {
-            Debug.LogWarning("Cannot save map data - GridManager or currentSceneData is null.");
+            Debug.LogWarning("Compass: Cannot save map data - GridManager or currentSceneData is null.");
         }
 
         //For now, we just log and move
-        Debug.Log("Exiting to Campaign Manager scene...");
+        Debug.Log("Compass: Exiting to Campaign Manager scene...");
         SceneManager.LoadScene("CampaignManager");
+    }
+    
+    /// <summary>
+    /// Uses Compass version control to commit the current scene changes.
+    /// This saves to CurrentScene.json (working directory) and commits to the main campaign file.
+    /// </summary>
+    private void CommitWithCompass()
+    {
+        if (currentSceneData == null)
+        {
+            Debug.LogWarning("Compass: Cannot commit - currentSceneData is null.");
+            return;
+        }
+        
+        // Get the campaign name for the Compass repository path
+        string campaignName = GetCurrentCampaignName();
+        if (string.IsNullOrEmpty(campaignName))
+        {
+            Debug.LogWarning("Compass: Cannot commit - campaign name not found. Falling back to direct save.");
+            SaveCurrentSceneToFile();
+            return;
+        }
+        
+        // Use CompassManager to save and commit
+        if (CompassManager.Instance != null)
+        {
+            string commitMessage = $"Scene updated: {currentSceneData.sceneName} - {DateTime.Now:HH:mm:ss}";
+            CompassCommit commit = CompassManager.Instance.SaveAndCommit(campaignName, currentSceneData, commitMessage);
+            
+            if (commit != null)
+            {
+                Debug.Log($"Compass: Committed changes to main branch - {commit.commitId}");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Compass: CompassManager not available. Falling back to direct save.");
+            SaveCurrentSceneToFile();
+        }
+    }
+    
+    /// <summary>
+    /// Gets the name of the current campaign.
+    /// </summary>
+    private string GetCurrentCampaignName()
+    {
+        if (CampaignManager.Instance != null)
+        {
+            Campaign campaign = CampaignManager.Instance.GetCurrentCampaign();
+            if (campaign != null)
+            {
+                return campaign.campaignName;
+            }
+        }
+        return null;
     }
     
     //Collect all token positions and save them to currentSceneData

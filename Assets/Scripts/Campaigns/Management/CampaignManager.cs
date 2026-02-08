@@ -136,6 +136,10 @@ public class CampaignManager : MonoBehaviour
         
         currentCampaign.scenes.Add(scene);
         SaveCampaign();
+        
+        // Initialize Compass repository for the new scene
+        InitializeCompassForScene(scene);
+        
         Debug.Log($"Scene added with data: {scene.sceneName}");
         return true;
     }
@@ -157,6 +161,76 @@ public class CampaignManager : MonoBehaviour
         
         Debug.LogWarning($"Scene not found: {updatedScene.sceneId}");
         return false;
+    }
+    
+    // ==================== COMPASS INTEGRATION ====================
+    
+    /// <summary>
+    /// Initialize a Compass repository for a scene.
+    /// Called automatically when a new scene is added.
+    /// </summary>
+    private void InitializeCompassForScene(SceneData scene)
+    {
+        if (CompassManager.Instance != null && currentCampaign != null)
+        {
+            CompassManager.Instance.Init(currentCampaign.campaignName, scene);
+            Debug.Log($"Compass: Initialized repository for scene {scene.sceneName}");
+        }
+    }
+    
+    /// <summary>
+    /// Get the Compass commit history for a specific scene.
+    /// </summary>
+    public List<CompassCommit> GetSceneHistory(string sceneId, int maxCount = 10)
+    {
+        if (CompassManager.Instance == null || currentCampaign == null)
+            return new List<CompassCommit>();
+        
+        return CompassManager.Instance.Log(currentCampaign.campaignName, sceneId, maxCount);
+    }
+    
+    /// <summary>
+    /// Revert a scene to a previous commit state.
+    /// </summary>
+    public SceneData RevertSceneToCommit(string sceneId, string commitId)
+    {
+        if (CompassManager.Instance == null || currentCampaign == null)
+            return null;
+        
+        SceneData revertedScene = CompassManager.Instance.Revert(
+            currentCampaign.campaignName, 
+            sceneId, 
+            commitId
+        );
+        
+        if (revertedScene != null)
+        {
+            UpdateScene(revertedScene);
+        }
+        
+        return revertedScene;
+    }
+    
+    /// <summary>
+    /// Get the Compass status for a scene (check if there are uncommitted changes).
+    /// </summary>
+    public CompassStatus GetSceneStatus(SceneData scene)
+    {
+        if (CompassManager.Instance == null || currentCampaign == null)
+            return new CompassStatus();
+        
+        return CompassManager.Instance.Status(currentCampaign.campaignName, scene);
+    }
+    
+    /// <summary>
+    /// Get a summary of Compass history for a scene.
+    /// </summary>
+    public string GetSceneCompassSummary(string sceneId)
+    {
+        if (CompassManager.Instance == null || currentCampaign == null)
+            return "Compass not available";
+        
+        return CompassManager.Instance.GetRepositorySummary(currentCampaign.campaignName, sceneId);
     }
     
     //DM adds a player's character to a specific scene - potentially usefull for specific scenarios
