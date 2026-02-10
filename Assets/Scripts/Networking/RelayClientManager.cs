@@ -112,6 +112,15 @@ public class RelayClientManager : MonoBehaviour
             try
             {
                 var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+                
+                // Try to increase max payload size for larger transfers
+                // This may not be available in all Unity Transport versions
+                try
+                {
+                    transport.MaxPayloadSize = 65535; // 64KB
+                }
+                catch (System.Exception) { /* Property may not exist */ }
+                
                 transport.SetClientRelayData(joinAllocation.RelayServer.IpV4, (ushort)joinAllocation.RelayServer.Port, joinAllocation.AllocationIdBytes, joinAllocation.Key, joinAllocation.ConnectionData, joinAllocation.HostConnectionData);
 
                 Debug.Log("RelayClientManager: Relay server data configured");

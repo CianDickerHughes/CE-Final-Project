@@ -9,17 +9,17 @@ public class CharacterIO : MonoBehaviour
 {
     //Returns the folder path to save characters.
     //We first check to see where we are running (Editor vs Build)
-    //If we're in Editor we save to Assets/characters so the files are visible in the project.
-    //If we're in a build we save to Application.persistentDataPath/characters
+    //If we're in Editor we save to Assets/Characters so the files are visible in the project.
+    //If we're in a build we save to Application.persistentDataPath/Characters
     public static string GetCharactersFolder()
     {
         #if UNITY_EDITOR
                 // Application.dataPath = "ProjectRoot/Assets" - allows direct file inspection during development
-                string folder = Path.Combine(Application.dataPath, "characters");
+                string folder = Path.Combine(Application.dataPath, "Characters");
         #else
                 // persistentDataPath ensures data survives app updates and is writable on all platforms
                 // Location varies by platform (e.g., AppData on Windows, Documents on mobile)
-                string folder = Path.Combine(Application.persistentDataPath, "characters");
+                string folder = Path.Combine(Application.persistentDataPath, "Characters");
         #endif
                 if (!Directory.Exists(folder))
                     Directory.CreateDirectory(folder);
