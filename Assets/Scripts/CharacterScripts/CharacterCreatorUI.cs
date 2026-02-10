@@ -74,8 +74,8 @@ public class CharacterCreatorUI : MonoBehaviour
     {
         raceDropdown.ClearOptions();
         raceDropdown.AddOptions(new System.Collections.Generic.List<string> {
-            "Human","Elf","Dwarf","Halfling","Gnome","Half-Orc","Dragonborn", "Half-Elf","Tiefling"
-            , "Aasimar","Genasi","Goliath","Tabaxi","Triton","Firbolg","Kenku","Lizardfolk","Orc","Yuan-Ti Pureblood"
+            "Human","Elf","Dwarf","Halfling","Gnome", "Githyanki","Half-Orc","Dragonborn", "Half-Elf","Tiefling"
+            , "Aasimar","Goliath","Tabaxi","Orc"
         });
 
         classDropdown.ClearOptions();
@@ -86,7 +86,7 @@ public class CharacterCreatorUI : MonoBehaviour
 
         weaponDropdown.ClearOptions();
         weaponDropdown.AddOptions(new System.Collections.Generic.List<string> {
-            "Sword", "Axe", "Bow", "Crossbow", "Dagger", "Staff"
+            "Broadsword", "Greatsword", "Axe", "Bow", "Crossbow", "Dagger", "Staff"
         });
     }
 
@@ -169,6 +169,67 @@ public class CharacterCreatorUI : MonoBehaviour
         data.charisma = ParseIntOrDefault(chaInput.text, 10);
         data.level = ParseIntOrDefault(levelInput.text, 1);
         data.speed = 30; // Default speed, could be modified later 
+        data.weapon = weaponDropdown.options[weaponDropdown.value].text;
+
+        //Race Specific Bonuses
+        switch(data.race)
+        {
+            case "Dragonborn":
+                data.strength += 2;
+                data.charisma += 1;
+                break;
+            case "Dwarf":
+                data.constitution += 2;
+                break;
+            case "Elf":
+                data.dexterity += 2;
+                break;
+            case "Gnome":
+                data.intelligence += 2;
+                break;
+            case "Half-Elf":
+                data.charisma += 2;
+                data.strength += 1;
+                data.dexterity += 1;
+                break;
+            case "Half-Orc":
+                data.strength += 2;
+                data.constitution += 1;
+                break;
+            case "Halfling":
+                data.dexterity += 2;
+                break;
+            case "Human":
+                data.strength += 1;
+                data.dexterity += 1;
+                data.constitution += 1;
+                data.intelligence += 1;
+                data.wisdom += 1;
+                data.charisma += 1;
+                break;
+            case "Tiefling":
+                data.charisma += 2;
+                break;
+            case "Aasimar":
+                data.charisma += 2;
+                data.strength += 1;
+                break;
+            case "Goliath":
+                data.strength += 2;
+                data.constitution += 1;
+                break;
+            case "Tabaxi":
+                data.dexterity += 2;
+                data.charisma += 1;
+                break;
+            case "Githyanki":
+                data.strength += 2;
+                data.intelligence += 1;
+                break;
+        }
+
+        //Class Specific Bonuses & Spells - for simplicity I'll restrict things to only a handful of spells/abilities for now - I could greatly expand upon this
+        
 
         //Calculating the Health Pool based on Constitution modifier/score
         int conMod = (data.constitution - 10) / 2;

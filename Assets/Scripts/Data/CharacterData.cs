@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using System.Collections.Generic;
 
 //All this class does is handle the various stuff to do with the actual things relating to a character - their actual fields/data
 
@@ -19,6 +20,7 @@ public class CharacterData
     public int AC;
     public int HP;
     public int speed;
+    public string weapon;
     //Individual stats for the character
     public int strength;
     public int dexterity;
@@ -26,6 +28,12 @@ public class CharacterData
     public int intelligence;
     public int wisdom;
     public int charisma;
+    //Spells/Abilities - stored in a list for now, could add further expansion later?
+    public Dictionary<string, int> spells;
+    public List<string> cantrips;
+    //Tracking spells slots for classes - could change later but mapping them like this is a good way to do it for now
+    public Dictionary<string, int> spellSlots;
+    public List<string> abilities;
     //String for handling the image relating to this persons character
     public string tokenFileName;
     //Timestamp for creating things
