@@ -233,9 +233,30 @@ public class CharacterTransferNetwork : NetworkBehaviour
             string jsonName = BuildJsonFileName(jsonFileName);
             string tokenName = BuildTokenFileName(tokenFileName);
 
+            // Update the JSON content to use the correct token filename that will be saved on this host
+            string updatedJsonContent = jsonContent ?? string.Empty;
+            if (!string.IsNullOrEmpty(tokenName) && tokenBytes != null && tokenBytes.Length > 0)
+            {
+                try
+                {
+                    // Parse and update the tokenFileName in the JSON
+                    var charData = JsonUtility.FromJson<CharacterData>(updatedJsonContent);
+                    if (charData != null)
+                    {
+                        Debug.Log($"CharacterTransferNetwork: Updating tokenFileName from '{charData.tokenFileName}' to '{tokenName}'");
+                        charData.tokenFileName = tokenName;
+                        updatedJsonContent = JsonUtility.ToJson(charData, true);
+                    }
+                }
+                catch (Exception parseEx)
+                {
+                    Debug.LogWarning($"CharacterTransferNetwork: Could not update tokenFileName in JSON: {parseEx.Message}");
+                }
+            }
+
             // Write JSON
             string jsonPath = Path.Combine(folder, jsonName);
-            File.WriteAllText(jsonPath, jsonContent ?? string.Empty);
+            File.WriteAllText(jsonPath, updatedJsonContent);
 
             // Write token if provided
             string tokenPath = null;
