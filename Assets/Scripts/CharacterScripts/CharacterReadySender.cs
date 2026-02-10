@@ -45,7 +45,10 @@ public class CharacterReadySender : MonoBehaviour
 
     private void OnReadyClicked()
     {
+        Debug.Log("CharacterReadySender: Ready button clicked!");
+        
         var path = ResolveSelectedPath();
+        Debug.Log($"CharacterReadySender: ResolveSelectedPath returned: '{path}'");
         
         // Check if we have a character selected
         if (string.IsNullOrEmpty(path) || !File.Exists(path))
@@ -74,7 +77,7 @@ public class CharacterReadySender : MonoBehaviour
         if (CharacterTransferNetwork.Instance == null)
         {
             // If network not available, just continue to gameplay
-            Debug.LogWarning("CharacterReadySender: CharacterTransferNetwork not found; continuing without sending to host.");
+            Debug.LogWarning("CharacterReadySender: CharacterTransferNetwork.Instance is NULL! The prefab may not be spawned on the network. Continuing without sending to host.");
             SetStatus("Continuing to game...");
             
             if (loadGameplayAfterSend && !string.IsNullOrEmpty(gameplaySceneName))
@@ -83,44 +86,57 @@ public class CharacterReadySender : MonoBehaviour
             }
             return;
         }
+        
+        Debug.Log($"CharacterReadySender: CharacterTransferNetwork.Instance found, IsSpawned={CharacterTransferNetwork.Instance.IsSpawned}");
 
         try
         {
+            Debug.Log($"CharacterReadySender: Reading character from path: {path}");
             string jsonText = File.ReadAllText(path);
             var data = JsonUtility.FromJson<CharacterData>(jsonText);
+            Debug.Log($"CharacterReadySender: Loaded character '{data?.charName}', tokenFileName='{data?.tokenFileName}'");
 
             // Resolve token image bytes if present
             byte[] tokenBytes = Array.Empty<byte>();
             string tokenFileName = string.Empty;
             
-            // Max size for network transfer (64KB to stay safe with RPC limits)
-            const int maxTokenSize = 64 * 1024;
+            // Max size for network transfer (1MB - chunked transfer handles splitting)
+            const int maxTokenSize = 1024 * 1024;
+            
+            // Size threshold above which we'll compress the image to reduce transfer time
+            const int compressThreshold = 256 * 1024; // 256KB
             
             if (!string.IsNullOrEmpty(data?.tokenFileName))
             {
-                string tokenPath = Path.Combine(Path.GetDirectoryName(path), data.tokenFileName);
+                string jsonFolder = Path.GetDirectoryName(path);
+                string tokenPath = Path.Combine(jsonFolder, data.tokenFileName);
+                Debug.Log($"CharacterReadySender: JSON folder: {jsonFolder}");
+                Debug.Log($"CharacterReadySender: Looking for token at: {tokenPath}");
+                
                 if (File.Exists(tokenPath))
                 {
                     byte[] originalBytes = File.ReadAllBytes(tokenPath);
+                    Debug.Log($"CharacterReadySender: Token file found, size: {originalBytes.Length} bytes ({originalBytes.Length / 1024}KB)");
                     
-                    if (originalBytes.Length <= maxTokenSize)
+                    if (originalBytes.Length <= compressThreshold)
                     {
+                        // Small enough to send as-is
                         tokenBytes = originalBytes;
                         tokenFileName = Path.GetFileName(tokenPath);
+                        Debug.Log($"CharacterReadySender: Token ready to send: {tokenFileName} ({tokenBytes.Length} bytes)");
                     }
-                    else
+                    else if (originalBytes.Length <= maxTokenSize)
                     {
-                        // Image is too large - try to compress it
-                        Debug.LogWarning($"CharacterReadySender: Token image is {originalBytes.Length / 1024}KB, attempting to compress...");
+                        // Large but under max - compress for faster transfer
+                        Debug.Log($"CharacterReadySender: Token image is {originalBytes.Length / 1024}KB, compressing for faster transfer...");
                         
                         try
                         {
-                            // Load and re-encode at lower quality/size
                             Texture2D tex = new Texture2D(2, 2);
                             tex.LoadImage(originalBytes);
                             
-                            // Scale down if very large
-                            int maxDimension = 256;
+                            // Scale down large images
+                            int maxDimension = 512;
                             if (tex.width > maxDimension || tex.height > maxDimension)
                             {
                                 float scale = Mathf.Min((float)maxDimension / tex.width, (float)maxDimension / tex.height);
@@ -142,26 +158,23 @@ public class CharacterReadySender : MonoBehaviour
                             }
                             
                             // Encode as JPG for smaller size
-                            tokenBytes = tex.EncodeToJPG(75);
+                            tokenBytes = tex.EncodeToJPG(85);
                             tokenFileName = Path.GetFileNameWithoutExtension(data.tokenFileName) + "_compressed.jpg";
                             UnityEngine.Object.Destroy(tex);
                             
                             Debug.Log($"CharacterReadySender: Compressed token to {tokenBytes.Length / 1024}KB");
-                            
-                            // If still too large, skip it
-                            if (tokenBytes.Length > maxTokenSize)
-                            {
-                                Debug.LogWarning("CharacterReadySender: Token still too large after compression, skipping image transfer.");
-                                tokenBytes = Array.Empty<byte>();
-                                tokenFileName = string.Empty;
-                            }
                         }
                         catch (Exception compressEx)
                         {
-                            Debug.LogWarning($"CharacterReadySender: Failed to compress token, skipping: {compressEx.Message}");
-                            tokenBytes = Array.Empty<byte>();
-                            tokenFileName = string.Empty;
+                            Debug.LogWarning($"CharacterReadySender: Failed to compress, sending original: {compressEx.Message}");
+                            tokenBytes = originalBytes;
+                            tokenFileName = Path.GetFileName(tokenPath);
                         }
+                    }
+                    else
+                    {
+                        // Image is too large even for chunked transfer
+                        Debug.LogWarning($"CharacterReadySender: Token image is {originalBytes.Length / 1024}KB, exceeds maximum ({maxTokenSize / 1024}KB). Skipping.");
                     }
                 }
                 else
@@ -169,8 +182,13 @@ public class CharacterReadySender : MonoBehaviour
                     Debug.LogWarning($"CharacterReadySender: Token file missing at {tokenPath}");
                 }
             }
+            else
+            {
+                Debug.Log($"CharacterReadySender: No tokenFileName in character data (tokenFileName is null or empty)");
+            }
 
             string jsonFileName = Path.GetFileName(path);
+            Debug.Log($"CharacterReadySender: Calling SendCharacterToHost with jsonFileName={jsonFileName}, tokenFileName={tokenFileName}, tokenBytes.Length={tokenBytes.Length}");
             CharacterTransferNetwork.Instance.SendCharacterToHost(jsonFileName, jsonText, tokenFileName, tokenBytes);
             SetStatus("Character sent to host!");
 

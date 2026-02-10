@@ -219,6 +219,15 @@ public class RelayHostManager : MonoBehaviour
             try
             {
                 var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+                
+                // Try to increase max payload size for larger transfers
+                // This may not be available in all Unity Transport versions
+                try
+                {
+                    transport.MaxPayloadSize = 65535; // 64KB
+                }
+                catch (System.Exception) { /* Property may not exist */ }
+                
                 transport.SetHostRelayData(
                     allocation.RelayServer.IpV4,
                     (ushort)allocation.RelayServer.Port,
