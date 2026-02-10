@@ -1,0 +1,25 @@
+{
+    "id": "AirElemental",
+    "name": "Air Elemental",
+    "size": "Large",
+    "type": "Elemental",
+    "alignment": "Neutral",
+    "armor_class": 15,
+    "hp": 90,
+    "speed": 90,
+    "tokenFileName": "AirElemental.png",
+    "abilityScores": {
+        "STR": 14,
+        "DEX": 20,
+        "CON": 14,
+        "INT": 6,
+        "WIS": 10,
+        "CHA": 6
+    },
+    "immunities": [
+        "air",
+        "poison",
+        "disease"
+    ],
+    "challengeRating": 5
+}

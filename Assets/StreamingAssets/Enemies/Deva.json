@@ -1,0 +1,24 @@
+{
+    "id": "Deva",
+    "Name": "Deva",
+    "size": "Medium",
+    "type": "Celestial",
+    "alignment": "Lawful Good",
+    "armor_class": 17,
+    "hp": 136,
+    "speed": 30,
+    "tokenFileName": "Deva.png",
+    "abilityScores": {
+        "STR": 18,
+        "DEX": 18,
+        "CON": 18,
+        "INT": 17,
+        "WIS": 20,
+        "CHA": 20
+    },
+    "immunities": [
+        "radiant",
+        "necrotic"
+    ],
+    "challengeRating": 10
+}

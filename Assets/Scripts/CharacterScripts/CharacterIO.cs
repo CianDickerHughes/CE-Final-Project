@@ -47,10 +47,9 @@ public class CharacterIO : MonoBehaviour
         #if UNITY_EDITOR
                 string folder = Path.Combine(Application.dataPath, "Enemies");
         #else
-                string folder = Path.Combine(Application.persistentDataPath, "Enemies");
+                string folder = Path.Combine(Application.streamingAssetsPath, "Enemies");
         #endif
-                if (!Directory.Exists(folder))
-                    Directory.CreateDirectory(folder);
+                
                 return folder;
     }
 

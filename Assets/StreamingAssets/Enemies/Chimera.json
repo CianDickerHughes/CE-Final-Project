@@ -1,0 +1,21 @@
+{
+    "id": "Chimera",
+    "name": "Chimera",
+    "size": "Large",
+    "type": "Monstrosity",
+    "alignment": "Chaotic Evil",
+    "armor_class": 14,
+    "hp": 114,
+    "speed": 30,
+    "tokenFileName": "Chimera.png",
+    "abilityScores": {
+        "STR": 19,
+        "DEX": 11,
+        "CON": 19,
+        "INT": 3,
+        "WIS": 14,
+        "CHA": 10
+    },
+    "immunities": [],
+    "challengeRating": 6
+}

@@ -1,0 +1,21 @@
+{
+    "id": "BaseGoblin",
+    "name": "Base Goblin",
+    "size": "Small",
+    "type": "Humanoid",
+    "alignment": "Neutral Evil",
+    "armor_class": 15,
+    "hp": 7,
+    "speed": 30,
+    "tokenFileName": "BaseGoblin.png",
+    "abilityScores": {
+        "STR": 8,
+        "DEX": 14,
+        "CON": 10,
+        "INT": 10,
+        "WIS": 8,
+        "CHA": 8
+    },
+    "immunities": [],
+    "challengeRating": 0.25
+}
