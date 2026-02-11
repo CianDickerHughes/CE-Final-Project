@@ -12,6 +12,7 @@ public class SceneCreatorUI : MonoBehaviour
     [Header("UI Elements")]
     [SerializeField] private TMP_InputField sceneNameInput;
     [SerializeField] private TMP_Dropdown sceneTypeDropdown;
+    [SerializeField] private TMP_InputField sceneDescriptionText;
     [SerializeField] private Button createSceneButton;
     [SerializeField] private Button cancelButton;
     [SerializeField] private GameObject popupPanel;

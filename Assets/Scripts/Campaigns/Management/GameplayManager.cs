@@ -262,6 +262,8 @@ public class GameplayManager : MonoBehaviour
                 Tile targetTile = gridManager.GetTileAtPosition(new Vector2(newX, newY));
                 TryMoveSelectedTokenToTile(targetTile);
             }
+
+            DeselectToken();
         }
         
         //Escape to deselect

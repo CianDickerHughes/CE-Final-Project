@@ -9054,6 +9054,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SceneCreatorUI
   sceneNameInput: {fileID: 2075437704}
   sceneTypeDropdown: {fileID: 417427023}
+  sceneDescriptionText: {fileID: 1288070253}
   createSceneButton: {fileID: 285356950}
   cancelButton: {fileID: 81627353}
   popupPanel: {fileID: 1722157723}
