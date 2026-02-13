@@ -81,13 +81,29 @@ public class Token : MonoBehaviour
             //Actually setting up the sprite - has to be the characters saved token image
             if(!string.IsNullOrEmpty(data.tokenFileName))
             {
-                //Getting the token image from file - need to change this behavior when loading the players characters
-                //This should work for dm player characters though
-                string folder = CharacterIO.GetCharactersFolder();
-                string tokenPath = System.IO.Path.Combine(folder, data.tokenFileName);
+                // Try multiple locations for player characters
+                string tokenPath = null;
+                
+                // First try the main characters folder
+                string mainFolder = CharacterIO.GetCharactersFolder();
+                string mainPath = System.IO.Path.Combine(mainFolder, data.tokenFileName);
+                if (System.IO.File.Exists(mainPath))
+                {
+                    tokenPath = mainPath;
+                }
+                else
+                {
+                    // Try the campaign PlayerCharacters folder
+                    string campaignFolder = CampaignManager.GetCampaignsFolder();
+                    string campaignPath = System.IO.Path.Combine(campaignFolder, "test", "PlayerCharacters", data.tokenFileName);
+                    if (System.IO.File.Exists(campaignPath))
+                    {
+                        tokenPath = campaignPath;
+                    }
+                }
                 
                 //Now actually trying to set up the sprite
-                if (System.IO.File.Exists(tokenPath))
+                if (tokenPath != null)
                 {
                     try{
                         //Extract the bytes from the loaded file and create a texture
