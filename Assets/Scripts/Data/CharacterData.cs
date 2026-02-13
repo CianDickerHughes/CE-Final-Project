@@ -21,6 +21,7 @@ public class CharacterData
     public int HP;
     public int speed;
     public string weapon;
+    public int proficiencyBonus;
     //Individual stats for the character
     public int strength;
     public int dexterity;
@@ -28,9 +29,7 @@ public class CharacterData
     public int intelligence;
     public int wisdom;
     public int charisma;
-    //Spells/Abilities - stored in a list for now, could add further expansion later?
-    public Dictionary<string, int> spells;
-    public List<string> cantrips;
+    //Spells/Abilities
     //Tracking spells slots for classes - could change later but mapping them like this is a good way to do it for now
     public Dictionary<string, int> spellSlots;
     public List<string> abilities;

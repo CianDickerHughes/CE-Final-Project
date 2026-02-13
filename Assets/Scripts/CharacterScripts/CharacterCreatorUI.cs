@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -42,6 +43,7 @@ public class CharacterCreatorUI : MonoBehaviour
     public Button uploadButton;
     public Button saveButton;
     public TextMeshProUGUI statusText;
+    private int conMod;
 
     // When editing an existing character, this will hold the JSON file path to overwrite.
     private string editFilePath = null;
@@ -229,11 +231,277 @@ public class CharacterCreatorUI : MonoBehaviour
         }
 
         //Class Specific Bonuses & Spells - for simplicity I'll restrict things to only a handful of spells/abilities for now - I could greatly expand upon this
-        
+        //Also setting up things like spell slots here - number per level
+        switch(data.charClass)
+        {
+            case "Barbarian":
+                data.spellSlots = new Dictionary<string, int>(); // No spell slots for Barbarian
+                data.abilities = new List<string> { "Rage", "Unarmored Defense" };
+                if(data.level <=3 && data.level >= 1)
+                {
+                    data.proficiencyBonus = 2;
+                }
+                else if(data.level > 3 && data.level <= 8)
+                {
+                    data.proficiencyBonus = 3;
+                }
+                else
+                {
+                    data.proficiencyBonus = 4;
+                }
 
-        //Calculating the Health Pool based on Constitution modifier/score
-        int conMod = (data.constitution - 10) / 2;
-        data.HP = 10 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                //Calculating the Health Pool based on Constitution modifier/score
+                conMod = (data.constitution - 10) / 2;
+                data.HP = 12 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+
+                break;
+            case "Bard":
+                data.spellSlots = new Dictionary<string, int>
+                {
+                    { "1st", 2 },
+                    { "2nd", 0 },
+                    { "3rd", 0 }
+                };
+                data.abilities = new List<string> { "Bardic Inspiration", "Jack of All Trades" };
+                if(data.level <=3 && data.level >= 1)
+                {
+                    data.proficiencyBonus = 2;
+                }
+                else if(data.level > 3 && data.level <= 8)
+                {
+                    data.proficiencyBonus = 3;
+                }
+                else
+                {
+                    data.proficiencyBonus = 4;
+                }
+
+                //Calculating the Health Pool based on Constitution modifier/score
+                conMod = (data.constitution - 10) / 2;
+                data.HP = 8 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                break;
+            case "Cleric":
+                data.spellSlots = new Dictionary<string, int>
+                {
+                    { "1st", 2 },
+                    { "2nd", 0 },
+                    { "3rd", 0 }
+                };
+                data.abilities = new List<string> { "Divine Domain", "Channel Divinity" };
+                if(data.level <=3 && data.level >= 1)
+                {
+                    data.proficiencyBonus = 2;
+                }
+                else if(data.level > 3 && data.level <= 8)
+                {
+                    data.proficiencyBonus = 3;
+                }
+                else
+                {
+                    data.proficiencyBonus = 4;
+                }
+
+                //Calculating the Health Pool based on Constitution modifier/score
+                conMod = (data.constitution - 10) / 2;
+                data.HP = 8 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                break;
+            case "Druid":
+                data.spellSlots = new Dictionary<string, int>
+                {
+                    { "1st", 2 },
+                    { "2nd", 0 },
+                    { "3rd", 0 }
+                };
+                data.abilities = new List<string> { "Wild Shape", "Druidic Circle" };
+                if(data.level <=3 && data.level >= 1)
+                {
+                    data.proficiencyBonus = 2;
+                }
+                else if(data.level > 3 && data.level <= 8)
+                {
+                    data.proficiencyBonus = 3;
+                }
+                else
+                {
+                    data.proficiencyBonus = 4;
+                }
+
+                //Calculating the Health Pool based on Constitution modifier/score
+                conMod = (data.constitution - 10) / 2;
+                data.HP = 8 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                break;
+            case "Fighter":
+                data.spellSlots = new Dictionary<string, int>(); // No spell slots for Fighter
+                data.abilities = new List<string> { "Second Wind", "Action Surge" };
+                if(data.level <=3 && data.level >= 1)
+                {
+                    data.proficiencyBonus = 2;
+                }
+                else if(data.level > 3 && data.level <= 8)
+                {
+                    data.proficiencyBonus = 3;
+                }
+                else
+                {
+                    data.proficiencyBonus = 4;
+                }
+
+                //Calculating the Health Pool based on Constitution modifier/score
+                conMod = (data.constitution - 10) / 2;
+                data.HP = 10 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                break;
+            case "Monk":
+                data.spellSlots = new Dictionary<string, int>(); // No spell slots for Monk
+                data.abilities = new List<string> { "Martial Arts", "Ki" };
+                if(data.level <=3 && data.level >= 1)
+                {
+                    data.proficiencyBonus = 2;
+                }
+                else if(data.level > 3 && data.level <= 8)
+                {
+                    data.proficiencyBonus = 3;
+                }
+                else
+                {
+                    data.proficiencyBonus = 4;
+                }
+                conMod = (data.constitution - 10) / 2;
+                data.HP = 8 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                break;
+            case "Paladin":
+                data.spellSlots = new Dictionary<string, int>
+                {
+                    { "1st", 2 },
+                    { "2nd", 0 },
+                    { "3rd", 0 }
+                };
+                data.abilities = new List<string> { "Divine Sense", "Lay on Hands" };
+                if(data.level <=3 && data.level >= 1)
+                {
+                    data.proficiencyBonus = 2;
+                }
+                else if(data.level > 3 && data.level <= 8)
+                {
+                    data.proficiencyBonus = 3;
+                }
+                else
+                {
+                    data.proficiencyBonus = 4;
+                }
+                conMod = (data.constitution - 10) / 2;
+                data.HP = 10 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                break;
+            case "Ranger":
+                data.spellSlots = new Dictionary<string, int>
+                {
+                    { "1st", 2 },
+                    { "2nd", 0 },
+                    { "3rd", 0 }
+                };
+                data.abilities = new List<string> { "Favored Enemy", "Natural Explorer" };
+                if(data.level <=3 && data.level >= 1)
+                {
+                    data.proficiencyBonus = 2;
+                }
+                else if(data.level > 3 && data.level <= 8)
+                {
+                    data.proficiencyBonus = 3;
+                }
+                else
+                {
+                    data.proficiencyBonus = 4;
+                }
+                conMod = (data.constitution - 10) / 2;
+                data.HP = 10 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                break;
+            case "Rogue":
+                data.spellSlots = new Dictionary<string, int>(); // No spell slots for Rogue
+                data.abilities = new List<string> { "Sneak Attack", "Thieves' Cant" };
+                if(data.level <=3 && data.level >= 1)
+                {
+                    data.proficiencyBonus = 2;
+                }
+                else if(data.level > 3 && data.level <= 8)
+                {
+                    data.proficiencyBonus = 3;
+                }
+                else
+                {
+                    data.proficiencyBonus = 4;
+                }
+                conMod = (data.constitution - 10) / 2;
+                data.HP = 8 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                break;
+            case "Sorcerer":
+                data.spellSlots = new Dictionary<string, int>
+                {
+                    { "1st", 2 },
+                    { "2nd", 0 },
+                    { "3rd", 0 }
+                };
+                data.abilities = new List<string> { "Sorcerous Origin", "Metamagic" };
+                if(data.level <=3 && data.level >= 1)
+                {                    
+                    data.proficiencyBonus = 2;
+                }
+                else if(data.level > 3 && data.level <= 8)
+                {
+                    data.proficiencyBonus = 3;
+                }
+                else
+                {
+                    data.proficiencyBonus = 4;
+                }
+                conMod = (data.constitution - 10) / 2;
+                data.HP = 6 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                break;
+            case "Warlock":
+                data.spellSlots = new Dictionary<string, int>
+                {
+                    { "1st", 2 },
+                    { "2nd", 0 },
+                    { "3rd", 0 }
+                };
+                data.abilities = new List<string> { "Otherworldly Patron", "Pact Magic" };
+                if(data.level <=3 && data.level >= 1)
+                {
+                    data.proficiencyBonus = 2;
+                }
+                else if(data.level > 3 && data.level <= 8)
+                {
+                    data.proficiencyBonus = 3;
+                }
+                else
+                {
+                    data.proficiencyBonus = 4;
+                }
+                conMod = (data.constitution - 10) / 2;
+                data.HP = 8 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                break;
+            case "Wizard":
+                data.spellSlots = new Dictionary<string, int>
+                {
+                    { "1st", 2 },
+                    { "2nd", 0 },
+                    { "3rd", 0 }
+                };
+                data.abilities = new List<string> { "Arcane Recovery", "Spellcasting" };
+                if(data.level <=3 && data.level >= 1)
+                {
+                    data.proficiencyBonus = 2;
+                }
+                else if(data.level > 3 && data.level <= 8)
+                {
+                    data.proficiencyBonus = 3;
+                }
+                else
+                {
+                    data.proficiencyBonus = 4;
+                }
+                conMod = (data.constitution - 10) / 2;
+                data.HP = 6 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                break;
+        }
 
         //Calculating Armor Class based on Dexterity modifier/score
         //Possibly add more detail to this later - what class is this character, do they have a shield?
