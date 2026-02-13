@@ -55,6 +55,7 @@ public class GameplayManager : MonoBehaviour
     [Header("DM/Player state management Buttons")]
     [SerializeField] private Button saveAndExitButton;
     [SerializeField] private Button exitButton;
+    [SerializeField] private Button leaveSessionButton;
 
     [Header("Token Spawining")]
     [SerializeField] private Token tokenPrefab;
@@ -104,6 +105,7 @@ public class GameplayManager : MonoBehaviour
         // Transfer all serialized UI references from the new scene instance
         saveAndExitButton = newInstance.saveAndExitButton;
         exitButton = newInstance.exitButton;
+        leaveSessionButton = newInstance.leaveSessionButton;
         sceneName = newInstance.sceneName;
         playerName = newInstance.playerName;
         gridManager = newInstance.gridManager;
@@ -123,6 +125,12 @@ public class GameplayManager : MonoBehaviour
             exitButton.onClick.RemoveAllListeners();
             exitButton.onClick.AddListener(Exit);
             Debug.Log("GameplayManager: Transferred and re-bound exitButton listener.");
+        }
+        if (leaveSessionButton != null)
+        {
+            leaveSessionButton.onClick.RemoveAllListeners();
+            leaveSessionButton.onClick.AddListener(LeaveSession);
+            Debug.Log("GameplayManager: Transferred and re-bound leaveSessionButton listener.");
         }
     }
 
@@ -157,6 +165,12 @@ public class GameplayManager : MonoBehaviour
             exitButton.onClick.RemoveAllListeners();
             exitButton.onClick.AddListener(Exit);
             Debug.Log("GameplayManager: Re-bound exitButton listener.");
+        }
+        if (leaveSessionButton != null)
+        {
+            leaveSessionButton.onClick.RemoveAllListeners();
+            leaveSessionButton.onClick.AddListener(LeaveSession);
+            Debug.Log("GameplayManager: Re-bound leaveSessionButton listener.");
         }
     }
 
@@ -341,6 +355,30 @@ public class GameplayManager : MonoBehaviour
     }
 
     // ==================== UTILITY METHODS ====================
+    //Leave session - disconnects from network and returns players to campaign manager
+    public void LeaveSession()
+    {
+        Debug.Log("Player leaving session and disconnecting from network...");
+        
+        // Disconnect from the network
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsConnectedClient)
+        {
+            NetworkManager.Singleton.Shutdown();
+            Debug.Log("Network disconnected.");
+        }
+        
+        // Disconnect from Unity Services (Relay, Authentication, etc.)
+        if (AuthenticationService.Instance.IsSignedIn)
+        {
+            AuthenticationService.Instance.SignOut();
+            Debug.Log("Signed out from Unity Services.");
+        }
+        
+        // Return to campaign manager
+        Debug.Log("Returning to Campaigns ...");
+        SceneManager.LoadScene("Campaigns");
+    }
+    
     //Exit without saving - simply returns to the campaign manager without saving changes
     public void Exit()
     {

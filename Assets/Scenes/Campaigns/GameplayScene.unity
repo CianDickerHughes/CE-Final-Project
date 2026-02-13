@@ -1358,6 +1358,7 @@ MonoBehaviour:
   isPlayerTurn: 0
   saveAndExitButton: {fileID: 472519636}
   exitButton: {fileID: 1513027164}
+  leaveSessionButton: {fileID: 30166264}
   tokenPrefab: {fileID: 5285540989485798027, guid: 8cc39377f7b26e74e96c5f9c8aaf7c8d, type: 3}
 --- !u!1 &168072682
 GameObject:
