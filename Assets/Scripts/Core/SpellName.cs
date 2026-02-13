@@ -4,7 +4,7 @@ using UnityEngine;
 //This file will only handle the spell names aspect though
 public enum SpellName
 {
-    //Cantrips first
+    //Cantrips first - spell level = 0
     AcidSplash,
     BoomingBlade,
     CreateBonfire,
