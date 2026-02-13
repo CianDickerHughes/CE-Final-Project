@@ -26,7 +26,7 @@ public class CompassManager : MonoBehaviour
             if (_instance == null)
             {
                 // Try to find existing instance
-                _instance = FindObjectOfType<CompassManager>();
+                _instance = FindAnyObjectByType<CompassManager>();
                 
                 // If not found, create one
                 if (_instance == null)

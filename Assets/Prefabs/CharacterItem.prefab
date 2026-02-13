@@ -1655,6 +1655,8 @@ MonoBehaviour:
   charClass: {fileID: 9192894729830021645}
   charRace: {fileID: 7216134369161116027}
   loadButton: {fileID: 1979353799645195954}
+  spawnButton: {fileID: 0}
+  deleteButton: {fileID: 6678064924394757787}
 --- !u!1 &8355498703426195394
 GameObject:
   m_ObjectHideFlags: 0

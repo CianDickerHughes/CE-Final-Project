@@ -59,8 +59,8 @@ public class CharacterListController : MonoBehaviour
                 var item = go.GetComponent<SavedCharacterItem>();
                 if (item != null)
                 {
-                    // Pass an onSelect callback that opens Edit scene
-                    item.Setup(filePath, data, OnItemSelected);
+                    // Pass an onSelect callback that opens Edit scene, and onDelete to refresh the list
+                    item.Setup(filePath, data, OnItemSelected, OnCharacterDeleted);
                 }
             }
             catch (Exception ex)
@@ -85,5 +85,11 @@ public class CharacterListController : MonoBehaviour
         //Set selection and load EditCharacter scene
         CharacterSelectionContext.SelectedCharacterFilePath = jsonFilePath;
         SceneManager.LoadScene("EditCharacter");
+    }
+
+    //This is called when a character is deleted to refresh the list
+    void OnCharacterDeleted()
+    {
+        PopulateList();
     }
 }
