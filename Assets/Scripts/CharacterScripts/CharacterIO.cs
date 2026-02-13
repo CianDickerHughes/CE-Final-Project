@@ -112,4 +112,39 @@ public class CharacterIO : MonoBehaviour
         //After the reworking is done we just return the new name
         return name;
     }
+
+    //Delete a character and its associated token image
+    public static bool DeleteCharacter(string jsonFilePath)
+    {
+        try
+        {
+            // Delete the JSON file
+            if (File.Exists(jsonFilePath))
+            {
+                File.Delete(jsonFilePath);
+                Debug.Log($"Deleted character JSON: {jsonFilePath}");
+            }
+            else
+            {
+                Debug.LogWarning($"JSON file not found: {jsonFilePath}");
+                return false;
+            }
+
+            // Try to delete the associated token image
+            string baseFileName = Path.GetFileNameWithoutExtension(jsonFilePath);
+            string tokenPath = Path.Combine(GetCharactersFolder(), $"{baseFileName}_token.png");
+            if (File.Exists(tokenPath))
+            {
+                File.Delete(tokenPath);
+                Debug.Log($"Deleted character token image: {tokenPath}");
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Error deleting character: {ex.Message}");
+            return false;
+        }
+    }
 }

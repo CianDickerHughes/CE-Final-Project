@@ -3,6 +3,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 public class SavedCharacterItem : MonoBehaviour
 {
     //Variables for UI references - the stuff we will actually display from the loaded characters for the user
@@ -13,14 +17,17 @@ public class SavedCharacterItem : MonoBehaviour
     public TextMeshProUGUI charRace;
     public Button loadButton;
     public Button spawnButton;
+    public Button deleteButton;
     private string filePath;
     private CharacterData characterData;
+    private Action onDelete;
 
     //Setup called after instantiation
-    public void Setup(string jsonFilePath, CharacterData data, Action<string> onSelect)
+    public void Setup(string jsonFilePath, CharacterData data, Action<string> onSelect, Action onDelete = null)
     {
         filePath = jsonFilePath;
         characterData = data;
+        this.onDelete = onDelete;
 
         if (nameText != null)
         {
@@ -81,6 +88,13 @@ public class SavedCharacterItem : MonoBehaviour
             spawnButton.onClick.RemoveAllListeners();
             spawnButton.onClick.AddListener(() => SelectForSpawning(CharacterType.Player));
         }
+
+        // Wire up the delete button
+        if (deleteButton != null)
+        {
+            deleteButton.onClick.RemoveAllListeners();
+            deleteButton.onClick.AddListener(OnDeleteClicked);
+        }
     }
 
     public void SelectForSpawning(CharacterType type){
@@ -89,5 +103,33 @@ public class SavedCharacterItem : MonoBehaviour
             GameplayManager.Instance.SetSelectedForSpawn(characterData, type);
             Debug.Log($"Selected {characterData.charName} for spawning as {type}");
         } 
+    }
+
+    private void OnDeleteClicked()
+    {
+        #if UNITY_EDITOR
+        // Confirm deletion with editor dialog
+        if (!EditorUtility.DisplayDialog(
+            "Delete Character",
+            $"Are you sure you want to delete '{characterData.charName}'? This cannot be undone.",
+            "Delete",
+            "Cancel"))
+        {
+            return;
+        }
+        #endif
+
+        // Delete the character files
+        if (CharacterIO.DeleteCharacter(filePath))
+        {
+            Debug.Log($"Character {characterData.charName} deleted successfully.");
+            onDelete?.Invoke();
+            // Destroy this UI item
+            Destroy(gameObject);
+        }
+        else
+        {
+            Debug.LogError("Failed to delete character.");
+        }
     }
 }
