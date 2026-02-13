@@ -265,97 +265,12 @@ public class CharacterCreatorUI : MonoBehaviour
 
                 break;
             case "Bard":
-                if(data.level == 1)
+                data.spellSlots = new Dictionary<string, int>
                 {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 2 },
-                        { "2nd", 0 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if (data.level == 2)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 3 },
-                        { "2nd", 0 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if (data.level == 3)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 2 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if (data.level == 4)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        {"1st", 4},
-                        { "2nd", 3 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if (data.level == 5)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 2 }
-                    };
-                }
-                else if (data.level == 6)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-                else if (data.level == 7)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-                else if (data.level == 8)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-                else if (data.level == 9)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-                else
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-
+                    { "1st", 2 },
+                    { "2nd", 0 },
+                    { "3rd", 0 }
+                };
                 data.abilities = new List<string> { "Bardic Inspiration", "Jack of All Trades" };
                 if(data.level <=3 && data.level >= 1)
                 {
@@ -375,97 +290,12 @@ public class CharacterCreatorUI : MonoBehaviour
                 data.HP = 8 * ParseIntOrDefault(levelInput.text, 1) + conMod;
                 break;
             case "Cleric":
-                if(data.level == 1)
+                data.spellSlots = new Dictionary<string, int>
                 {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 2 },
-                        { "2nd", 0 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 2)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 3 },
-                        { "2nd", 0 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 3)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 2 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 4)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        {"1st", 4},
-                        { "2nd", 3 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 5)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 2 }
-                    };
-                }
-                else if(data.level == 6)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-                else if(data.level == 7)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-                else if(data.level == 8)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-                else if(data.level == 9)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-                else
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-
+                    { "1st", 2 },
+                    { "2nd", 0 },
+                    { "3rd", 0 }
+                };
                 data.abilities = new List<string> { "Divine Domain", "Channel Divinity" };
                 if(data.level <=3 && data.level >= 1)
                 {
@@ -485,97 +315,12 @@ public class CharacterCreatorUI : MonoBehaviour
                 data.HP = 8 * ParseIntOrDefault(levelInput.text, 1) + conMod;
                 break;
             case "Druid":
-                if(data.level == 1)
+                data.spellSlots = new Dictionary<string, int>
                 {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 2 },
-                        { "2nd", 0 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 2)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 3 },
-                        { "2nd", 0 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 3)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 2 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 4)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        {"1st", 4},
-                        { "2nd", 3 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 5)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 2 }
-                    };
-                }
-                else if(data.level == 6)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-                else if(data.level == 7)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-                else if(data.level == 8)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-                else if(data.level == 9)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-                else
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-
+                    { "1st", 2 },
+                    { "2nd", 0 },
+                    { "3rd", 0 }
+                };
                 data.abilities = new List<string> { "Wild Shape", "Druidic Circle" };
                 if(data.level <=3 && data.level >= 1)
                 {
@@ -633,97 +378,12 @@ public class CharacterCreatorUI : MonoBehaviour
                 data.HP = 8 * ParseIntOrDefault(levelInput.text, 1) + conMod;
                 break;
             case "Paladin":
-                if(data.level == 1)
+                data.spellSlots = new Dictionary<string, int>
                 {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 0 },
-                        { "2nd", 0 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 2)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 2 },
-                        { "2nd", 0 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 3)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 3 },
-                        { "2nd", 0 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 4)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        {"1st", 3},
-                        { "2nd", 0 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 5)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 2 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 6)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 2 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 7)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 8)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 9)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 2 }
-                    };
-                }
-                else
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 2 }
-                    };
-                }
-
+                    { "1st", 2 },
+                    { "2nd", 0 },
+                    { "3rd", 0 }
+                };
                 data.abilities = new List<string> { "Divine Sense", "Lay on Hands" };
                 if(data.level <=3 && data.level >= 1)
                 {
@@ -741,97 +401,12 @@ public class CharacterCreatorUI : MonoBehaviour
                 data.HP = 10 * ParseIntOrDefault(levelInput.text, 1) + conMod;
                 break;
             case "Ranger":
-                if(data.level == 1)
+                data.spellSlots = new Dictionary<string, int>
                 {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 0 },
-                        { "2nd", 0 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 2)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 2 },
-                        { "2nd", 0 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 3)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 3 },
-                        { "2nd", 0 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 4)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        {"1st", 3},
-                        { "2nd", 0 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 5)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 2 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 6)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 2 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 7)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 8)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 9)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 2 }
-                    };
-                }
-                else
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 2 }
-                    };
-                }
-
+                    { "1st", 2 },
+                    { "2nd", 0 },
+                    { "3rd", 0 }
+                };
                 data.abilities = new List<string> { "Favored Enemy", "Natural Explorer" };
                 if(data.level <=3 && data.level >= 1)
                 {
@@ -867,97 +442,12 @@ public class CharacterCreatorUI : MonoBehaviour
                 data.HP = 8 * ParseIntOrDefault(levelInput.text, 1) + conMod;
                 break;
             case "Sorcerer":
-                if(data.level == 1)
+                data.spellSlots = new Dictionary<string, int>
                 {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 2 },
-                        { "2nd", 0 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 2)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 3 },
-                        { "2nd", 0 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 3)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 2 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 4)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        {"1st", 4},
-                        { "2nd", 3 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 5)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 2 }
-                    };
-                }
-                else if(data.level == 6)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-                else if(data.level == 7)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-                else if(data.level == 8)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-                else if(data.level == 9)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-                else
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-
+                    { "1st", 2 },
+                    { "2nd", 0 },
+                    { "3rd", 0 }
+                };
                 data.abilities = new List<string> { "Sorcerous Origin", "Metamagic" };
                 if(data.level <=3 && data.level >= 1)
                 {                    
@@ -975,49 +465,6 @@ public class CharacterCreatorUI : MonoBehaviour
                 data.HP = 6 * ParseIntOrDefault(levelInput.text, 1) + conMod;
                 break;
             case "Warlock":
-                if(data.level == 1)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 2 },
-                        { "2nd", 0 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 2)
-                {
-
-                }
-                else if(data.level == 3)
-                {
-
-                }
-                else if(data.level == 4)
-                {
-
-                }
-                else if(data.level == 5)
-                {
-
-                }
-                else if(data.level == 6)
-                {
-
-                }
-                else if(data.level == 7)
-                {
-
-                }
-                else if(data.level == 8)
-                {
-
-                }
-                else if(data.level == 9)
-                {
-
-                }
-                else
-
                 data.spellSlots = new Dictionary<string, int>
                 {
                     { "1st", 2 },
@@ -1041,97 +488,12 @@ public class CharacterCreatorUI : MonoBehaviour
                 data.HP = 8 * ParseIntOrDefault(levelInput.text, 1) + conMod;
                 break;
             case "Wizard":
-                if(data.level == 1)
+                data.spellSlots = new Dictionary<string, int>
                 {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 2 },
-                        { "2nd", 0 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 2)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 3 },
-                        { "2nd", 0 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 3)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 2 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 4)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        {"1st", 4},
-                        { "2nd", 3 },
-                        { "3rd", 0 }
-                    };
-                }
-                else if(data.level == 5)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 2 }
-                    };
-                }
-                else if(data.level == 6)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-                else if(data.level == 7)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-                else if(data.level == 8)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-                else if(data.level == 9)
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-                else
-                {
-                    data.spellSlots = new Dictionary<string, int>
-                    {
-                        { "1st", 4 },
-                        { "2nd", 3 },
-                        { "3rd", 3 }
-                    };
-                }
-                
+                    { "1st", 2 },
+                    { "2nd", 0 },
+                    { "3rd", 0 }
+                };
                 data.abilities = new List<string> { "Arcane Recovery", "Spellcasting" };
                 if(data.level <=3 && data.level >= 1)
                 {

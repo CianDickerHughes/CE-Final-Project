@@ -54,6 +54,7 @@ public class GameplayManager : MonoBehaviour
 
     [Header("DM/Player state management Buttons")]
     [SerializeField] private Button saveAndExitButton;
+    [SerializeField] private Button exitButton;
 
     [Header("Token Spawining")]
     [SerializeField] private Token tokenPrefab;
@@ -102,6 +103,7 @@ public class GameplayManager : MonoBehaviour
     {
         // Transfer all serialized UI references from the new scene instance
         saveAndExitButton = newInstance.saveAndExitButton;
+        exitButton = newInstance.exitButton;
         sceneName = newInstance.sceneName;
         playerName = newInstance.playerName;
         gridManager = newInstance.gridManager;
@@ -109,12 +111,18 @@ public class GameplayManager : MonoBehaviour
         //Reloading a scene - might fix error when returning to it
         ReinitializeScene();
 
-        // Re-bind button listener
+        // Re-bind button listeners
         if (saveAndExitButton != null)
         {
             saveAndExitButton.onClick.RemoveAllListeners();
             saveAndExitButton.onClick.AddListener(saveAndExit);
             Debug.Log("GameplayManager: Transferred and re-bound saveAndExitButton listener.");
+        }
+        if (exitButton != null)
+        {
+            exitButton.onClick.RemoveAllListeners();
+            exitButton.onClick.AddListener(Exit);
+            Debug.Log("GameplayManager: Transferred and re-bound exitButton listener.");
         }
     }
 
@@ -137,12 +145,18 @@ public class GameplayManager : MonoBehaviour
 
     private void RebindUIReferences()
     {
-        // Re-add listener if button exists (remove first to prevent duplicates)
+        // Re-add listeners if buttons exist (remove first to prevent duplicates)
         if (saveAndExitButton != null)
         {
             saveAndExitButton.onClick.RemoveAllListeners();
             saveAndExitButton.onClick.AddListener(saveAndExit);
             Debug.Log("GameplayManager: Re-bound saveAndExitButton listener.");
+        }
+        if (exitButton != null)
+        {
+            exitButton.onClick.RemoveAllListeners();
+            exitButton.onClick.AddListener(Exit);
+            Debug.Log("GameplayManager: Re-bound exitButton listener.");
         }
     }
 
@@ -327,6 +341,13 @@ public class GameplayManager : MonoBehaviour
     }
 
     // ==================== UTILITY METHODS ====================
+    //Exit without saving - simply returns to the campaign manager without saving changes
+    public void Exit()
+    {
+        Debug.Log("Exiting to Campaign Manager without saving...");
+        SceneManager.LoadScene("CampaignManager");
+    }
+    
     //Save & Exit - self explanatory where we save current progress and exit back to the campaign manager page
     //Now uses Compass version control system to commit changes to the main campaign branch
     public void saveAndExit(){
