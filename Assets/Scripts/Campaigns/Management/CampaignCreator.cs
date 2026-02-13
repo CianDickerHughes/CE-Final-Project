@@ -28,23 +28,24 @@ public class CampaignCreator : MonoBehaviour
     }
 
 
-        //Function to set a new image for the campaign logo
-        public void SetCampaignLogo(){
-    #if UNITY_EDITOR
-        string path = EditorUtility.OpenFilePanel("Choose campaign logo", "", "png,jpg,jpeg");
-        if (string.IsNullOrEmpty(path)) return;
+    //Function to set a new image for the campaign logo
+    public void SetCampaignLogo()
+    {
+        FilePickerHelper.PickImageFile(OnLogoFileSelected);
+    }
+
+    private void OnLogoFileSelected(string path)
+    {
         // Load and display the image
         LoadTextureFromFile(path);
+        
         // Save the image to the campaigns folder
         string folder = CampaignManager.GetCampaignsFolder();
         string fileName = Path.GetFileName(path);
         string destPath = Path.Combine(folder, fileName);
         File.Copy(path, destPath, true);
         logoPath = fileName; // Store only the file name for portability
-    #else
-        Debug.LogWarning("Campaign logo selection is only supported in the Unity Editor.");
-    #endif
-        }
+    }
 
     void LoadTextureFromFile(string path)
     {

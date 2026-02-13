@@ -52,8 +52,10 @@ public class CharacterCreatorUI : MonoBehaviour
     void Start()
     {
         SetupDropdowns();
-        uploadButton.onClick.AddListener(OnUploadClicked);
-        saveButton.onClick.AddListener(OnSaveClicked);
+        if (uploadButton != null)
+            uploadButton.onClick.AddListener(OnUploadClicked);
+        if (saveButton != null)
+            saveButton.onClick.AddListener(OnSaveClicked);
         ClearStatus();
         tokenTexture = null;
 
@@ -74,64 +76,71 @@ public class CharacterCreatorUI : MonoBehaviour
     //Potentially need to change this later to make things more dynamic
     void SetupDropdowns()
     {
-        raceDropdown.ClearOptions();
-        raceDropdown.AddOptions(new System.Collections.Generic.List<string> {
-            "Human","Elf","Dwarf","Halfling","Gnome", "Githyanki","Half-Orc","Dragonborn", "Half-Elf","Tiefling"
-            , "Aasimar","Goliath","Tabaxi","Orc"
-        });
+        if (raceDropdown != null)
+        {
+            raceDropdown.ClearOptions();
+            raceDropdown.AddOptions(new System.Collections.Generic.List<string> {
+                "Human","Elf","Dwarf","Halfling","Gnome", "Githyanki","Half-Orc","Dragonborn", "Half-Elf","Tiefling"
+                , "Aasimar","Goliath","Tabaxi","Orc"
+            });
+        }
 
-        classDropdown.ClearOptions();
-        classDropdown.AddOptions(new System.Collections.Generic.List<string> {
-            "Artificer", "Barbarian", "Bard", "Cleric", "Druid", "Fighter",
-            "Monk", "Paladin", "Ranger", "Rogue", "Sorcerer", "Warlock", "Wizard"
-        });
+        if (classDropdown != null)
+        {
+            classDropdown.ClearOptions();
+            classDropdown.AddOptions(new System.Collections.Generic.List<string> {
+                "Artificer", "Barbarian", "Bard", "Cleric", "Druid", "Fighter",
+                "Monk", "Paladin", "Ranger", "Rogue", "Sorcerer", "Warlock", "Wizard"
+            });
+        }
 
-        weaponDropdown.ClearOptions();
-        weaponDropdown.AddOptions(new System.Collections.Generic.List<string> {
-            "Broadsword", "Greatsword", "Axe", "Bow", "Crossbow", "Dagger", "Staff"
-        });
+        if (weaponDropdown != null)
+        {
+            weaponDropdown.ClearOptions();
+            weaponDropdown.AddOptions(new System.Collections.Generic.List<string> {
+                "Broadsword", "Greatsword", "Axe", "Bow", "Crossbow", "Dagger", "Staff"
+            });
+        }
     }
 
-    void ClearStatus() => statusText.text = "";
+    void ClearStatus() 
+    { 
+        if (statusText != null) 
+            statusText.text = ""; 
+    }
 
 
     void ClearUI()
     {
-        nameInput.text = "";
-        raceDropdown.value = 0;
-        classDropdown.value = 0;
-        strengthInput.text = "10";
-        dexInput.text = "10";
-        conInput.text = "10";
-        intInput.text = "10";
-        wisInput.text = "10";
-        chaInput.text = "10";
-        levelInput.text = "1";
-        levelText.text = "Level: 1";
-        tokenImage.sprite = null;
-        nameText.text = "";
-        raceText.text = "";
-        classText.text = "";
-        strengthText.text = "10";
-        dexText.text = "10";
-        conText.text = "10";
-        intText.text = "10";
-        wisText.text = "10";
-        chaText.text = "10";
+        if (nameInput != null) nameInput.text = "";
+        if (raceDropdown != null) raceDropdown.value = 0;
+        if (classDropdown != null) classDropdown.value = 0;
+        if (strengthInput != null) strengthInput.text = "10";
+        if (dexInput != null) dexInput.text = "10";
+        if (conInput != null) conInput.text = "10";
+        if (intInput != null) intInput.text = "10";
+        if (wisInput != null) wisInput.text = "10";
+        if (chaInput != null) chaInput.text = "10";
+        if (levelInput != null) levelInput.text = "1";
+        if (levelText != null) levelText.text = "Level: 1";
+        if (tokenImage != null) tokenImage.sprite = null;
+        if (nameText != null) nameText.text = "";
+        if (raceText != null) raceText.text = "";
+        if (classText != null) classText.text = "";
+        if (strengthText != null) strengthText.text = "10";
+        if (dexText != null) dexText.text = "10";
+        if (conText != null) conText.text = "10";
+        if (intText != null) intText.text = "10";
+        if (wisText != null) wisText.text = "10";
+        if (chaText != null) chaText.text = "10";
     }
 
     // Upload image: editor-only file picker, else ask user to paste a file path (simple fallback)
     // When running in the Unity Editor, this opens the native file dialog to pick an image.
-    // At runtime (non-editor builds) a very simple prompt coroutine is used instead.
+    // At runtime (non-editor builds) a simple UI dialog is shown instead.
     public void OnUploadClicked()
     {
-        #if UNITY_EDITOR
-                string path = EditorUtility.OpenFilePanel("Choose token image", "", "png,jpg,jpeg");
-                if (string.IsNullOrEmpty(path)) return;
-                LoadTextureFromFile(path);
-        #else
-                // Runtime fallback (left simple)
-        #endif
+        FilePickerHelper.PickImageFile(LoadTextureFromFile);
     }
 
     void LoadTextureFromFile(string path)
