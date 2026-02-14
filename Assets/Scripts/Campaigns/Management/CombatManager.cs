@@ -76,13 +76,13 @@ public class CombatManager : MonoBehaviour
         initiativeOrder = new List<CombatParticipant>();
         foreach(var participant in combatParticipant)
         {
-            CombatParticipant participant = new CombatParticipant
+            CombatParticipant combatant = new CombatParticipant
             {
                 token = participant,
                 initiativeRoll = UnityEngine.Random.Range(1, 21),
                 hasActedThisRound = false
             };
-            initiativeOrder.Add(participant);
+            initiativeOrder.Add(combatant);
         }
         //Sort the initiative order based on the rolls (descending)
         initiativeOrder.Sort((a, b) => b.initiativeRoll.CompareTo(a.initiativeRoll));

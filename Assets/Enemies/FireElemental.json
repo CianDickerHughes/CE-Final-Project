@@ -4,18 +4,16 @@
     "size": "Large",
     "type": "Elemental",
     "alignment": "Neutral",
-    "armor_class": 13,
-    "hp": 102,
+    "AC": 13,
+    "HP": 102,
     "speed": 50,
     "tokenFileName": "FireElemental.png",
-    "abilityScores": {
-        "STR": 10,
-        "DEX": 17,
-        "CON": 16,
-        "INT": 6,
-        "WIS": 10,
-        "CHA": 7
-    },
+    "strength": 10,
+    "dexterity": 17,
+    "constitution": 16,
+    "intelligence": 6,
+    "wisdom": 10,
+    "charisma": 7,
     "immunities": [
         "fire",
         "poison"

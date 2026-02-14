@@ -8,14 +8,12 @@
     "hp": 114,
     "speed": 30,
     "tokenFileName": "Chimera.png",
-    "abilityScores": {
-        "STR": 19,
-        "DEX": 11,
-        "CON": 19,
-        "INT": 3,
-        "WIS": 14,
-        "CHA": 10
-    },
+    "strength": 19,
+    "dexterity": 11,
+    "constitution": 19,
+    "intelligence": 3,
+    "wisdom": 14,
+    "charisma": 1,
     "immunities": [],
     "challengeRating": 6
 }

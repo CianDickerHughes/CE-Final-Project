@@ -4,18 +4,16 @@
     "size": "Medium",
     "type": "Beast",
     "alignment": "Unaligned",
-    "armor_class": 11,
-    "hp": 19,
+    "AC": 11,
+    "HP": 19,
     "speed": 40,
     "tokenFileName": "BlackBear.png",
-    "abilityScores": {
-        "STR": 15,
-        "DEX": 10,
-        "CON": 14,
-        "INT": 2,
-        "WIS": 12,
-        "CHA": 7
-    },
+    "strength": 15,
+    "dexterity": 10,
+    "constitution": 14,
+    "intelligence": 2,
+    "wisdom": 12,
+    "charisma": 7,
     "immunities": [],
     "challengeRating": 1
 }

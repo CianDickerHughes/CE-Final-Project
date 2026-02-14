@@ -4,18 +4,16 @@
     "size": "Medium",
     "type": "Humanoid",
     "alignment": "Any Evil Alignment",
-    "armor_class": 15,
-    "hp": 78,
+    "AC": 15,
+    "HP": 78,
     "speed": 30,
     "tokenFileName": "Assassin.png",
-    "abilityScores": {
-        "STR": 11,
-        "DEX": 16,
-        "CON": 14,
-        "INT": 13,
-        "WIS": 11,
-        "CHA": 10
-    },
+    "strength": 11,
+    "dexterity": 16,
+    "constitution": 14,
+    "intelligence": 13,
+    "wisdom": 11,
+    "charisma": 10,
     "immunities": [],
     "challengeRating": 8
 }

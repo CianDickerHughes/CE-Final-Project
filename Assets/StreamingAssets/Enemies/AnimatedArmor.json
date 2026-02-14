@@ -4,18 +4,16 @@
     "size": "Medium",
     "type": "Construct",
     "alignment": "Unaligned",
-    "armor_class": 18,
-    "hp": 33,
+    "AC": 18,
+    "HP": 33,
     "speed": 25,
     "tokenFileName": "AnimatedArmor.png",
-    "abilityScores": {
-        "STR": 14,
-        "DEX": 11,
-        "CON": 13,
-        "INT": 1,
-        "WIS": 3,
-        "CHA": 1
-    },
+    "strength": 14,
+    "dexterity": 11,
+    "constitution": 13,
+    "intelligence": 1,
+    "wisdom": 3,
+    "charisma": 1,
     "immunities": [
         "poison",
         "psychic"

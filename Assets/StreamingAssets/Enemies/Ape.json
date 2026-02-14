@@ -4,18 +4,16 @@
     "size": "Medium",
     "type": "Beast",
     "alignment": "Unaligned",
-    "armor_class": 12,
-    "hp": 19,
+    "AC": 12,
+    "HP": 19,
     "speed": 30,
     "tokenFileName": "Ape.png",
-    "abilityScores": {
-        "STR": 16,
-        "DEX": 14,
-        "CON": 14,
-        "INT": 6,
-        "WIS": 12,
-        "CHA": 7
-    },
+    "strength": 16,
+    "dexterity": 14,
+    "constitution": 14,
+    "intelligence": 6,
+    "wisdom": 12,
+    "charisma": 7,
     "immunities": [],
     "challengeRating": 0.5
 }

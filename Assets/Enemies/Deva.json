@@ -4,18 +4,16 @@
     "size": "Medium",
     "type": "Celestial",
     "alignment": "Lawful Good",
-    "armor_class": 17,
-    "hp": 136,
+    "AC": 17,
+    "HP": 136,
     "speed": 30,
     "tokenFileName": "Deva.png",
-    "abilityScores": {
-        "STR": 18,
-        "DEX": 18,
-        "CON": 18,
-        "INT": 17,
-        "WIS": 20,
-        "CHA": 20
-    },
+    "strength": 18,
+    "dexterity": 18,
+    "constitution": 18,
+    "intelligence": 17,
+    "wisdom": 20,
+    "charisma": 20,
     "immunities": [
         "radiant",
         "necrotic"
