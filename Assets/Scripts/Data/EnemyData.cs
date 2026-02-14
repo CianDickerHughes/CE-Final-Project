@@ -12,32 +12,24 @@ public class EnemyData
     public string challengeRating;
     public string size;
     public string alignment;
-    //Ability scores
-    public AbilityScores abilityScores;
     //String for handling the image relating to this enemy
     public string tokenFileName;
     //Immunities
     public string[] immunities;
     //Game-related stats
-    public int hp;
-    public int armor_class;
+    public int HP;
+    public int AC;
     public int speed;
+    //Ability scores
+    public int strength;
+    public int dexterity;
+    public int constitution;
+    public int intelligence;
+    public int wisdom;
+    public int charisma;
 
     public EnemyData()
     {
         id = Guid.NewGuid().ToString();
     }
-}
-
-//Nested class for the Ability Scores
-//Maybe share this/change this later to be used by both characters and enemies
-[Serializable]
-public class AbilityScores
-{
-    public int STR;
-    public int DEX;
-    public int CON;
-    public int INT;
-    public int WIS;
-    public int CHA;
 }
