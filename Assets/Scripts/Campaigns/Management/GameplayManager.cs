@@ -927,6 +927,11 @@ public class GameplayManager : MonoBehaviour
         return null;
     }
 
+    public List<Token> GetSpawnedTokens()
+    {
+        return spawnedTokens;
+    }
+
     // ==================== MOVEMENT RULES ====================
     public bool CanPlayerMove(string playerId)
     {
