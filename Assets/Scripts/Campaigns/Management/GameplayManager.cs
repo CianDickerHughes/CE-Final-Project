@@ -15,10 +15,6 @@ using Unity.Services.Authentication;
 
 //Both - Player management, npc management, movement actions, grid handling etc
 
-//NOTE - CLASS IS INCREDIBLY UNFINISHED AND BASIC
-//CIAN WE NEED TO DISCUSS WHAT WE'LL USE TO TRACK TURNS/INITIATIVE ETC
-//ALSO HOW WE'LL HANDLE PLAYERS CONTROLS AND ACTIONS - YOU NEED TO FIGURE OUT NETWORKING PLEASE
-
 public enum GameMode { Roleplay, Combat }
 
 public class GameplayManager : MonoBehaviour
