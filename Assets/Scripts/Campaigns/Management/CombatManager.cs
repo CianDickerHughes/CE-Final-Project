@@ -23,6 +23,9 @@ public class CombatManager : MonoBehaviour
     [SerializeField] private Button pauseCombatButton;
     [SerializeField] private Button endCombatButton;
     [SerializeField] private Button nextTurnButton;
+    //UI Elements for the characters in combat - like the initiative tracker in bg3
+    [SerializeField] private Transform combatantsUIParent;
+    [SerializeField] private GameObject combatantUIPrefab;
 
     void Start()
     {
@@ -176,6 +179,22 @@ public class CombatManager : MonoBehaviour
 
     public int GetCurrentTurnIndex() {
         return currentTurnIndex;
+    }
+
+    //Method for populating the simple UI feature in the header with the combatants tokens - like bg3
+    public void populateCharactersUI()
+    {
+        //Clear all existing UI elements
+        foreach(Transform child in combatantsUIParent)
+        {
+            Destroy(child.gameObject);
+        }
+        //Loop through the initiative order and create UI elements for each combatant
+        foreach(var combatant in initiativeOrder)
+        {
+            //Logic would go here
+            //Populate UI with combatant.token's image, name, HP, etc
+        }
     }
 }
 
