@@ -291,10 +291,21 @@ public class GameplayManager : MonoBehaviour
         // Update the local scene data
         currentSceneData = newSceneData;
 
+        // Reload the map/grid from the received scene data
+        if (gridManager != null && currentSceneData.mapData != null)
+        {
+            Debug.Log($"GameplayManager: Reloading map data ({currentSceneData.mapData.width}x{currentSceneData.mapData.height})");
+            gridManager.LoadMapData(currentSceneData.mapData);
+        }
+        else
+        {
+            Debug.LogWarning($"GameplayManager: Cannot reload map - gridManager null: {gridManager == null}, mapData null: {currentSceneData.mapData == null}");
+        }
+
         // Reload tokens from the updated scene data
         LoadTokensFromSceneData();
 
-        Debug.Log("GameplayManager: Tokens reloaded from remote scene data");
+        Debug.Log("GameplayManager: Map and tokens reloaded from remote scene data");
     }
 
     //Arrow key movement for selected token
@@ -537,6 +548,10 @@ public class GameplayManager : MonoBehaviour
             
             //Get the character or enemy ID based on token type
             string charId = "";
+            string charName = "";
+            string charClass = "";
+            string tokenFileName = "";
+            string charDesc = "";
             string enemyId = "";
             CharacterType tokenType = token.getCharacterType();
             
@@ -546,6 +561,7 @@ public class GameplayManager : MonoBehaviour
                 if (enemyData != null)
                 {
                     enemyId = enemyData.id;
+                    tokenFileName = enemyData.tokenFileName ?? "";
                 }
             }
             else
@@ -554,14 +570,18 @@ public class GameplayManager : MonoBehaviour
                 if (charData != null)
                 {
                     charId = charData.id;
+                    charName = charData.charName ?? "";
+                    charClass = charData.charClass ?? "";
+                    tokenFileName = charData.tokenFileName ?? "";
+                    charDesc = charData.race ?? "";
                 }
             }
             
-            //Create and add the token data
-            TokenData tokenData = new TokenData(charId, enemyId, tokenType, currentTile.GridX, currentTile.GridY);
+            //Create and add the token data with all character info for network transmission
+            TokenData tokenData = new TokenData(charId, charName, charClass, tokenFileName, charDesc, enemyId, tokenType, currentTile.GridX, currentTile.GridY);
             currentSceneData.tokens.Add(tokenData);
             
-            Debug.Log($"Saved token: Type={tokenType}, CharId={charId}, EnemyId={enemyId}, Position=({currentTile.GridX}, {currentTile.GridY})");
+            Debug.Log($"Saved token: Type={tokenType}, CharId={charId}, CharName={charName}, TokenFile={tokenFileName}, Position=({currentTile.GridX}, {currentTile.GridY})");
         }
         
         Debug.Log($"Total tokens saved: {currentSceneData.tokens.Count}");

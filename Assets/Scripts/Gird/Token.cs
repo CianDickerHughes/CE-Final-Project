@@ -84,22 +84,66 @@ public class Token : MonoBehaviour
                 // Try multiple locations for player characters
                 string tokenPath = null;
                 
-                // First try the main characters folder
+                // Get campaign name - try CampaignManager first, fallback to SceneDataNetwork
+                string campaignName = CampaignManager.Instance?.GetCurrentCampaign()?.campaignName;
+                if (string.IsNullOrEmpty(campaignName) && SceneDataNetwork.Instance != null)
+                {
+                    campaignName = SceneDataNetwork.Instance.LastReceivedCampaignName;
+                }
+                Debug.Log($"Token: Looking for image '{data.tokenFileName}' with campaign '{campaignName}'");
+                
+                // Location 1: Main characters folder
                 string mainFolder = CharacterIO.GetCharactersFolder();
                 string mainPath = System.IO.Path.Combine(mainFolder, data.tokenFileName);
                 if (System.IO.File.Exists(mainPath))
                 {
                     tokenPath = mainPath;
+                    Debug.Log($"Token: Found in main folder: {tokenPath}");
                 }
-                else
+                
+                // Location 2: ReceivedCampaigns folder (for client-received images)
+                if (tokenPath == null && !string.IsNullOrEmpty(campaignName))
                 {
-                    // Try the campaign PlayerCharacters folder
-                    string campaignFolder = CampaignManager.GetCampaignsFolder();
-                    string campaignPath = System.IO.Path.Combine(campaignFolder, "test", "PlayerCharacters", data.tokenFileName);
-                    if (System.IO.File.Exists(campaignPath))
+                    #if UNITY_EDITOR
+                        string receivedPath = System.IO.Path.Combine(UnityEngine.Application.dataPath, "Campaigns", "ReceivedCampaigns", campaignName, "Characters", data.tokenFileName);
+                    #else
+                        string receivedPath = System.IO.Path.Combine(UnityEngine.Application.persistentDataPath, "Campaigns", "ReceivedCampaigns", campaignName, "Characters", data.tokenFileName);
+                    #endif
+                    
+                    if (System.IO.File.Exists(receivedPath))
                     {
-                        tokenPath = campaignPath;
+                        tokenPath = receivedPath;
+                        Debug.Log($"Token: Found in ReceivedCampaigns: {tokenPath}");
                     }
+                }
+                
+                // Location 3: Campaign Characters folder
+                if (tokenPath == null && !string.IsNullOrEmpty(campaignName))
+                {
+                    string campaignFolder = CampaignManager.GetCampaignsFolder();
+                    string campaignCharsPath = System.IO.Path.Combine(campaignFolder, campaignName, "Characters", data.tokenFileName);
+                    if (System.IO.File.Exists(campaignCharsPath))
+                    {
+                        tokenPath = campaignCharsPath;
+                        Debug.Log($"Token: Found in campaign Characters: {tokenPath}");
+                    }
+                }
+                
+                // Location 4: Campaign PlayerCharacters folder
+                if (tokenPath == null && !string.IsNullOrEmpty(campaignName))
+                {
+                    string campaignFolder = CampaignManager.GetCampaignsFolder();
+                    string playerCharsPath = System.IO.Path.Combine(campaignFolder, campaignName, "PlayerCharacters", data.tokenFileName);
+                    if (System.IO.File.Exists(playerCharsPath))
+                    {
+                        tokenPath = playerCharsPath;
+                        Debug.Log($"Token: Found in PlayerCharacters: {tokenPath}");
+                    }
+                }
+                
+                if (tokenPath == null)
+                {
+                    Debug.LogWarning($"Token: Could not find image '{data.tokenFileName}' in any location");
                 }
                 
                 //Now actually trying to set up the sprite
