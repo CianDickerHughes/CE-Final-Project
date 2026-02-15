@@ -93,6 +93,12 @@ public class GameplayManager : MonoBehaviour
             Instance = null;
             Debug.Log("GameplayManager instance destroyed.");
         }
+
+        // Unsubscribe from scene data updates
+        if (SceneDataNetwork.Instance != null)
+        {
+            SceneDataNetwork.Instance.OnSceneDataReceived -= OnRemoteSceneDataReceived;
+        }
     }
 
     // Called by duplicate instances to transfer their fresh scene references to the singleton
@@ -253,8 +259,42 @@ public class GameplayManager : MonoBehaviour
         {
             Debug.LogError("PlayerAssignmentHelper instance is null, make sure it exists in the scene");
         }
+
+        // Subscribe to scene data updates from the network (for clients to receive DM changes)
+        if (SceneDataNetwork.Instance != null)
+        {
+            SceneDataNetwork.Instance.OnSceneDataReceived += OnRemoteSceneDataReceived;
+            Debug.Log("GameplayManager: Subscribed to SceneDataNetwork updates");
+        }
+        else
+        {
+            Debug.LogWarning("GameplayManager: SceneDataNetwork instance not available; won't receive remote scene updates");
+        }
         
         Debug.Log("=== GameplayManager Start() Complete ===");
+    }
+
+    /// <summary>
+    /// Called when the DM/Host sends updated scene data to clients.
+    /// Reloads tokens to reflect the current state.
+    /// </summary>
+    private void OnRemoteSceneDataReceived(SceneData newSceneData)
+    {
+        if (newSceneData == null)
+        {
+            Debug.LogWarning("GameplayManager: Received null scene data");
+            return;
+        }
+
+        Debug.Log($"GameplayManager: Received remote scene update: {newSceneData.sceneName}");
+
+        // Update the local scene data
+        currentSceneData = newSceneData;
+
+        // Reload tokens from the updated scene data
+        LoadTokensFromSceneData();
+
+        Debug.Log("GameplayManager: Tokens reloaded from remote scene data");
     }
 
     //Arrow key movement for selected token
@@ -436,6 +476,17 @@ public class GameplayManager : MonoBehaviour
             if (commit != null)
             {
                 Debug.Log($"Compass: Committed changes to main branch - {commit.commitId}");
+                
+                // Broadcast the updated scene to all connected clients after successful commit
+                if (SceneDataNetwork.Instance != null)
+                {
+                    SceneDataNetwork.Instance.SendSceneToClients(currentSceneData);
+                    Debug.Log($"Compass: Scene data broadcasted to clients after commit");
+                }
+                else
+                {
+                    Debug.LogWarning("Compass: SceneDataNetwork instance not available; scene updates not sent to clients.");
+                }
             }
         }
         else
@@ -540,6 +591,17 @@ public class GameplayManager : MonoBehaviour
             {
                 SceneDataTransfer.Instance.UpdatePendingScene(currentSceneData);
             }
+            
+            // Broadcast the updated scene to all connected clients
+            if (SceneDataNetwork.Instance != null)
+            {
+                SceneDataNetwork.Instance.SendSceneToClients(currentSceneData);
+                Debug.Log($"Scene data broadcasted to clients: {currentSceneData.sceneName}");
+            }
+            else
+            {
+                Debug.LogWarning("SceneDataNetwork instance not available; scene updates not sent to clients.");
+            }
         }
         catch (System.Exception ex)
         {
@@ -557,6 +619,22 @@ public class GameplayManager : MonoBehaviour
     //Load tokens from the scene data and spawn them on the grid
     private void LoadTokensFromSceneData()
     {
+        // Clear existing spawned tokens before loading new ones
+        if (spawnedTokens != null && spawnedTokens.Count > 0)
+        {
+            Debug.Log($"Clearing {spawnedTokens.Count} existing tokens...");
+            foreach (var token in spawnedTokens)
+            {
+                if (token != null)
+                {
+                    Destroy(token.gameObject);
+                }
+            }
+            spawnedTokens.Clear();
+            playerTokens.Clear();
+            selectedToken = null;
+        }
+
         if (currentSceneData == null || currentSceneData.tokens == null || currentSceneData.tokens.Count == 0)
         {
             Debug.Log("No tokens to load from scene data.");
