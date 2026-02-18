@@ -1,0 +1,21 @@
+{
+    "id": "Mahoraga",
+    "name": "Mahoraga",
+    "size": "Large",
+    "type": "Monstrosity",
+    "alignment": "Neutral",
+    "AC": 15,
+    "HP": 150,
+    "speed": 30,
+    "tokenFileName": "Mahoraga.png",
+    "strength": 20,
+    "dexterity": 18,
+    "constitution": 16,
+    "intelligence": 10,
+    "wisdom": 12,
+    "charisma": 8,
+    "immunities": [
+        "poison"
+    ],
+    "challengeRating": 20
+}
