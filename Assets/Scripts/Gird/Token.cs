@@ -16,7 +16,6 @@ public class Token : MonoBehaviour
     private EnemyData enemyData;
     private CharacterData characterData;
     private CharacterType characterType;
-    //FOR NETWORKING CIAN - SO WE CAN TRACK WHO OWNS WHAT TOKEN
     private ulong ownerId;
     //Used to trach whichever character this token is representing
     //Can be useful for the player assignment and checking movement permissions etc.

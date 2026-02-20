@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 using UnityEngine.UI;
+using TMPro;
 
 //This class is meant to serve as a manager for the combat related behaviours in the gameplay scene
 // - Handling turns, initiative, combat actions, etc
@@ -26,6 +27,8 @@ public class CombatManager : MonoBehaviour
     //UI Elements for the characters in combat - like the initiative tracker in bg3
     [SerializeField] private Transform combatantsUIParent;
     [SerializeField] private GameObject combatantUIPrefab;
+    //Meant for visually tracking what the current state of combat is
+    [SerializeField] private TextMeshProUGUI combatStateText;
 
     void Start()
     {
@@ -63,9 +66,14 @@ public class CombatManager : MonoBehaviour
     public void startCombat()
     {
         if (combatState == CombatState.Inactive) {
-            PopulateCombatList();  // Add this line
+            PopulateCombatList(); 
             combatState = CombatState.Rolling;
             RollInitiative();
+            //Updating the UI reference to reflect combat starting
+            if(combatStateText != null)
+            {
+                combatStateText.text = "Combat Started!";
+            }
         }
     }
 
@@ -75,6 +83,10 @@ public class CombatManager : MonoBehaviour
         {
             combatState = CombatState.Paused;
             //Update UI to reflect paused state, disable turn controls, etc
+            if(combatStateText != null)
+            {
+                combatStateText.text = "Combat Paused!";
+            }
         }
     }
 
@@ -84,6 +96,10 @@ public class CombatManager : MonoBehaviour
         currentTurnIndex = 0;
         initiativeOrder.Clear();
         //Update UI to reflect end of combat, disable turn controls, etc
+        if(combatStateText != null)
+        {
+            combatStateText.text = "Combat Ended!";
+        }
     }
 
     public void nextTurn()

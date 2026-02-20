@@ -7,6 +7,6 @@ public enum EnemyType
     Automatic,
     //Boss/Adaptive - Enemy is controlled by the adaptive enemy AI behaviour - learns/has actions informed by the specialised AI model in the system
     Adaptive,
-    //Mahoraga - Potential Highest difficulty enemy type - adaptive and can counter instantly when adapting
-    Mahoraga
+    //Dungeon Master - Potential Highest difficulty enemy type - adaptive and can counter instantly when adapting
+    DungeonMaster
 }
