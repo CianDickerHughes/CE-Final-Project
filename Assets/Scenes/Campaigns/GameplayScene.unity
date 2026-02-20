@@ -1168,6 +1168,7 @@ MonoBehaviour:
   initiativeOrder: []
   startCombatButton: {fileID: 1590704441}
   pauseCombatButton: {fileID: 1975852186}
+  pausedButtonText: {fileID: 1503850434}
   endCombatButton: {fileID: 1295974032}
   nextTurnButton: {fileID: 347377983}
   combatantsUIParent: {fileID: 1892946607}

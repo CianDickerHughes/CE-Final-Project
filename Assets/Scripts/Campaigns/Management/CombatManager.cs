@@ -22,6 +22,7 @@ public class CombatManager : MonoBehaviour
     //DM Controls
     [SerializeField] private Button startCombatButton;
     [SerializeField] private Button pauseCombatButton;
+    [SerializeField] private TextMeshProUGUI pausedButtonText;
     [SerializeField] private Button endCombatButton;
     [SerializeField] private Button nextTurnButton;
     //UI Elements for the characters in combat - like the initiative tracker in bg3
@@ -79,17 +80,25 @@ public class CombatManager : MonoBehaviour
 
     public void pauseCombat()
     {
-        if(combatState == CombatState.Active)
+        if(combatState == CombatState.Active && combatState != CombatState.Paused)
         {
             combatState = CombatState.Paused;
             //Update UI to reflect paused state, disable turn controls, etc
-            if(combatStateText != null && combatState != CombatState.Paused)
+            if(combatStateText != null)
             {
                 combatStateText.text = "Combat Paused!";
+                //Changing the UI of the button to reflect the paused state
+                pausedButtonText.text = "Resume Combat";
             }
-            else if(combatState == CombatState.Paused)
+        }
+        else if(combatState == CombatState.Paused)
+        {
+            combatState = CombatState.Active;
+            //Updating the UI to reflect combat actually resuming
+            if(combatStateText != null)
             {
                 combatStateText.text = "Combat Resumed!";
+                pausedButtonText.text = "Pause Combat";
             }
         }
     }
