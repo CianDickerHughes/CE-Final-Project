@@ -72,7 +72,14 @@ public class SceneDataNetwork : NetworkBehaviour
         string jsonContent = JsonUtility.ToJson(sceneData, true);
         
         // FIRST send token images so they arrive before the scene data
-        SendTokenImages(sceneData, campaignName);
+        try
+        {
+            SendTokenImages(sceneData, campaignName);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"SceneDataNetwork: Error sending token images (continuing with scene data): {ex.Message}");
+        }
         
         // Then send scene data to all clients
         SendSceneDataClientRpc(jsonContent, campaignName);
@@ -97,7 +104,16 @@ public class SceneDataNetwork : NetworkBehaviour
 
         foreach (TokenData token in sceneData.tokens)
         {
-            if (string.IsNullOrEmpty(token.tokenFileName) || sentImages.Contains(token.tokenFileName))
+            // Debug: Log what we're checking
+            Debug.Log($"SceneDataNetwork: Checking token - CharName='{token.characterName}', TokenFileName='{token.tokenFileName}'");
+            
+            if (string.IsNullOrEmpty(token.tokenFileName))
+            {
+                Debug.LogWarning($"SceneDataNetwork: Token '{token.characterName}' has no tokenFileName, skipping image send");
+                continue;
+            }
+            
+            if (sentImages.Contains(token.tokenFileName))
                 continue;
 
             try
@@ -112,9 +128,19 @@ public class SceneDataNetwork : NetworkBehaviour
                 }
 
                 byte[] imageBytes = File.ReadAllBytes(imagePath);
+                
+                // Compress image if too large (RPC has ~64KB limit, base64 adds 33% overhead)
+                const int MAX_SIZE = 40000; // ~40KB raw to stay under limit after base64
+                if (imageBytes.Length > MAX_SIZE)
+                {
+                    Debug.Log($"SceneDataNetwork: Image too large ({imageBytes.Length} bytes), compressing...");
+                    imageBytes = CompressImage(imageBytes, MAX_SIZE);
+                    Debug.Log($"SceneDataNetwork: Compressed to {imageBytes.Length} bytes");
+                }
+                
                 string imageBase64 = Convert.ToBase64String(imageBytes);
                 
-                Debug.Log($"SceneDataNetwork: Sending image '{token.tokenFileName}' ({imageBytes.Length} bytes) from {imagePath}");
+                Debug.Log($"SceneDataNetwork: Sending image '{token.tokenFileName}' ({imageBytes.Length} bytes, base64: {imageBase64.Length} chars)");
 
                 // Send to all clients
                 ReceiveTokenImageClientRpc(token.tokenFileName, imageBase64, campaignName);
@@ -129,6 +155,60 @@ public class SceneDataNetwork : NetworkBehaviour
         Debug.Log($"SceneDataNetwork: Sent {sentImages.Count} token images");
     }
 
+    /// <summary>
+    /// Compress an image to fit within size limit using resize + JPEG compression
+    /// </summary>
+    private byte[] CompressImage(byte[] originalBytes, int maxSize)
+    {
+        try
+        {
+            // Load texture
+            Texture2D tex = new Texture2D(2, 2);
+            tex.LoadImage(originalBytes);
+            
+            // Calculate new size - target 128x128 for network transfer
+            int targetSize = 128;
+            int newWidth = targetSize;
+            int newHeight = targetSize;
+            
+            // Maintain aspect ratio
+            if (tex.width > tex.height)
+            {
+                newHeight = (int)(targetSize * ((float)tex.height / tex.width));
+            }
+            else
+            {
+                newWidth = (int)(targetSize * ((float)tex.width / tex.height));
+            }
+            
+            // Resize using RenderTexture
+            RenderTexture rt = RenderTexture.GetTemporary(newWidth, newHeight);
+            rt.filterMode = FilterMode.Bilinear;
+            RenderTexture.active = rt;
+            Graphics.Blit(tex, rt);
+            
+            Texture2D resized = new Texture2D(newWidth, newHeight, TextureFormat.RGB24, false);
+            resized.ReadPixels(new Rect(0, 0, newWidth, newHeight), 0, 0);
+            resized.Apply();
+            
+            RenderTexture.active = null;
+            RenderTexture.ReleaseTemporary(rt);
+            
+            // Encode as JPEG with quality reduction
+            byte[] compressed = resized.EncodeToJPG(75);
+            
+            // Cleanup
+            UnityEngine.Object.Destroy(tex);
+            UnityEngine.Object.Destroy(resized);
+            
+            return compressed;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"SceneDataNetwork: Failed to compress image: {ex.Message}");
+            return originalBytes;
+        }
+    }
     /// <summary>
     /// Find a token image file by searching multiple locations
     /// </summary>

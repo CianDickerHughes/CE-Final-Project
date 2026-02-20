@@ -697,9 +697,22 @@ public class GameplayManager : MonoBehaviour
                     SpawnTokenAtTile(tile, charData, tokenData.tokenType);
                     Debug.Log($"Loaded character token: {charData.charName} at ({tokenData.gridX}, {tokenData.gridY})");
                 }
+                else if (!string.IsNullOrEmpty(tokenData.characterName))
+                {
+                    // Character not found locally - create from TokenData fields (network received)
+                    Debug.Log($"Character not found locally, creating from TokenData: {tokenData.characterName}");
+                    CharacterData networkCharData = new CharacterData();
+                    networkCharData.id = tokenData.characterId;
+                    networkCharData.charName = tokenData.characterName;
+                    networkCharData.charClass = tokenData.characterClass;
+                    networkCharData.tokenFileName = tokenData.tokenFileName;
+                    
+                    SpawnTokenAtTile(tile, networkCharData, tokenData.tokenType);
+                    Debug.Log($"Loaded network character token: {networkCharData.charName} at ({tokenData.gridX}, {tokenData.gridY})");
+                }
                 else
                 {
-                    Debug.LogWarning($"Could not find character with ID: {tokenData.characterId}");
+                    Debug.LogWarning($"Could not find character with ID: {tokenData.characterId} and no TokenData fields available");
                 }
             }
         }
