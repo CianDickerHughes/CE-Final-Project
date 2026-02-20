@@ -17,7 +17,21 @@ public class CharInitToken : MonoBehaviour
         participant = combatParticipant;
         UpdateHP();
         //Setting up the token image
+        SetupTokenImage();
+    }
 
+    private void SetupTokenImage()
+    {
+        if (tokenImage != null && participant.token != null)
+        {
+            // Get the sprite from the token's SpriteRenderer
+            SpriteRenderer spriteRenderer = participant.token.GetComponent<SpriteRenderer>();
+            if (spriteRenderer != null && spriteRenderer.sprite != null)
+            {
+                tokenImage.sprite = spriteRenderer.sprite;
+                tokenImage.preserveAspect = true;
+            }
+        }
     }
 
     public void UpdateHP()
