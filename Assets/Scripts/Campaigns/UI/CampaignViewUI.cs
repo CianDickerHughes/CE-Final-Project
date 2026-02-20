@@ -245,6 +245,12 @@ public class CampaignViewUI : MonoBehaviour
             //Remove the scene from the campaign
             currentCampaign.scenes.RemoveAll(s => s.sceneId == sceneId);
             
+            //Also remove from CampaignManager.Instance so it stays in sync
+            if (CampaignManager.Instance != null)
+            {
+                CampaignManager.Instance.RemoveScene(sceneId);
+            }
+            
             //Save the campaign
             SaveCampaign();
             
@@ -329,6 +335,11 @@ public class CampaignViewUI : MonoBehaviour
             string json = JsonUtility.ToJson(currentCampaign, true);
             File.WriteAllText(currentFilePath, json);
             Debug.Log("Campaign saved.");
+            
+            // In Editor, refresh the asset database so Unity sees the changes
+            #if UNITY_EDITOR
+            UnityEditor.AssetDatabase.Refresh();
+            #endif
         }
         catch (System.Exception ex)
         {
