@@ -83,9 +83,13 @@ public class CombatManager : MonoBehaviour
         {
             combatState = CombatState.Paused;
             //Update UI to reflect paused state, disable turn controls, etc
-            if(combatStateText != null)
+            if(combatStateText != null && combatState != CombatState.Paused)
             {
                 combatStateText.text = "Combat Paused!";
+            }
+            else if(combatState == CombatState.Paused)
+            {
+                combatStateText.text = "Combat Resumed!";
             }
         }
     }
@@ -138,6 +142,7 @@ public class CombatManager : MonoBehaviour
         //Sort the initiative order based on the rolls (descending)
         initiativeOrder.Sort((a, b) => b.initiativeRoll.CompareTo(a.initiativeRoll));
         combatState = CombatState.Active;
+        populateCharactersUI();
     }
 
     //UTILITY METHODS
@@ -210,6 +215,12 @@ public class CombatManager : MonoBehaviour
         {
             //Logic would go here
             //Populate UI with combatant.token's image, name, HP, etc
+            GameObject uiElement = Instantiate(combatantUIPrefab, combatantsUIParent);
+            CharInitToken charInitToken = uiElement.GetComponent<CharInitToken>();
+            if(charInitToken != null)
+            {
+                charInitToken.Setup(combatant);
+            }
         }
     }
 }
@@ -222,15 +233,6 @@ public struct CombatParticipant
     public bool hasActedThisRound;
     public int currentHP;
     public int maxHP;
-
-    //Getting hp
-    public int GetHP(){
-        if(token.getCharacterType() == CharacterType.Player)
-        {
-            return token.getCharacterData().HP;
-        }
-        return token.getEnemyData().HP;
-    }
 
     //Getting AC
     public int GetAC(){

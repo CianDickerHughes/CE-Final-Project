@@ -9,29 +9,22 @@ public class CharInitToken : MonoBehaviour
     [SerializeField] private TextMeshProUGUI hpText;
     [SerializeField] private Image tokenImage;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    private CombatParticipant participant;
 
     //Method to set up the combatant token with the relevant data
-    public void Setup(Token token)
+    public void Setup(CombatParticipant combatParticipant)
     {
-        if (hpText != null)
+        participant = combatParticipant;
+        UpdateHP();
+        //Setting up the token image
+
+    }
+
+    public void UpdateHP()
+    {
+        if(hpText != null)
         {
-            if(token.getCharacterType() == CharacterType.Player && token.getCharacterData() != null)
-            {
-                hpText.text = $"HP: {token.getCharacterData().HP}";
-            }
-            else if(token.getCharacterType() == CharacterType.Enemy && token.getEnemyData() != null)
-            {
-                hpText.text = $"HP: {token.getEnemyData().HP}";
-            }
-            else
-            {
-                hpText.text = "HP: N/A";
-            }
+            hpText.text = $"{participant.currentHP}/{participant.maxHP}";
         }
     }
 }
