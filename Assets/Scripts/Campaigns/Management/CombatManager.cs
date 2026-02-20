@@ -113,6 +113,12 @@ public class CombatManager : MonoBehaviour
         {
             combatStateText.text = "Combat Ended!";
         }
+
+        //Clearing the combatants UI
+        foreach(Transform child in combatantsUIParent)
+        {
+            Destroy(child.gameObject);
+        }
     }
 
     public void nextTurn()
