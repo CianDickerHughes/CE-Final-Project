@@ -98,10 +98,10 @@ public class SavedCharacterItem : MonoBehaviour
     }
 
     public void SelectForSpawning(CharacterType type){
-        if(characterData != null && GameplayManager.Instance != null){
-
-            GameplayManager.Instance.SetSelectedForSpawn(characterData, type);
-            Debug.Log($"Selected {characterData.charName} for spawning as {type}");
+        if (TokenManager.Instance != null && characterData != null)
+        {
+            TokenManager.Instance.SetSelectedForSpawn(characterData, CharacterType.NPC);
+            Debug.Log($"Selected {characterData.charName} for spawning.");
         } 
     }
 

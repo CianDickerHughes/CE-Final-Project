@@ -301,8 +301,10 @@ public class Token : MonoBehaviour
     void OnMouseDown()
     {
         //Don't select if in spawn mode
-        if (GameplayManager.Instance != null && GameplayManager.Instance.IsInSpawnMode())
-            return;
+        if (TokenManager.Instance != null && TokenManager.Instance.IsInSpawnMode())
+        {
+            return; // Don't select tokens while in spawn mode
+        }
 
         PlayerAssignmentHelper assignmentHelper = PlayerAssignmentHelper.Instance;
         if (assignmentHelper != null){
@@ -314,7 +316,10 @@ public class Token : MonoBehaviour
             }
         }
             
-        GameplayManager.Instance?.SelectToken(this);
+        if (TokenManager.Instance != null)
+        {
+            TokenManager.Instance.SelectToken(this);
+        }
     }
     
     //Visual feedback for selection (simple color tint)

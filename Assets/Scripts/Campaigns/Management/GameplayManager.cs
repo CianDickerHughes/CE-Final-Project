@@ -45,23 +45,11 @@ public class GameplayManager : MonoBehaviour
     //Players linked to their character data
     private List<string> playerIds;
     private Dictionary<string, CharacterData> playerCharacters;
-    private Dictionary<string, Token> playerTokens; // Track spawned tokens
-    private Token selectedToken;
 
     [Header("DM/Player state management Buttons")]
     [SerializeField] private Button saveAndExitButton;
     [SerializeField] private Button exitButton;
     [SerializeField] private Button leaveSessionButton;
-
-    [Header("Token Spawining")]
-    [SerializeField] private Token tokenPrefab;
-    private List<Token> spawnedTokens;
-
-    //Clicking to spawn tokens for players/enemies
-    private EnemyData selectedEnemyToSpawn;
-    private CharacterData selectedCharacterToSpawn;
-    private CharacterType selectedCharacterType;
-    private bool isInSpawnMode = false;
 
     //Making this class a singleton - all management classes are a singleton because they manage global state
     public static GameplayManager Instance { get; private set; }
@@ -88,10 +76,16 @@ public class GameplayManager : MonoBehaviour
     //Simplified Destroy method - testing to see if things will work better
     void OnDestroy()
     {
-        if(Instance == this)
+        if (Instance == this)
         {
             Instance = null;
             Debug.Log("GameplayManager instance destroyed.");
+        }
+
+        // Unsubscribe from TokenManager events
+        if (TokenManager.Instance != null)
+        {
+            TokenManager.Instance.OnTokensChanged -= AutoSaveTokens;
         }
 
         // Unsubscribe from scene data updates
@@ -99,6 +93,113 @@ public class GameplayManager : MonoBehaviour
         {
             SceneDataNetwork.Instance.OnSceneDataReceived -= OnRemoteSceneDataReceived;
         }
+    }
+
+    void Start()
+    {
+        Debug.Log("=== GameplayManager Start() ===");
+        
+        // Initialize lists early so they're ready for token loading
+        turnOrder = new List<string>();
+        playerIds = new List<string>();
+        playerCharacters = new Dictionary<string, CharacterData>();
+        
+        //Loading the scene data using the SceneDataTransfer singleton
+        if (SceneDataTransfer.Instance != null)
+        {
+            currentSceneData = SceneDataTransfer.Instance.GetPendingScene();
+            campaignId = SceneDataTransfer.Instance.GetCurrentCampaignId();
+            
+            Debug.Log($"SceneDataTransfer found! Scene: {currentSceneData?.sceneName ?? "NULL"}");
+            Debug.Log($"MapData: {(currentSceneData?.mapData != null ? $"{currentSceneData.mapData.width}x{currentSceneData.mapData.height}" : "NULL")}");
+            
+            //Need to set up the mode of this scene based on the loaded scene type
+            currentMode = currentSceneData.sceneType == SceneType.Combat ? GameMode.Combat : GameMode.Roleplay;
+        }
+        else
+        {
+            Debug.LogError("SceneDataTransfer.Instance is NULL! Make sure it exists in an earlier scene.");
+        }
+        
+        //Load the map from the specific scene data
+        if (gridManager != null)
+        {
+            Debug.Log("GridManager reference is assigned.");
+            
+            if (currentSceneData?.mapData != null)
+            {
+                Debug.Log($"Loading map: {currentSceneData.mapData.width}x{currentSceneData.mapData.height}");
+                gridManager.LoadMapData(currentSceneData.mapData);
+                gridManager.SetEditMode(false); //Disable painting in gameplay
+                
+                // REMOVE THIS - moved below after TokenManager is initialized
+                // LoadTokensFromSceneData();
+            }
+            else
+            {
+                Debug.LogError("currentSceneData or mapData is NULL - cannot load map!");
+            }
+
+            // Initialize TokenManager FIRST, then load tokens
+            if (TokenManager.Instance != null)
+            {
+                TokenManager.Instance.Initialize(gridManager, playerAssignmentHelper);
+                TokenManager.Instance.OnTokensChanged += AutoSaveTokens;
+                
+                // Load tokens AFTER TokenManager is initialized
+                LoadTokensFromSceneData();
+            }
+            else
+            {
+                Debug.LogError("TokenManager.Instance is null! Make sure it exists in the scene.");
+            }
+        }
+
+        //Setting up buttons for DM/Player actions
+        // Use RebindUIReferences to handle button setup (prevents duplicate listeners)
+        RebindUIReferences();
+
+        //Setting up the header fields - purely UI related
+        if (sceneName != null && currentSceneData != null)
+        {
+            sceneName.text = currentSceneData.sceneName;
+            Debug.Log($"Scene name set to: {currentSceneData.sceneName}");
+        }
+        else
+        {
+            Debug.LogWarning("sceneName TextMeshProUGUI or currentSceneData is NULL.");
+        }
+        //Setting up the session manager to get player info
+        sessionManager = SessionManager.Instance;
+        if (sessionManager != null && playerName != null)
+        {
+            playerName.text = sessionManager.CurrentUsername;
+            Debug.Log($"Player name set to: {playerName.text}");
+        }
+        else
+        {
+            Debug.LogWarning("playerName TextMeshProUGUI or SessionManager instance is NULL.");
+        }
+
+        //Setting up instances for the player assignment helper and network manager
+        playerAssignmentHelper = PlayerAssignmentHelper.Instance;
+        if(playerAssignmentHelper == null)
+        {
+            Debug.LogError("PlayerAssignmentHelper instance is null, make sure it exists in the scene");
+        }
+
+        // Subscribe to scene data updates from the network (for clients to receive DM changes)
+        if (SceneDataNetwork.Instance != null)
+        {
+            SceneDataNetwork.Instance.OnSceneDataReceived += OnRemoteSceneDataReceived;
+            Debug.Log("GameplayManager: Subscribed to SceneDataNetwork updates");
+        }
+        else
+        {
+            Debug.LogWarning("GameplayManager: SceneDataNetwork instance not available; won't receive remote scene updates");
+        }
+        
+        Debug.Log("=== GameplayManager Start() Complete ===");
     }
 
     // Called by duplicate instances to transfer their fresh scene references to the singleton
@@ -176,104 +277,6 @@ public class GameplayManager : MonoBehaviour
         }
     }
 
-    void Start()
-    {
-        Debug.Log("=== GameplayManager Start() ===");
-        
-        // Initialize lists early so they're ready for token loading
-        turnOrder = new List<string>();
-        playerIds = new List<string>();
-        playerTokens = new Dictionary<string, Token>();
-        spawnedTokens = new List<Token>();
-        
-        //Loading the scene data using the SceneDataTransfer singleton
-        if (SceneDataTransfer.Instance != null)
-        {
-            currentSceneData = SceneDataTransfer.Instance.GetPendingScene();
-            campaignId = SceneDataTransfer.Instance.GetCurrentCampaignId();
-            
-            Debug.Log($"SceneDataTransfer found! Scene: {currentSceneData?.sceneName ?? "NULL"}");
-            Debug.Log($"MapData: {(currentSceneData?.mapData != null ? $"{currentSceneData.mapData.width}x{currentSceneData.mapData.height}" : "NULL")}");
-            
-            //Need to set up the mode of this scene based on the loaded scene type
-            currentMode = currentSceneData.sceneType == SceneType.Combat ? GameMode.Combat : GameMode.Roleplay;
-        }
-        else
-        {
-            Debug.LogError("SceneDataTransfer.Instance is NULL! Make sure it exists in an earlier scene.");
-        }
-        
-        //Load the map from the specific scene data
-        if (gridManager != null)
-        {
-            Debug.Log("GridManager reference is assigned.");
-            
-            if (currentSceneData?.mapData != null)
-            {
-                Debug.Log($"Loading map: {currentSceneData.mapData.width}x{currentSceneData.mapData.height}");
-                gridManager.LoadMapData(currentSceneData.mapData);
-                gridManager.SetEditMode(false); //Disable painting in gameplay
-                
-                //Load any saved tokens after the map is ready
-                LoadTokensFromSceneData();
-            }
-            else
-            {
-                Debug.LogError("currentSceneData or mapData is NULL - cannot load map!");
-            }
-        }
-        else
-        {
-            Debug.LogError("GridManager reference is NULL! Assign it in the Inspector.");
-        }
-
-        //Setting up buttons for DM/Player actions
-        // Use RebindUIReferences to handle button setup (prevents duplicate listeners)
-        RebindUIReferences();
-
-        //Setting up the header fields - purely UI related
-        if (sceneName != null && currentSceneData != null)
-        {
-            sceneName.text = currentSceneData.sceneName;
-            Debug.Log($"Scene name set to: {currentSceneData.sceneName}");
-        }
-        else
-        {
-            Debug.LogWarning("sceneName TextMeshProUGUI or currentSceneData is NULL.");
-        }
-        //Setting up the session manager to get player info
-        sessionManager = SessionManager.Instance;
-        if (sessionManager != null && playerName != null)
-        {
-            playerName.text = sessionManager.CurrentUsername;
-            Debug.Log($"Player name set to: {playerName.text}");
-        }
-        else
-        {
-            Debug.LogWarning("playerName TextMeshProUGUI or SessionManager instance is NULL.");
-        }
-
-        //Setting up instances for the player assignment helper and network manager
-        playerAssignmentHelper = PlayerAssignmentHelper.Instance;
-        if(playerAssignmentHelper == null)
-        {
-            Debug.LogError("PlayerAssignmentHelper instance is null, make sure it exists in the scene");
-        }
-
-        // Subscribe to scene data updates from the network (for clients to receive DM changes)
-        if (SceneDataNetwork.Instance != null)
-        {
-            SceneDataNetwork.Instance.OnSceneDataReceived += OnRemoteSceneDataReceived;
-            Debug.Log("GameplayManager: Subscribed to SceneDataNetwork updates");
-        }
-        else
-        {
-            Debug.LogWarning("GameplayManager: SceneDataNetwork instance not available; won't receive remote scene updates");
-        }
-        
-        Debug.Log("=== GameplayManager Start() Complete ===");
-    }
-
     /// <summary>
     /// Called when the DM/Host sends updated scene data to clients.
     /// Reloads tokens to reflect the current state.
@@ -311,10 +314,12 @@ public class GameplayManager : MonoBehaviour
     //Arrow key movement for selected token
     void Update()
     {
-        if (selectedToken == null || gridManager == null) return;
+        if (TokenManager.Instance == null || !TokenManager.Instance.HasSelectedToken() || gridManager == null) 
+            return;
         
-        //Don't process movement if in spawn mode
-        if (isInSpawnMode) return;
+        // Don't process movement if in spawn mode
+        if (TokenManager.Instance.IsInSpawnMode()) 
+            return;
         
         Vector2Int direction = Vector2Int.zero;
         
@@ -329,22 +334,23 @@ public class GameplayManager : MonoBehaviour
         
         if (direction != Vector2Int.zero)
         {
+            Token selectedToken = TokenManager.Instance.GetSelectedToken();
             Tile currentTile = selectedToken.GetCurrentTile();
             if (currentTile != null)
             {
                 int newX = currentTile.GridX + direction.x;
                 int newY = currentTile.GridY + direction.y;
                 Tile targetTile = gridManager.GetTileAtPosition(new Vector2(newX, newY));
-                TryMoveSelectedTokenToTile(targetTile);
+                TokenManager.Instance.TryMoveSelectedTokenToTile(targetTile);
             }
 
-            DeselectToken();
+            TokenManager.Instance.DeselectToken();
         }
         
-        //Escape to deselect
+        // Escape to deselect
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            DeselectToken();
+            TokenManager.Instance.DeselectToken();
         }
     }
 
@@ -353,32 +359,22 @@ public class GameplayManager : MonoBehaviour
     {
         Debug.Log("=== GameplayManager ReinitializeScene() ===");
 
-        //Re-loading the map from specific scene data
-        if(SceneDataTransfer.Instance != null)
+        // Re-loading the map from specific scene data
+        if (SceneDataTransfer.Instance != null)
         {
             currentSceneData = SceneDataTransfer.Instance.GetPendingScene();
             campaignId = SceneDataTransfer.Instance.GetCurrentCampaignId();
-
-            Debug.Log($"Scene loaded: {currentSceneData?.sceneName ?? "NULL"}");
-
             currentMode = currentSceneData.sceneType == SceneType.Combat ? GameMode.Combat : GameMode.Roleplay;
         }
 
-        //Clearing the old tokens
-        if(spawnedTokens != null)
+        // Clear tokens via TokenManager
+        if (TokenManager.Instance != null)
         {
-            foreach (var token in spawnedTokens)
-            {
-                if(token != null)
-                {
-                    Destroy(token.gameObject);
-                }
-                spawnedTokens.Clear();
-            }
+            TokenManager.Instance.ClearAllTokens();
         }
 
-        //Loading the map again
-        if(gridManager != null && currentSceneData?.mapData != null)
+        // Loading the map again
+        if (gridManager != null && currentSceneData?.mapData != null)
         {
             Debug.Log($"Loading map for scene: {currentSceneData.sceneName}");
             gridManager.LoadMapData(currentSceneData.mapData);
@@ -526,11 +522,13 @@ public class GameplayManager : MonoBehaviour
     //Collect all token positions and save them to currentSceneData
     private void SaveTokensToSceneData()
     {
-        if (currentSceneData == null || spawnedTokens == null)
+        if (currentSceneData == null || TokenManager.Instance == null)
         {
-            Debug.LogWarning("Cannot save tokens - scene data or spawned tokens list is null.");
+            Debug.LogWarning("Cannot save tokens - scene data or TokenManager is null.");
             return;
         }
+
+        List<Token> spawnedTokens = TokenManager.Instance.GetSpawnedTokens();
         
         //Clear existing token data and rebuild
         currentSceneData.tokens = new List<TokenData>();
@@ -639,20 +637,10 @@ public class GameplayManager : MonoBehaviour
     //Load tokens from the scene data and spawn them on the grid
     private void LoadTokensFromSceneData()
     {
-        // Clear existing spawned tokens before loading new ones
-        if (spawnedTokens != null && spawnedTokens.Count > 0)
+        // Clear existing spawned tokens via TokenManager
+        if (TokenManager.Instance != null)
         {
-            Debug.Log($"Clearing {spawnedTokens.Count} existing tokens...");
-            foreach (var token in spawnedTokens)
-            {
-                if (token != null)
-                {
-                    Destroy(token.gameObject);
-                }
-            }
-            spawnedTokens.Clear();
-            playerTokens.Clear();
-            selectedToken = null;
+            TokenManager.Instance.ClearAllTokens();
         }
 
         if (currentSceneData == null || currentSceneData.tokens == null || currentSceneData.tokens.Count == 0)
@@ -665,7 +653,6 @@ public class GameplayManager : MonoBehaviour
         
         foreach (TokenData tokenData in currentSceneData.tokens)
         {
-            //Get the tile at the saved position
             Tile tile = gridManager.GetTileAtPosition(new Vector2(tokenData.gridX, tokenData.gridY));
             if (tile == null)
             {
@@ -673,29 +660,20 @@ public class GameplayManager : MonoBehaviour
                 continue;
             }
             
-            //Spawn based on token type
             if (tokenData.tokenType == CharacterType.Enemy && !string.IsNullOrEmpty(tokenData.enemyId))
             {
-                //Find the enemy data by ID
                 EnemyData enemyData = FindEnemyById(tokenData.enemyId);
                 if (enemyData != null)
                 {
-                    SpawnEnemyTokenAtTile(tile, enemyData, tokenData.tokenType);
-                    Debug.Log($"Loaded enemy token: {enemyData.name} at ({tokenData.gridX}, {tokenData.gridY})");
-                }
-                else
-                {
-                    Debug.LogWarning($"Could not find enemy with ID: {tokenData.enemyId}");
+                    TokenManager.Instance.SpawnEnemyTokenAtTile(tile, enemyData, tokenData.tokenType);
                 }
             }
             else if (!string.IsNullOrEmpty(tokenData.characterId))
             {
-                //Find the character data by ID
                 CharacterData charData = FindCharacterById(tokenData.characterId);
                 if (charData != null)
                 {
-                    SpawnTokenAtTile(tile, charData, tokenData.tokenType);
-                    Debug.Log($"Loaded character token: {charData.charName} at ({tokenData.gridX}, {tokenData.gridY})");
+                    TokenManager.Instance.SpawnTokenAtTile(tile, charData, tokenData.tokenType);
                 }
                 else if (!string.IsNullOrEmpty(tokenData.characterName))
                 {
@@ -707,7 +685,7 @@ public class GameplayManager : MonoBehaviour
                     networkCharData.charClass = tokenData.characterClass;
                     networkCharData.tokenFileName = tokenData.tokenFileName;
                     
-                    SpawnTokenAtTile(tile, networkCharData, tokenData.tokenType);
+                    TokenManager.Instance.SpawnTokenAtTile(tile, networkCharData, tokenData.tokenType);
                     Debug.Log($"Loaded network character token: {networkCharData.charName} at ({tokenData.gridX}, {tokenData.gridY})");
                 }
                 else
@@ -776,271 +754,6 @@ public class GameplayManager : MonoBehaviour
         }
         
         return null;
-    }
-    
-    // ==================== TOKEN MANAGEMENT ====================
-    
-    public Token SpawnTokenAtTile(Tile tile, CharacterData character, CharacterType type)
-    {
-        if (tile == null || tokenPrefab == null) 
-        {
-            return null;
-        }
-    
-        Token token = Instantiate(tokenPrefab, new Vector3(tile.transform.position.x, tile.transform.position.y, -1), Quaternion.identity);
-        token.Initialize(character, type, tile);
-        spawnedTokens.Add(token);
-
-        Debug.Log("Character Spawned: " + character.charName + " at Tile (" + token.transform.position + ")");
-        
-        return token;
-    }
-
-    //Spawning enemies method (tokens)
-    public Token SpawnEnemyTokenAtTile(Tile tile, EnemyData enemy, CharacterType type)
-    {
-        if (tile == null || tokenPrefab == null) 
-        {
-            return null;
-        }
-    
-        Token token = Instantiate(tokenPrefab, new Vector3(tile.transform.position.x, tile.transform.position.y, -1), Quaternion.identity);
-        token.Initialize(enemy, type, tile);
-        spawnedTokens.Add(token);
-
-        Debug.Log("Enemy Spawned: " + enemy.name + " at Tile (" + token.transform.position + ")");
-        
-        return token;
-    }
-
-    //Simple method to check if we're in spawn mode
-    public bool IsInSpawnMode()
-    {
-        return isInSpawnMode;
-    }
-
-    //UTILITY METHODS FOR TOKEN SPAWINING
-    //Setting the selected character and type for spawning
-    public void SetSelectedForSpawn(CharacterData data, CharacterType type)
-    {
-        selectedCharacterToSpawn = data;
-        selectedCharacterType = type;
-        isInSpawnMode = true;
-    }
-
-    //Method for spawning enemies - same as one above but for enemies
-    //Could potentially have an overloaded method but for clarity having two separate methods is better
-    public void SetSelectedEnemyForSpawn(EnemyData data, CharacterType type)
-    {
-        //Add in behaviour soon 
-        selectedEnemyToSpawn = data;
-        selectedCharacterType = type;
-        isInSpawnMode = true;
-    }
-
-    //Clearing the selection after spawning - similar to the whole "context" thing we use in this app
-    public void ClearSpawnSelection()
-    {
-        selectedCharacterToSpawn = null;
-        selectedEnemyToSpawn = null;
-        isInSpawnMode = false;
-    }
-
-    //Attempting to spawn at a specific tile
-    public void TrySpawnAtTile(Tile tile)
-    {
-        if (!isInSpawnMode || tile == null)
-        {
-            Debug.Log("Not in spawn mode or invalid tile.");
-            return;
-        }
-        
-        //Check if tile is walkable before spawning
-        if (!tile.IsWalkable())
-        {
-            Debug.Log($"Cannot spawn on non-walkable tile at ({tile.GridX}, {tile.GridY})");
-            ClearSpawnSelection();
-            return;
-        }
-
-        //Selecting a character to spawn
-        if(selectedCharacterToSpawn != null)
-        {
-            SpawnTokenAtTile(tile, selectedCharacterToSpawn, selectedCharacterType);
-            ClearSpawnSelection();
-            AutoSaveTokens(); //Auto-save after spawning
-            return;
-        }
-        //Selecting an enemy to spawn
-        else if(selectedEnemyToSpawn != null)
-        {
-            SpawnEnemyTokenAtTile(tile, selectedEnemyToSpawn, selectedCharacterType);
-            ClearSpawnSelection();
-            AutoSaveTokens(); //Auto-save after spawning
-            return;
-        }
-    }
-    
-    public bool MoveToken(string playerId, int targetX, int targetY)
-    {
-        // Check if player can move
-        if (!CanPlayerMove(playerId))
-        {
-            Debug.Log($"Player {playerId} cannot move - not their turn!");
-            return false;
-        }
-        
-        // Get the player's token
-        if (!playerTokens.TryGetValue(playerId, out Token token))
-        {
-            Debug.LogWarning($"No token found for player {playerId}");
-            return false;
-        }
-        
-        // Get the target tile
-        Tile targetTile = gridManager.GetTileAtPosition(new Vector2(targetX, targetY));
-        if (targetTile == null)
-        {
-            Debug.Log("Target position is out of bounds!");
-            return false;
-        }
-        
-        // Check if tile is walkable
-        if (!targetTile.IsWalkable())
-        {
-            Debug.Log("Target tile is not walkable!");
-            return false;
-        }
-        
-        // Move the token
-        token.MoveToTile(targetTile);
-        Debug.Log($"Token moved to ({targetX}, {targetY})");
-        
-        AutoSaveTokens(); //Auto-save after moving
-        
-        return true;
-    }
-    
-    public Token GetPlayerToken(string playerId)
-    {
-        playerTokens.TryGetValue(playerId, out Token token);
-        return token;
-    }
-
-    // ==================== TOKEN SELECTION & MOVEMENT ====================
-    
-    //Select a token for movement
-    public void SelectToken(Token t)
-    {
-        //Deselect previous if any
-        if (selectedToken != null)
-        {
-            selectedToken.SetSelected(false);
-        }
-        selectedToken = t;
-        if (selectedToken != null)
-        {
-            //Verifying the caller/player can control this token before we select it
-            if(CanCurrentPlayerControlToken(selectedToken))
-            {
-                selectedToken.SetSelected(true);
-                Debug.Log($"Token selected: {selectedToken.name}");
-            }
-            else
-            {
-                Debug.Log("Cant select token - player doesnt have control!");
-                return;
-            }
-        }
-    }
-
-    //Utility method for seeing if the current player control the token
-    //Gets character id from the token and checks if the player has control over that character
-    public bool CanCurrentPlayerControlToken(Token token){
-        if(token == null)
-        {
-            return false;
-        }
-
-        //Ensuring the host/dm can control all tokens
-        if(NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
-        {
-            return true;
-        }
-
-        //Retrieving the character data from the token to check ownership
-        CharacterData characterData = token.getCharacterData();
-        if(characterData != null)
-        {
-            //Returning whether player can control this token - ownership
-            return playerAssignmentHelper.CanControlCharacter(characterData.id);
-        }
-
-        return false;
-    }
-    
-    //Deselect current token
-    public void DeselectToken()
-    {
-        if (selectedToken != null)
-        {
-            selectedToken.SetSelected(false);
-            Debug.Log($"Token deselected: {selectedToken.name}");
-        }
-        selectedToken = null;
-    }
-    
-    //Check if we have a token selected
-    public bool HasSelectedToken()
-    {
-        return selectedToken != null;
-    }
-    
-    //Try to move selected token to a tile
-    public void TryMoveSelectedTokenToTile(Tile tile)
-    {
-        if (selectedToken == null || tile == null)
-        {
-            return;
-        }
-
-        //Checking if a player can move this token
-        if(!CanCurrentPlayerControlToken(selectedToken))
-        {
-            Debug.Log("Cant move token - player doesnt have control");
-            return;
-        }
-        
-        //Check if tile is walkable
-        if (!tile.IsWalkable())
-        {
-            Debug.Log("Cannot move to non-walkable tile.");
-            return;
-        }
-        
-        selectedToken.MoveToTile(tile);
-        Debug.Log($"Moved {selectedToken.name} to tile ({tile.GridX}, {tile.GridY})");
-        
-        AutoSaveTokens(); //Auto-save after moving
-    }
-
-    public Token GetTokenForCharacter(string characterId)
-    {
-        foreach(var token in spawnedTokens)
-        {
-            if(token.getCharacterData() != null && token.getCharacterData().id == characterId)
-            {
-                return token;
-            }
-        }
-
-        Debug.LogWarning($"No token found for character ID: {characterId}");
-        return null;
-    }
-
-    public List<Token> GetSpawnedTokens()
-    {
-        return spawnedTokens;
     }
 
     // ==================== MOVEMENT RULES ====================

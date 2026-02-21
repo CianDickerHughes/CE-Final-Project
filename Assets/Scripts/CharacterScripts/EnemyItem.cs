@@ -84,10 +84,10 @@ public class EnemyItem : MonoBehaviour
             Debug.LogWarning("SelectForSpawning called with non-enemy type on EnemyItem.");
             return;
         }
-        if(enemyData != null && GameplayManager.Instance != null){
-
-            GameplayManager.Instance.SetSelectedEnemyForSpawn(enemyData, type);
-            Debug.Log($"Selected {enemyData.name} for spawning as {type}");
+        if (TokenManager.Instance != null && enemyData != null)
+        {
+            TokenManager.Instance.SetSelectedEnemyForSpawn(enemyData, CharacterType.Enemy);
+            Debug.Log($"Selected {enemyData.name} for spawning.");
         }
     }
 }

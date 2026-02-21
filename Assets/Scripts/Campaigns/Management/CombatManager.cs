@@ -60,7 +60,7 @@ public class CombatManager : MonoBehaviour
 
     //Method to populate the list of combatants with the spawned tokens from the gameplay manager
     public void PopulateCombatList(){
-        combatParticipant = new List<Token>(gameplayManager.GetSpawnedTokens());
+        combatParticipant = new List<Token>(TokenManager.Instance.GetSpawnedTokens());
     }
 
     //DM Control methods

@@ -78,17 +78,16 @@ public class Tile : MonoBehaviour {
     void OnMouseDown()
     {
         //Check for token spawning mode first
-        if(GameplayManager.Instance != null && GameplayManager.Instance.IsInSpawnMode())
+        if (TokenManager.Instance != null && TokenManager.Instance.IsInSpawnMode())
         {
-            Debug.Log($"Attempting to spawn at tile ({gridX}, {gridY}), Walkable: {IsWalkable()}");
-            GameplayManager.Instance.TrySpawnAtTile(this);
+            TokenManager.Instance.TrySpawnAtTile(this);
             return;
         }
         
-        //Check if we have a selected token - move it to this tile
-        if(GameplayManager.Instance != null && GameplayManager.Instance.HasSelectedToken())
+        //Checking to see if we're in the player assignment phase
+        if (TokenManager.Instance != null && TokenManager.Instance.HasSelectedToken())
         {
-            GameplayManager.Instance.TryMoveSelectedTokenToTile(this);
+            TokenManager.Instance.TryMoveSelectedTokenToTile(this);
             return;
         }
         

@@ -9,6 +9,7 @@ public class EnemyData
     //Name, type, and challenge rating
     public string name;
     public string type;
+    public EnemyType enemyType;
     public string challengeRating;
     public string size;
     public string alignment;

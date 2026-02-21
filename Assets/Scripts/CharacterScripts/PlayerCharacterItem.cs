@@ -294,9 +294,10 @@ public class PlayerCharacterItem : MonoBehaviour
 
     //Pasted method for spawning/selecting the player character in the scene
     public void SelectForSpawning(CharacterType type){
-        if(characterData != null && GameplayManager.Instance != null){
-            GameplayManager.Instance.SetSelectedForSpawn(characterData, type);
-            Debug.Log($"Selected {characterData.charName} for spawning as {type}");
-        } 
+        if (TokenManager.Instance != null && characterData != null)
+        {
+            TokenManager.Instance.SetSelectedForSpawn(characterData, CharacterType.Player);
+            Debug.Log($"Selected {characterData.charName} for spawning.");
+        }
     }
 }
