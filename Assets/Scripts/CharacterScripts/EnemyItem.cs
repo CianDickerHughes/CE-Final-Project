@@ -10,12 +10,13 @@ public class EnemyItem : MonoBehaviour
     //Variables for UI References
     public TextMeshProUGUI enemyNameText;
     public TextMeshProUGUI enemyTypeText;
-    public TextMeshProUGUI enemyChallengeRatingText;
+    public TMP_Dropdown enemyTypeDropdown;
     public Image enemyIconImage;
     //Same spawn functionalities as we have for characters
     public Button spawnButton;
     private string filePath;
     private EnemyData enemyData;
+    private EnemyType enemyType;
 
     //Setup method to initialize the enemy item with data
     public void Setup(string jsonFilePath, EnemyData data)
@@ -33,9 +34,13 @@ public class EnemyItem : MonoBehaviour
             enemyTypeText.text = !string.IsNullOrEmpty(data.type) ? data.type : "";
         }
 
-        if (enemyChallengeRatingText != null)
+        if(enemyTypeDropdown != null)
         {
-            enemyChallengeRatingText.text = !string.IsNullOrEmpty(data.challengeRating) ? data.challengeRating : "";
+            enemyTypeDropdown.options.Clear();
+            foreach (EnemyType type in Enum.GetValues(typeof(EnemyType)))
+            {
+                enemyTypeDropdown.options.Add(new TMP_Dropdown.OptionData(type.ToString()));
+            }
         }
 
         // load icon image if available (async is not required here for local files)
