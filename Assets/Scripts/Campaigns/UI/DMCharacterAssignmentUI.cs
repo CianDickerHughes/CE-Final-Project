@@ -128,8 +128,13 @@ public class DMCharacterAssignmentUI : MonoBehaviour
                 string json = File.ReadAllText(filePath);
                 var characterData = JsonUtility.FromJson<CharacterData>(json);
                 
-                if (characterData == null) continue;
+                if (characterData == null)
+                {
+                    Debug.LogWarning($"DMCharacterAssignmentUI: Failed to deserialize {Path.GetFileName(filePath)}");
+                    continue;
+                }
                 
+                Debug.Log($"Loaded character: {characterData.charName} (id: {characterData.id})");
                 campaignCharacters.Add(characterData);
                 CreateCharacterAssignmentItem(characterData);
             }
@@ -292,6 +297,8 @@ public class DMCharacterAssignmentUI : MonoBehaviour
     /// </summary>
     private void OnAssignmentChanged(string characterId, string playerId, string username)
     {
+        Debug.Log($"DMCharacterAssignmentUI.OnAssignmentChanged: characterId={characterId}, playerId={playerId}, username={username}");
+        
         if (!NetworkManager.Singleton.IsServer)
         {
             Debug.LogWarning("Only the host can assign characters");
@@ -301,11 +308,13 @@ public class DMCharacterAssignmentUI : MonoBehaviour
         if (string.IsNullOrEmpty(playerId))
         {
             // Unassign
+            Debug.Log($"Unassigning character {characterId}");
             PlayerConnectionManager.Instance?.UnassignCharacter(characterId);
         }
         else
         {
             // Assign
+            Debug.Log($"Assigning character {characterId} to player {username} (playerId: {playerId})");
             PlayerConnectionManager.Instance?.AssignPlayerToCharacter(characterId, playerId, username);
         }
     }

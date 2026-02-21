@@ -150,6 +150,8 @@ public class CharacterAssignmentItemUI : MonoBehaviour
         var selected = playerOptions[index];
         currentAssignedPlayerId = selected.playerId;
         
+        Debug.Log($"Character assignment changed: {characterData.charName} (id: {characterData.id}) -> {selected.displayName}");
+        
         // Notify parent
         onAssignmentChanged?.Invoke(characterData.id, selected.playerId, selected.displayName);
         
@@ -166,6 +168,7 @@ public class CharacterAssignmentItemUI : MonoBehaviour
             playerDropdown.SetValueWithoutNotify(0);
         }
         
+        Debug.Log($"Character unassign clicked: {characterData.charName} (id: {characterData.id})");
         onAssignmentChanged?.Invoke(characterData.id, "", "");
         UpdateVisualState();
     }

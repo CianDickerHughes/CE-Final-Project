@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using Unity.Netcode;
 using Unity.Collections;
@@ -311,33 +312,169 @@ public class PlayerConnectionManager : NetworkBehaviour
             Debug.LogWarning("Only the host can assign characters");
             return;
         }
-        
         var campaign = CampaignManager.Instance?.GetCurrentCampaign();
-        if (campaign == null)
-        {
-            Debug.LogError("No active campaign to assign character");
-            return;
-        }
+        if (campaign == null) return;
         
-        // Ensure characterAssignments is initialized
         if (campaign.characterAssignments == null)
         {
             campaign.characterAssignments = new CampaignCharacterAssignments();
         }
         
-        // Update the assignment in campaign data
         campaign.characterAssignments.AssignPlayerToCharacter(characterId, playerId, username);
-        
-        // Save the campaign
         CampaignManager.Instance.SaveCampaign();
         
-        Debug.Log($"Assigned {username} to character {characterId}");
+        string characterDataJson = LoadCharacterDataAsJson(characterId);
+        string imageBase64 = LoadCharacterImageAsBase64(characterId);
         
-        // Notify locally
         OnCharacterAssigned?.Invoke(characterId, playerId, username);
+        NotifyAssignmentClientRpc(characterId, playerId, username, characterDataJson ?? "");
         
-        // Notify all clients
-        NotifyAssignmentClientRpc(characterId, playerId, username);
+        if (!string.IsNullOrEmpty(imageBase64))
+        {
+            SendCharacterImageClientRpc(characterId, imageBase64);
+        }
+    }
+    
+    /// <summary>
+    /// Load character image from file system and encode as base64
+    /// </summary>
+    private string LoadCharacterImageAsBase64(string characterId)
+    {
+        try
+        {
+            var campaign = CampaignManager.Instance?.GetCurrentCampaign();
+            if (campaign == null) return null;
+            
+            string characterDataJson = LoadCharacterDataAsJson(characterId);
+            if (string.IsNullOrEmpty(characterDataJson)) return null;
+            
+            var characterData = JsonUtility.FromJson<CharacterData>(characterDataJson);
+            if (characterData == null || string.IsNullOrEmpty(characterData.tokenFileName)) return null;
+            
+            string tokenFileName = characterData.tokenFileName;
+            byte[] imageBytes = null;
+            
+            // Try multiple locations to find the image file
+            string[] possiblePaths = new string[]
+            {
+                Path.Combine(Application.dataPath, "Resources", "CharacterTokens", tokenFileName),
+                Path.Combine(Application.dataPath, "CharacterTokens", tokenFileName),
+                Path.Combine(GetPlayerCharactersFolderPath(campaign), tokenFileName),
+            };
+            
+            foreach (string path in possiblePaths)
+            {
+                if (!string.IsNullOrEmpty(path) && File.Exists(path))
+                {
+                    try
+                    {
+                        imageBytes = File.ReadAllBytes(path);
+                        break;
+                    }
+                    catch { }
+                }
+            }
+            
+            if (imageBytes == null || imageBytes.Length == 0) return null;
+            
+            return System.Convert.ToBase64String(imageBytes);
+        }
+        catch { return null; }
+    }
+    
+    
+    /// <summary>
+    /// Load character data from file and return as JSON string
+    /// Searches for the character by ID in the PlayerCharacters folder
+    /// </summary>
+    private string LoadCharacterDataAsJson(string characterId)
+    {
+        try
+        {
+            var campaign = CampaignManager.Instance?.GetCurrentCampaign();
+            if (campaign == null) return null;
+            
+            string playerCharactersFolder = GetPlayerCharactersFolderPath(campaign);
+            if (string.IsNullOrEmpty(playerCharactersFolder) || !Directory.Exists(playerCharactersFolder)) return null;
+            
+            string[] files = Directory.GetFiles(playerCharactersFolder, "*.json");
+            
+            foreach (string filePath in files)
+            {
+                try
+                {
+                    string json = File.ReadAllText(filePath);
+                    var charData = JsonUtility.FromJson<CharacterData>(json);
+                    if (charData != null && charData.id == characterId)
+                    {
+                        return json;
+                    }
+                }
+                catch { }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"LoadCharacterDataAsJson failed: {ex.Message}");
+        }
+        
+        return null;
+    }
+    
+    /// <summary>
+    /// Get the PlayerCharacters folder for the campaign
+    /// Uses the same logic as DMCharacterAssignmentUI to find the correct path
+    /// </summary>
+    private string GetPlayerCharactersFolderPath(Campaign campaign)
+    {
+        if (campaign == null) return null;
+        
+        // First try: CampaignSelectionContext
+        if (CampaignSelectionContext.HasSelection && !string.IsNullOrEmpty(CampaignSelectionContext.SelectedCampaignFilePath))
+        {
+            string playerCharactersPath = Path.Combine(Path.GetDirectoryName(CampaignSelectionContext.SelectedCampaignFilePath), "PlayerCharacters");
+            if (Directory.Exists(playerCharactersPath)) return playerCharactersPath;
+        }
+        
+        // Second try: SceneDataTransfer
+        if (SceneDataTransfer.Instance != null)
+        {
+            string campaignId = SceneDataTransfer.Instance.GetCurrentCampaignId();
+            if (!string.IsNullOrEmpty(campaignId))
+            {
+                string campaignsFolder = CampaignManager.GetCampaignsFolder();
+                if (!string.IsNullOrEmpty(campaignsFolder) && Directory.Exists(campaignsFolder))
+                {
+                    foreach (string folder in Directory.GetDirectories(campaignsFolder))
+                    {
+                        if (File.Exists(Path.Combine(folder, $"{campaignId}.json")))
+                        {
+                            string playerCharactersPath = Path.Combine(folder, "PlayerCharacters");
+                            return playerCharactersPath;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Third try: Campaign parameter ID
+        string campaignsFolder2 = CampaignManager.GetCampaignsFolder();
+        if (!string.IsNullOrEmpty(campaignsFolder2) && Directory.Exists(campaignsFolder2))
+        {
+            foreach (string folder in Directory.GetDirectories(campaignsFolder2))
+            {
+                if (File.Exists(Path.Combine(folder, $"{campaign.campaignId}.json")))
+                {
+                    return Path.Combine(folder, "PlayerCharacters");
+                }
+            }
+        }
+        
+        // Final fallback: persistent data path
+        string persistentPath = Path.Combine(Application.persistentDataPath, "Campaigns", campaign.campaignId, "PlayerCharacters");
+        if (Directory.Exists(persistentPath)) return persistentPath;
+        
+        return null;
     }
     
     /// <summary>
@@ -393,10 +530,26 @@ public class PlayerConnectionManager : NetworkBehaviour
     // ========== NETWORK SYNC RPCs ==========
     
     [Rpc(SendTo.ClientsAndHost)]
-    private void NotifyAssignmentClientRpc(string characterId, string playerId, string username)
+    private void NotifyAssignmentClientRpc(string characterId, string playerId, string username, string characterDataJson)
     {
         Debug.Log($"Character assignment update: {characterId} -> {username}");
+        
+        // Cache the character data on all clients
+        if (!string.IsNullOrEmpty(characterDataJson))
+        {
+            PlayerAssignmentHelper.Instance?.CacheCharacterData(characterId, characterDataJson);
+        }
+        
         OnCharacterAssigned?.Invoke(characterId, playerId, username);
+    }
+    
+    [Rpc(SendTo.ClientsAndHost)]
+    private void SendCharacterImageClientRpc(string characterId, string imageBase64)
+    {
+        if (PlayerAssignmentHelper.Instance != null)
+        {
+            PlayerAssignmentHelper.Instance.ReceiveCharacterImage(characterId, imageBase64);
+        }
     }
     
     [Rpc(SendTo.ClientsAndHost)]
