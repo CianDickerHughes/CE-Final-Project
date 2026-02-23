@@ -31,6 +31,8 @@ public class CombatManager : MonoBehaviour
     //Meant for visually tracking what the current state of combat is
     [SerializeField] private TextMeshProUGUI combatStateText;
 
+    private List<CharInitToken> combatantUIElements = new List<CharInitToken>();
+
     void Start()
     {
         gameplayManager = GameplayManager.Instance;
@@ -38,6 +40,7 @@ public class CombatManager : MonoBehaviour
         //Initializing the lists
         combatParticipant = new List<Token>();
         initiativeOrder = new List<CombatParticipant>();
+        combatantUIElements = new List<CharInitToken>();
         
         //Wiring up the buttons for controlling combat
         if (startCombatButton != null)
@@ -127,6 +130,7 @@ public class CombatManager : MonoBehaviour
         {
             currentTurnIndex = (currentTurnIndex + 1) % initiativeOrder.Count;
             //Update UI to highlight current turn, reset action states for the new turn, etc
+            UpdateTurnHighlight();
         }
     }
 
@@ -225,6 +229,10 @@ public class CombatManager : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
+
+        //Clearing the UI tracking list as well
+        combatantUIElements.Clear();
+
         //Loop through the initiative order and create UI elements for each combatant
         foreach(var combatant in initiativeOrder)
         {
@@ -235,7 +243,28 @@ public class CombatManager : MonoBehaviour
             if(charInitToken != null)
             {
                 charInitToken.Setup(combatant);
+                combatantUIElements.Add(charInitToken);
             }
+        }
+
+        //After populating the UI we update the highlight to reflect the current turn
+        UpdateTurnHighlight();
+    }
+
+    private void UpdateTurnHighlight()
+    {
+        for (int i = 0; i < combatantUIElements.Count; i++)
+        {
+            if (combatantUIElements[i] != null)
+            {
+                combatantUIElements[i].SetHighlight(i == currentTurnIndex);
+            }
+        }
+        
+        //Update the combat state text to show whose turn it is
+        if (combatStateText != null && initiativeOrder.Count > 0)
+        {
+            combatStateText.text = $"{initiativeOrder[currentTurnIndex].GetName()}'s Turn";
         }
     }
 }

@@ -8,6 +8,12 @@ public class CharInitToken : MonoBehaviour
     //UI Fields
     [SerializeField] private TextMeshProUGUI hpText;
     [SerializeField] private Image tokenImage;
+    [SerializeField] private Image backgroundImage;
+
+    //Highligting UI fields
+    [Header("Highlight Colors")]
+    [SerializeField] private Color normalColor = new Color(0.2f, 0.2f, 0.2f, 1f);
+    [SerializeField] private Color highlightColor = new Color(0.4f, 0.8f, 0.4f, 1f);
 
     private CombatParticipant participant;
 
@@ -18,6 +24,17 @@ public class CharInitToken : MonoBehaviour
         UpdateHP();
         //Setting up the token image
         SetupTokenImage();
+        //Setting up the background color to normal by default
+        SetHighlight(false);
+    }
+
+    //UI method for highlighting and Unhighlighting an item in the initiative order when its that players turn
+    public void SetHighlight(bool isActive)
+    {
+        if (backgroundImage != null)
+        {
+            backgroundImage.color = isActive ? highlightColor : normalColor;
+        }
     }
 
     private void SetupTokenImage()
