@@ -8,6 +8,9 @@ using TMPro;
 // - Handling turns, initiative, combat actions, etc
 public class CombatManager : MonoBehaviour
 {
+    //Singleton pattern
+    public static CombatManager Instance { get; private set;}
+
     //Need to track who is participating in combat, both players and NPCs
     public List<Token> combatParticipant;
     //List of combat participants with their initiative rolls and whether they've acted this round or not
@@ -58,6 +61,26 @@ public class CombatManager : MonoBehaviour
         if (nextTurnButton != null)
         {
             nextTurnButton.onClick.AddListener(nextTurn);
+        }
+    }
+
+    void Awake()
+    {
+        if(Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    void OnDestroy()
+    {
+        if(Instance == this)
+        {
+            Instance = null;
         }
     }
 
@@ -221,6 +244,12 @@ public class CombatManager : MonoBehaviour
         return currentTurnIndex;
     }
 
+    //Check if combat is currently active
+    public bool IsCombatActive()
+    {
+        return combatState == CombatState.Active;
+    }
+
     //Method for populating the simple UI feature in the header with the combatants tokens - like bg3
     public void populateCharactersUI()
     {
@@ -266,6 +295,31 @@ public class CombatManager : MonoBehaviour
         {
             combatStateText.text = $"{initiativeOrder[currentTurnIndex].GetName()}'s Turn";
         }
+    }
+
+    //Movement handling
+    public bool CanTokenMove(Token token)
+    {
+        //If combat hasnt started isnt active then just return true because at that point anyone can move
+        if (combatState != CombatState.Active)
+        {
+            return true;
+        }
+
+        //If combat is paused, no one can move
+        if (combatState == CombatState.Paused)
+        {
+            return false;
+        }
+        
+        //Check if this token belongs to the current turn participant
+        if (initiativeOrder == null || initiativeOrder.Count == 0)
+        {
+            return true;
+        }
+        
+        CombatParticipant currentParticipant = initiativeOrder[currentTurnIndex];
+        return currentParticipant.token == token;
     }
 }
 

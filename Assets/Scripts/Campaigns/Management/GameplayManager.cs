@@ -131,9 +131,6 @@ public class GameplayManager : MonoBehaviour
                 Debug.Log($"Loading map: {currentSceneData.mapData.width}x{currentSceneData.mapData.height}");
                 gridManager.LoadMapData(currentSceneData.mapData);
                 gridManager.SetEditMode(false); //Disable painting in gameplay
-                
-                // REMOVE THIS - moved below after TokenManager is initialized
-                // LoadTokensFromSceneData();
             }
             else
             {
@@ -277,10 +274,8 @@ public class GameplayManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Called when the DM/Host sends updated scene data to clients.
-    /// Reloads tokens to reflect the current state.
-    /// </summary>
+    //Called when the DM/Host sends updated scene data to clients.
+    //Reloads tokens to reflect the current state
     private void OnRemoteSceneDataReceived(SceneData newSceneData)
     {
         if (newSceneData == null)
@@ -315,11 +310,15 @@ public class GameplayManager : MonoBehaviour
     void Update()
     {
         if (TokenManager.Instance == null || !TokenManager.Instance.HasSelectedToken() || gridManager == null) 
+        {
             return;
+        }
         
         // Don't process movement if in spawn mode
         if (TokenManager.Instance.IsInSpawnMode()) 
+        {
             return;
+        }
         
         Vector2Int direction = Vector2Int.zero;
         
@@ -344,10 +343,10 @@ public class GameplayManager : MonoBehaviour
                 TokenManager.Instance.TryMoveSelectedTokenToTile(targetTile);
             }
 
-            TokenManager.Instance.DeselectToken();
+            //TokenManager.Instance.DeselectToken();
         }
         
-        // Escape to deselect
+        //Escape to deselect
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             TokenManager.Instance.DeselectToken();

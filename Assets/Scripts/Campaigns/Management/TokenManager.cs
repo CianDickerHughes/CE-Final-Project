@@ -26,6 +26,9 @@ public class TokenManager : MonoBehaviour
     private GridManager gridManager;
     private PlayerAssignmentHelper playerAssignmentHelper;
 
+    //Combat manager reference for turn logic
+    //private CombatManager combatManager = CombatManager.Instance;
+
     void Awake()
     {
         if(Instance == null)
@@ -172,14 +175,16 @@ public class TokenManager : MonoBehaviour
         if (selectedToken != null)
         {
             //Verifying the caller/player can control this token before we select it
-            if(CanCurrentPlayerControlToken(selectedToken))
+            //AND verifying we can move this token
+            if(CanCurrentPlayerControlToken(selectedToken) && CanTokenMoveNow(selectedToken))
             {
                 selectedToken.SetSelected(true);
                 Debug.Log($"Token selected: {selectedToken.name}");
             }
             else
             {
-                Debug.Log("Cant select token - player doesnt have control!");
+                Debug.Log("Cant select token - not your turn!");
+                selectedToken = null;
                 return;
             }
         }
@@ -216,6 +221,12 @@ public class TokenManager : MonoBehaviour
             Debug.Log("Cant move token - player doesnt have control");
             return;
         }
+
+        if(!CanTokenMoveNow(selectedToken))
+        {
+            Debug.Log("Can't move token - not this token's turn in combat!");
+            return;
+        }
         
         //Check if tile is walkable
         if (!tile.IsWalkable())
@@ -228,6 +239,17 @@ public class TokenManager : MonoBehaviour
         Debug.Log($"Moved {selectedToken.name} to tile ({tile.GridX}, {tile.GridY})");
 
         OnTokensChanged?.Invoke();
+    }
+
+    private bool CanTokenMoveNow(Token token)
+    {
+        //If CombatManager doesn't exist or combat isn't active, allow movement
+        if (CombatManager.Instance == null)
+        {
+            return true;
+        }
+        
+        return CombatManager.Instance.CanTokenMove(token);
     }
 
     public bool MoveToken(string playerId, int targetX, int targetY)
