@@ -35,6 +35,18 @@ public class PlayerAssignmentHelper : MonoBehaviour
     private System.Collections.Generic.Dictionary<string, CharacterData> characterDataCache = 
         new System.Collections.Generic.Dictionary<string, CharacterData>();
     
+    // For chunked image reception
+    private class PendingImageTransfer
+    {
+        public string CharacterId;
+        public string TokenFileName;
+        public string[] Chunks;
+        public int ReceivedChunks;
+    }
+    private System.Collections.Generic.Dictionary<string, PendingImageTransfer> pendingImages = 
+        new System.Collections.Generic.Dictionary<string, PendingImageTransfer>();
+    
+    
     void Awake()
     {
         if (Instance == null)
@@ -217,7 +229,7 @@ public class PlayerAssignmentHelper : MonoBehaviour
     /// Receive and cache character data sent from the server, then save it locally
     /// Called when the host sends character data during assignment
     /// </summary>
-    public void CacheCharacterData(string characterId, string characterDataJson)
+    public void CacheCharacterData(string characterId, string characterDataJson, string campaignName)
     {
         if (string.IsNullOrEmpty(characterDataJson))
         {
@@ -231,7 +243,7 @@ public class PlayerAssignmentHelper : MonoBehaviour
             if (characterData != null)
             {
                 characterDataCache[characterId] = characterData;
-                SaveCharacterDataLocally(characterId, characterDataJson);
+                SaveCharacterDataLocally(characterId, characterDataJson, campaignName);
             }
             else
             {
@@ -247,45 +259,26 @@ public class PlayerAssignmentHelper : MonoBehaviour
     /// <summary>
     /// Receive and save character image data from host
     /// </summary>
-    public void ReceiveCharacterImage(string characterId, string imageBase64)
+    public void ReceiveCharacterImage(string characterId, string imageBase64, string tokenFileName)
     {
         try
         {
-            if (string.IsNullOrEmpty(imageBase64)) return;
+            if (string.IsNullOrEmpty(imageBase64) || string.IsNullOrEmpty(tokenFileName)) 
+            {
+                return;
+            }
             
             byte[] imageData = System.Convert.FromBase64String(imageBase64);
-            if (imageData == null || imageData.Length == 0) return;
-            
-            string campaignFolder = null;
-            var campaign = CampaignManager.Instance?.GetCurrentCampaign();
-            
-            if (campaign != null)
+            if (imageData == null || imageData.Length == 0) 
             {
-                campaignFolder = campaign.campaignName;
+                return;
             }
-            else if (SceneDataTransfer.Instance != null)
-            {
-                campaignFolder = SceneDataTransfer.Instance.GetCurrentCampaignId();
-                if (string.IsNullOrEmpty(campaignFolder)) campaignFolder = "received";
-            }
-            else
-            {
-                campaignFolder = "received";
-            }
-            
-            string imageFilename = null;
-            if (characterDataCache.ContainsKey(characterId))
-            {
-                imageFilename = characterDataCache[characterId].tokenFileName;
-            }
-            
-            if (string.IsNullOrEmpty(imageFilename)) return;
             
             string imagePath;
             #if UNITY_EDITOR
-                imagePath = Path.Combine(Application.dataPath, "Campaigns", "ReceivedCampaigns", campaignFolder, "Characters");
+                imagePath = Path.Combine(Application.dataPath, "Campaigns", "ReceivedCampaigns", "Characters");
             #else
-                imagePath = Path.Combine(Application.persistentDataPath, "Campaigns", "ReceivedCampaigns", campaignFolder, "Characters");
+                imagePath = Path.Combine(Application.persistentDataPath, "Campaigns", "ReceivedCampaigns", "Characters");
             #endif
             
             if (!Directory.Exists(imagePath))
@@ -293,37 +286,158 @@ public class PlayerAssignmentHelper : MonoBehaviour
                 Directory.CreateDirectory(imagePath);
             }
             
-            string fullImagePath = Path.Combine(imagePath, imageFilename);
+            string fullImagePath = Path.Combine(imagePath, tokenFileName);
             File.WriteAllBytes(fullImagePath, imageData);
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Debug.LogError($"ReceiveCharacterImage failed: {ex.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// Prepare to receive image chunks for a character
+    /// </summary>
+    public void PrepareImageReception(string characterId, string tokenFileName, int totalChunks)
+    {
+        Debug.Log($"PrepareImageReception: Preparing to receive {totalChunks} chunks for {characterId}");
+        
+        var pending = new PendingImageTransfer
+        {
+            CharacterId = characterId,
+            TokenFileName = tokenFileName,
+            Chunks = new string[totalChunks],
+            ReceivedChunks = 0
+        };
+        
+        pendingImages[characterId] = pending;
+    }
+    
+    /// <summary>
+    /// Receive a chunk of image data
+    /// </summary>
+    public void ReceiveImageChunk(string characterId, int chunkIndex, string chunkData)
+    {
+        if (!pendingImages.ContainsKey(characterId))
+        {
+            Debug.LogWarning($"ReceiveImageChunk: No pending transfer for {characterId}");
+            return;
+        }
+        
+        var pending = pendingImages[characterId];
+        if (chunkIndex >= pending.Chunks.Length)
+        {
+            Debug.LogError($"ReceiveImageChunk: Invalid chunk index {chunkIndex} for {pending.Chunks.Length} total chunks");
+            return;
+        }
+        
+        pending.Chunks[chunkIndex] = chunkData;
+        pending.ReceivedChunks++;
+        
+        Debug.Log($"ReceiveImageChunk: Received {pending.ReceivedChunks}/{pending.Chunks.Length} chunks for {characterId}");
+        
+        // Check if all chunks received
+        if (pending.ReceivedChunks == pending.Chunks.Length)
+        {
+            SaveReceivedImage(characterId, pending);
+        }
+    }
+    
+    /// <summary>
+    /// Reassemble chunks and save image
+    /// </summary>
+    private void SaveReceivedImage(string characterId, PendingImageTransfer pending)
+    {
+        try
+        {
+            // Reassemble base64 string
+            string fullBase64 = System.String.Concat(pending.Chunks);
+            
+            // Decode from base64
+            byte[] imageData = System.Convert.FromBase64String(fullBase64);
+            
+            if (imageData == null || imageData.Length == 0)
+            {
+                Debug.LogError("SaveReceivedImage: Image data is empty");
+                return;
+            }
+            
+            Debug.Log($"SaveReceivedImage: Reassembled image ({imageData.Length} bytes), saving as {pending.TokenFileName}");
+            
+            string imagePath;
+            #if UNITY_EDITOR
+                imagePath = Path.Combine(Application.dataPath, "Campaigns", "ReceivedCampaigns", "Characters");
+            #else
+                imagePath = Path.Combine(Application.persistentDataPath, "Campaigns", "ReceivedCampaigns", "Characters");
+            #endif
+            
+            if (!Directory.Exists(imagePath))
+            {
+                Directory.CreateDirectory(imagePath);
+            }
+            
+            string fullImagePath = Path.Combine(imagePath, pending.TokenFileName);
+            File.WriteAllBytes(fullImagePath, imageData);
+            
+            Debug.Log($"SaveReceivedImage: Image saved to {fullImagePath}");
+            
+            // Load and display the image immediately
+            DisplayReceivedImage(imageData);
+            
+            // Clean up
+            pendingImages.Remove(characterId);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"SaveReceivedImage failed: {ex.Message}");
+            pendingImages.Remove(characterId);
+        }
+    }
+    
+    /// <summary>
+    /// Display the received image on the CharImg UI component
+    /// </summary>
+    private void DisplayReceivedImage(byte[] imageData)
+    {
+        if (characterImg == null)
+        {
+            Debug.LogWarning("DisplayReceivedImage: characterImg is not assigned");
+            return;
+        }
+        
+        try
+        {
+            Texture2D texture = new Texture2D(2, 2);
+            if (!texture.LoadImage(imageData))
+            {
+                Debug.LogError("DisplayReceivedImage: Failed to load image data into Texture2D");
+                UnityEngine.Object.Destroy(texture);
+                return;
+            }
+            
+            Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.one * 0.5f);
+            characterImg.sprite = sprite;
+            
+            Debug.Log($"DisplayReceivedImage: Image displayed on UI ({texture.width}x{texture.height})");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"DisplayReceivedImage failed: {ex.Message}");
+        }
     }
     
     /// <summary>
     /// Save character data to ReceivedCampaigns folder for local access
     /// </summary>
-    private void SaveCharacterDataLocally(string characterId, string characterDataJson)
+    private void SaveCharacterDataLocally(string characterId, string characterDataJson, string campaignName)
     {
         try
         {
-            string campaignFolder = null;
-            var campaign = CampaignManager.Instance?.GetCurrentCampaign();
-            
-            if (campaign != null)
-                campaignFolder = campaign.campaignName;
-            else if (SceneDataTransfer.Instance != null)
-            {
-                campaignFolder = SceneDataTransfer.Instance.GetCurrentCampaignId();
-                if (string.IsNullOrEmpty(campaignFolder)) campaignFolder = "received";
-            }
-            else
-                campaignFolder = "received";
-            
             string savePath;
             #if UNITY_EDITOR
-                savePath = Path.Combine(Application.dataPath, "Campaigns", "ReceivedCampaigns", campaignFolder, "Characters");
+                savePath = Path.Combine(Application.dataPath, "Campaigns", "ReceivedCampaigns", "Characters");
             #else
-                savePath = Path.Combine(Application.persistentDataPath, "Campaigns", "ReceivedCampaigns", campaignFolder, "Characters");
+                savePath = Path.Combine(Application.persistentDataPath, "Campaigns", "ReceivedCampaigns", "Characters");
             #endif
             
             if (!Directory.Exists(savePath)) Directory.CreateDirectory(savePath);
@@ -342,28 +456,17 @@ public class PlayerAssignmentHelper : MonoBehaviour
     /// </summary>
     private CharacterData LoadCharacterDataById(string characterId)
     {
-        var campaign = CampaignManager.Instance?.GetCurrentCampaign();
-        if (campaign == null) return null;
-        
         // Try ReceivedCampaigns first
         string receivedPath;
         #if UNITY_EDITOR
-            receivedPath = Path.Combine(Application.dataPath, "Campaigns", "ReceivedCampaigns", campaign.campaignName, "Characters", $"{characterId}.json");
+            receivedPath = Path.Combine(Application.dataPath, "Campaigns", "ReceivedCampaigns", "Characters", $"{characterId}.json");
         #else
-            receivedPath = Path.Combine(Application.persistentDataPath, "Campaigns", "ReceivedCampaigns", campaign.campaignName, "Characters", $"{characterId}.json");
+            receivedPath = Path.Combine(Application.persistentDataPath, "Campaigns", "ReceivedCampaigns", "Characters", $"{characterId}.json");
         #endif
         
         if (File.Exists(receivedPath))
         {
             try { return JsonUtility.FromJson<CharacterData>(File.ReadAllText(receivedPath)); }
-            catch { }
-        }
-        
-        // Fallback to local Campaigns
-        string localPath = Path.Combine(Application.persistentDataPath, "Campaigns", campaign.campaignId, "PlayerCharacters", $"{characterId}.json");
-        if (File.Exists(localPath))
-        {
-            try { return JsonUtility.FromJson<CharacterData>(File.ReadAllText(localPath)); }
             catch { }
         }
         
@@ -390,14 +493,11 @@ public class PlayerAssignmentHelper : MonoBehaviour
         
         if (sprite == null)
         {
-            var campaign = CampaignManager.Instance?.GetCurrentCampaign();
-            string campaignFolder = campaign?.campaignName ?? (SceneDataTransfer.Instance?.GetCurrentCampaignId() ?? "received");
-            
             string imagePath;
             #if UNITY_EDITOR
-                imagePath = Path.Combine(Application.dataPath, "Campaigns", "ReceivedCampaigns", campaignFolder, "Characters", characterData.tokenFileName);
+                imagePath = Path.Combine(Application.dataPath, "Campaigns", "ReceivedCampaigns", "Characters", characterData.tokenFileName);
             #else
-                imagePath = Path.Combine(Application.persistentDataPath, "Campaigns", "ReceivedCampaigns", campaignFolder, "Characters", characterData.tokenFileName);
+                imagePath = Path.Combine(Application.persistentDataPath, "Campaigns", "ReceivedCampaigns", "Characters", characterData.tokenFileName);
             #endif
             
             if (File.Exists(imagePath))

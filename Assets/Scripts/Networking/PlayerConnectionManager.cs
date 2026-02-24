@@ -326,60 +326,115 @@ public class PlayerConnectionManager : NetworkBehaviour
         string characterDataJson = LoadCharacterDataAsJson(characterId);
         string imageBase64 = LoadCharacterImageAsBase64(characterId);
         
-        OnCharacterAssigned?.Invoke(characterId, playerId, username);
-        NotifyAssignmentClientRpc(characterId, playerId, username, characterDataJson ?? "");
-        
-        if (!string.IsNullOrEmpty(imageBase64))
+        if (string.IsNullOrEmpty(imageBase64))
         {
-            SendCharacterImageClientRpc(characterId, imageBase64);
+            Debug.LogWarning($"AssignPlayerToCharacter: No image found for character {characterId}. Character JSON will be sent but image will not be transmitted.");
+        }
+        
+        string tokenFileName = null;
+        if (!string.IsNullOrEmpty(characterDataJson))
+        {
+            try
+            {
+                var charData = JsonUtility.FromJson<CharacterData>(characterDataJson);
+                if (charData != null) tokenFileName = charData.tokenFileName;
+            }
+            catch { }
+        }
+        
+        OnCharacterAssigned?.Invoke(characterId, playerId, username);
+        NotifyAssignmentClientRpc(characterId, playerId, username, characterDataJson ?? "", campaign.campaignName);
+        
+        if (!string.IsNullOrEmpty(imageBase64) && !string.IsNullOrEmpty(tokenFileName))
+        {
+            SendCharacterImageChunked(characterId, imageBase64, tokenFileName ?? "");
         }
     }
     
     /// <summary>
-    /// Load character image from file system and encode as base64
+    /// Load character image from file system, compress to JPG, and encode as base64
     /// </summary>
     private string LoadCharacterImageAsBase64(string characterId)
     {
         try
         {
             var campaign = CampaignManager.Instance?.GetCurrentCampaign();
-            if (campaign == null) return null;
-            
-            string characterDataJson = LoadCharacterDataAsJson(characterId);
-            if (string.IsNullOrEmpty(characterDataJson)) return null;
-            
-            var characterData = JsonUtility.FromJson<CharacterData>(characterDataJson);
-            if (characterData == null || string.IsNullOrEmpty(characterData.tokenFileName)) return null;
-            
-            string tokenFileName = characterData.tokenFileName;
-            byte[] imageBytes = null;
-            
-            // Try multiple locations to find the image file
-            string[] possiblePaths = new string[]
+            if (campaign == null)
             {
-                Path.Combine(Application.dataPath, "Resources", "CharacterTokens", tokenFileName),
-                Path.Combine(Application.dataPath, "CharacterTokens", tokenFileName),
-                Path.Combine(GetPlayerCharactersFolderPath(campaign), tokenFileName),
-            };
-            
-            foreach (string path in possiblePaths)
-            {
-                if (!string.IsNullOrEmpty(path) && File.Exists(path))
-                {
-                    try
-                    {
-                        imageBytes = File.ReadAllBytes(path);
-                        break;
-                    }
-                    catch { }
-                }
+                Debug.LogWarning("LoadCharacterImageAsBase64: Campaign is null");
+                return null;
             }
             
-            if (imageBytes == null || imageBytes.Length == 0) return null;
+            string characterDataJson = LoadCharacterDataAsJson(characterId);
+            if (string.IsNullOrEmpty(characterDataJson))
+            {
+                Debug.LogWarning("LoadCharacterImageAsBase64: Character JSON not found");
+                return null;
+            }
             
-            return System.Convert.ToBase64String(imageBytes);
+            var characterData = JsonUtility.FromJson<CharacterData>(characterDataJson);
+            if (characterData == null || string.IsNullOrEmpty(characterData.tokenFileName))
+            {
+                Debug.LogWarning("LoadCharacterImageAsBase64: Character data or tokenFileName is missing");
+                return null;
+            }
+            
+            string tokenFileName = characterData.tokenFileName;
+            string playerCharactersFolder = GetPlayerCharactersFolderPath(campaign);
+            Debug.Log($"LoadCharacterImageAsBase64: Looking for {tokenFileName} in {playerCharactersFolder}");
+            
+            byte[] imageBytes = null;
+            string imageFilePath = Path.Combine(playerCharactersFolder, tokenFileName);
+            
+            Debug.Log($"LoadCharacterImageAsBase64: Full image path: {imageFilePath}");
+            Debug.Log($"LoadCharacterImageAsBase64: File exists: {File.Exists(imageFilePath)}");
+            
+            if (File.Exists(imageFilePath))
+            {
+                Debug.Log($"LoadCharacterImageAsBase64: Found image file!");
+                imageBytes = File.ReadAllBytes(imageFilePath);
+            }
+            else
+            {
+                Debug.LogWarning($"LoadCharacterImageAsBase64: Image file not found at {imageFilePath}");
+                return null;
+            }
+            
+            if (imageBytes == null || imageBytes.Length == 0)
+            {
+                Debug.LogWarning("LoadCharacterImageAsBase64: Image bytes are empty");
+                return null;
+            }
+            
+            Debug.Log($"LoadCharacterImageAsBase64: Loaded {imageBytes.Length} bytes, compressing to JPG");
+            
+            // Load as Texture2D and compress to JPG for smaller network transmission
+            Texture2D texture = new Texture2D(2, 2);
+            if (!texture.LoadImage(imageBytes))
+            {
+                Debug.LogError("LoadCharacterImageAsBase64: Failed to load image into Texture2D");
+                UnityEngine.Object.Destroy(texture);
+                return null;
+            }
+            
+            byte[] compressedBytes = ImageConversion.EncodeToJPG(texture, 90);
+            UnityEngine.Object.Destroy(texture);
+            
+            if (compressedBytes == null || compressedBytes.Length == 0)
+            {
+                Debug.LogError("LoadCharacterImageAsBase64: Compression produced empty result");
+                return null;
+            }
+            
+            string result = System.Convert.ToBase64String(compressedBytes);
+            Debug.Log($"LoadCharacterImageAsBase64: Successfully compressed and encoded to base64");
+            return result;
         }
-        catch { return null; }
+        catch (Exception ex) 
+        {
+            Debug.LogError($"LoadCharacterImageAsBase64 exception: {ex}");
+            return null;
+        }
     }
     
     
@@ -429,23 +484,41 @@ public class PlayerConnectionManager : NetworkBehaviour
     {
         if (campaign == null) return null;
         
-        // First try: CampaignSelectionContext
+        // Direct approach: use campaignName to find the folder in Campaigns directory
+        string campaignsFolder = CampaignManager.GetCampaignsFolder();
+        if (!string.IsNullOrEmpty(campaignsFolder) && Directory.Exists(campaignsFolder))
+        {
+            string campaignFolder = Path.Combine(campaignsFolder, campaign.campaignName);
+            string playerCharactersPath = Path.Combine(campaignFolder, "PlayerCharacters");
+            Debug.Log($"GetPlayerCharactersFolderPath: Checking {playerCharactersPath}");
+            if (Directory.Exists(playerCharactersPath))
+            {
+                Debug.Log($"GetPlayerCharactersFolderPath: Found folder!");
+                return playerCharactersPath;
+            }
+            else
+            {
+                Debug.LogWarning($"GetPlayerCharactersFolderPath: Folder does not exist at {playerCharactersPath}");
+            }
+        }
+        
+        // Fallback: CampaignSelectionContext
         if (CampaignSelectionContext.HasSelection && !string.IsNullOrEmpty(CampaignSelectionContext.SelectedCampaignFilePath))
         {
             string playerCharactersPath = Path.Combine(Path.GetDirectoryName(CampaignSelectionContext.SelectedCampaignFilePath), "PlayerCharacters");
             if (Directory.Exists(playerCharactersPath)) return playerCharactersPath;
         }
         
-        // Second try: SceneDataTransfer
+        // Fallback: SceneDataTransfer
         if (SceneDataTransfer.Instance != null)
         {
             string campaignId = SceneDataTransfer.Instance.GetCurrentCampaignId();
             if (!string.IsNullOrEmpty(campaignId))
             {
-                string campaignsFolder = CampaignManager.GetCampaignsFolder();
-                if (!string.IsNullOrEmpty(campaignsFolder) && Directory.Exists(campaignsFolder))
+                string campaignsFolder2 = CampaignManager.GetCampaignsFolder();
+                if (!string.IsNullOrEmpty(campaignsFolder2) && Directory.Exists(campaignsFolder2))
                 {
-                    foreach (string folder in Directory.GetDirectories(campaignsFolder))
+                    foreach (string folder in Directory.GetDirectories(campaignsFolder2))
                     {
                         if (File.Exists(Path.Combine(folder, $"{campaignId}.json")))
                         {
@@ -456,23 +529,6 @@ public class PlayerConnectionManager : NetworkBehaviour
                 }
             }
         }
-        
-        // Third try: Campaign parameter ID
-        string campaignsFolder2 = CampaignManager.GetCampaignsFolder();
-        if (!string.IsNullOrEmpty(campaignsFolder2) && Directory.Exists(campaignsFolder2))
-        {
-            foreach (string folder in Directory.GetDirectories(campaignsFolder2))
-            {
-                if (File.Exists(Path.Combine(folder, $"{campaign.campaignId}.json")))
-                {
-                    return Path.Combine(folder, "PlayerCharacters");
-                }
-            }
-        }
-        
-        // Final fallback: persistent data path
-        string persistentPath = Path.Combine(Application.persistentDataPath, "Campaigns", campaign.campaignId, "PlayerCharacters");
-        if (Directory.Exists(persistentPath)) return persistentPath;
         
         return null;
     }
@@ -530,26 +586,14 @@ public class PlayerConnectionManager : NetworkBehaviour
     // ========== NETWORK SYNC RPCs ==========
     
     [Rpc(SendTo.ClientsAndHost)]
-    private void NotifyAssignmentClientRpc(string characterId, string playerId, string username, string characterDataJson)
+    private void NotifyAssignmentClientRpc(string characterId, string playerId, string username, string characterDataJson, string campaignName)
     {
-        Debug.Log($"Character assignment update: {characterId} -> {username}");
-        
-        // Cache the character data on all clients
         if (!string.IsNullOrEmpty(characterDataJson))
         {
-            PlayerAssignmentHelper.Instance?.CacheCharacterData(characterId, characterDataJson);
+            PlayerAssignmentHelper.Instance?.CacheCharacterData(characterId, characterDataJson, campaignName);
         }
         
         OnCharacterAssigned?.Invoke(characterId, playerId, username);
-    }
-    
-    [Rpc(SendTo.ClientsAndHost)]
-    private void SendCharacterImageClientRpc(string characterId, string imageBase64)
-    {
-        if (PlayerAssignmentHelper.Instance != null)
-        {
-            PlayerAssignmentHelper.Instance.ReceiveCharacterImage(characterId, imageBase64);
-        }
     }
     
     [Rpc(SendTo.ClientsAndHost)]
@@ -558,7 +602,47 @@ public class PlayerConnectionManager : NetworkBehaviour
         Debug.Log($"Character unassigned: {characterId}");
         OnCharacterUnassigned?.Invoke(characterId);
     }
+    
+    // ========== CHUNKED IMAGE TRANSFER ==========
+    
+    private const int IMAGE_CHUNK_SIZE = 4 * 1024; // 4KB chunks to stay under RPC limits
+    
+    /// <summary>
+    /// Send character image in chunks to avoid RPC buffer overflow
+    /// </summary>
+    private void SendCharacterImageChunked(string characterId, string imageBase64, string tokenFileName)
+    {
+        int totalChunks = (int)System.Math.Ceiling((double)imageBase64.Length / IMAGE_CHUNK_SIZE);
+        
+        Debug.Log($"SendCharacterImageChunked: Sending {imageBase64.Length} bytes in {totalChunks} chunks for {characterId}");
+        
+        // Send metadata first (tells client how many chunks to expect)
+        SendImageMetadataClientRpc(characterId, tokenFileName, totalChunks);
+        
+        // Send each chunk
+        for (int i = 0; i < totalChunks; i++)
+        {
+            int offset = i * IMAGE_CHUNK_SIZE;
+            int length = System.Math.Min(IMAGE_CHUNK_SIZE, imageBase64.Length - offset);
+            string chunk = imageBase64.Substring(offset, length);
+            
+            SendImageChunkClientRpc(characterId, i, chunk);
+        }
+    }
+    
+    [Rpc(SendTo.ClientsAndHost)]
+    private void SendImageMetadataClientRpc(string characterId, string tokenFileName, int totalChunks)
+    {
+        PlayerAssignmentHelper.Instance?.PrepareImageReception(characterId, tokenFileName, totalChunks);
+    }
+    
+    [Rpc(SendTo.ClientsAndHost)]
+    private void SendImageChunkClientRpc(string characterId, int chunkIndex, string chunkData)
+    {
+        PlayerAssignmentHelper.Instance?.ReceiveImageChunk(characterId, chunkIndex, chunkData);
+    }
 }
+
 
 /// <summary>
 /// Serializable struct for network syncing player data.
