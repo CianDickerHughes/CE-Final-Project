@@ -1,0 +1,67 @@
+[
+    {
+        "name": "Artificer",
+        "hit_die": "1d8",
+        "primary_ability": "Intelligence"
+    },
+    {
+        "name": "Barbarian",
+        "hit_die": "1d12",
+        "primary_ability": "Strength"
+    },
+    {
+        "name": "Bard",
+        "hit_die": "1d8",
+        "primary_ability": "Charisma"
+    },
+    {
+        "name": "Cleric",
+        "hit_die": "1d8",
+        "primary_ability": "Wisdom"
+    },
+    {
+        "name": "Druid",
+        "hit_die": "1d8",
+        "primary_ability": "Wisdom"
+    },
+    {
+        "name": "Fighter",
+        "hit_die": "1d10",
+        "primary_ability": "Strength or Dexterity"
+    },
+    {
+        "name": "Monk",
+        "hit_die": "1d8",
+        "primary_ability": "Dexterity and Wisdom"
+    },
+    {
+        "name": "Paladin",
+        "hit_die": "1d10",
+        "primary_ability": "Strength and Charisma"
+    },
+    {
+        "name": "Ranger",
+        "hit_die": "1d10",
+        "primary_ability": "Dexterity and Wisdom"
+    },
+    {
+        "name": "Rogue",
+        "hit_die": "1d8",
+        "primary_ability": "Dexterity"
+    },
+    {
+        "name": "Sorcerer",
+        "hit_die": "1d6",
+        "primary_ability": "Charisma"
+    },
+    {
+        "name": "Warlock",
+        "hit_die": "1d8",
+        "primary_ability": "Charisma"
+    },
+    {
+        "name": "Wizard",
+        "hit_die": "1d6",
+        "primary_ability": "Intelligence"
+    }
+]
