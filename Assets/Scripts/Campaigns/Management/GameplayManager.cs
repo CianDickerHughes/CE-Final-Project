@@ -561,8 +561,8 @@ public class GameplayManager : MonoBehaviour
                 {
                     enemyId = enemyData.id;
                     tokenFileName = enemyData.tokenFileName ?? "";
-                    hp = token.GetHP();
-                    ac = token.GetAC();
+                    hp = enemyData.HP;
+                    ac = enemyData.AC;
                 }
             }
             else
@@ -575,13 +575,13 @@ public class GameplayManager : MonoBehaviour
                     charClass = charData.charClass ?? "";
                     tokenFileName = charData.tokenFileName ?? "";
                     charDesc = charData.race ?? "";
-                    hp = token.GetHP();
-                    ac = token.GetAC();
+                    hp = charData.HP;
+                    ac = charData.AC;
                 }
             }
             
             //Create and add the token data with all character info for network transmission
-            TokenData tokenData = new TokenData(charId, charName, charClass, tokenFileName, charDesc, enemyId, tokenType, currentTile.GridX, currentTile.GridY);
+            TokenData tokenData = new TokenData(charId, charName, charClass, tokenFileName, charDesc, enemyId, tokenType, currentTile.GridX, currentTile.GridY, hp, ac);
             currentSceneData.tokens.Add(tokenData);
             
             Debug.Log($"Saved token: Type={tokenType}, CharId={charId}, CharName={charName}, TokenFile={tokenFileName}, Position=({currentTile.GridX}, {currentTile.GridY})");
