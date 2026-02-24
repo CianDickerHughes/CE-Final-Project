@@ -90,7 +90,7 @@ public class CharacterCreatorUI : MonoBehaviour
             classDropdown.ClearOptions();
             classDropdown.AddOptions(new System.Collections.Generic.List<string> {
                 "Artificer", "Barbarian", "Bard", "Cleric", "Druid", "Fighter",
-                "Monk", "Paladin", "Ranger", "Rogue", "Sorcerer", "Warlock", "Wizard"
+                "Monk", "Paladin", "Ranger", "Rogue", "Sorcerer", "Wizard"
             });
         }
 
@@ -250,7 +250,7 @@ public class CharacterCreatorUI : MonoBehaviour
                     { "2nd", 0 },
                     { "3rd", 0 }
                 };
-                data.abilities = new List<string> { "Infuse Item", "Artificer Specialist" };
+                data.abilities = new List<string> { "Infuse Item" };
                 if(data.level <=3 && data.level >= 1)
                 {
                     data.proficiencyBonus = 2;
@@ -269,8 +269,8 @@ public class CharacterCreatorUI : MonoBehaviour
 
                 break;
             case "Barbarian":
-                data.spellSlots = new Dictionary<string, int>(); // No spell slots for Barbarian
-                data.abilities = new List<string> { "Rage", "Unarmored Defense" };
+                data.spellSlots = new Dictionary<string, int>();
+                data.abilities = new List<string> { "Rage" };
                 if(data.level <=3 && data.level >= 1)
                 {
                     data.proficiencyBonus = 2;
@@ -296,7 +296,7 @@ public class CharacterCreatorUI : MonoBehaviour
                     { "2nd", 0 },
                     { "3rd", 0 }
                 };
-                data.abilities = new List<string> { "Bardic Inspiration", "Jack of All Trades" };
+                data.abilities = new List<string> { "Bardic Inspiration" };
                 if(data.level <=3 && data.level >= 1)
                 {
                     data.proficiencyBonus = 2;
@@ -321,7 +321,7 @@ public class CharacterCreatorUI : MonoBehaviour
                     { "2nd", 0 },
                     { "3rd", 0 }
                 };
-                data.abilities = new List<string> { "Divine Domain", "Channel Divinity" };
+                data.abilities = new List<string> { "Channel Divinity" };
                 if(data.level <=3 && data.level >= 1)
                 {
                     data.proficiencyBonus = 2;
@@ -346,7 +346,7 @@ public class CharacterCreatorUI : MonoBehaviour
                     { "2nd", 0 },
                     { "3rd", 0 }
                 };
-                data.abilities = new List<string> { "Wild Shape", "Druidic Circle" };
+                data.abilities = new List<string> { "Wild Shape" };
                 if(data.level <=3 && data.level >= 1)
                 {
                     data.proficiencyBonus = 2;
@@ -366,7 +366,7 @@ public class CharacterCreatorUI : MonoBehaviour
                 break;
             case "Fighter":
                 data.spellSlots = new Dictionary<string, int>(); // No spell slots for Fighter
-                data.abilities = new List<string> { "Second Wind", "Action Surge" };
+                data.abilities = new List<string> { "Action Surge" };
                 if(data.level <=3 && data.level >= 1)
                 {
                     data.proficiencyBonus = 2;
@@ -386,7 +386,7 @@ public class CharacterCreatorUI : MonoBehaviour
                 break;
             case "Monk":
                 data.spellSlots = new Dictionary<string, int>(); // No spell slots for Monk
-                data.abilities = new List<string> { "Martial Arts", "Ki" };
+                data.abilities = new List<string> { "Martial Arts" };
                 if(data.level <=3 && data.level >= 1)
                 {
                     data.proficiencyBonus = 2;
@@ -409,7 +409,7 @@ public class CharacterCreatorUI : MonoBehaviour
                     { "2nd", 0 },
                     { "3rd", 0 }
                 };
-                data.abilities = new List<string> { "Divine Sense", "Lay on Hands" };
+                data.abilities = new List<string> { "Lay on Hands" };
                 if(data.level <=3 && data.level >= 1)
                 {
                     data.proficiencyBonus = 2;
@@ -432,7 +432,7 @@ public class CharacterCreatorUI : MonoBehaviour
                     { "2nd", 0 },
                     { "3rd", 0 }
                 };
-                data.abilities = new List<string> { "Favored Enemy", "Natural Explorer" };
+                data.abilities = new List<string> { "Favored Enemy" };
                 if(data.level <=3 && data.level >= 1)
                 {
                     data.proficiencyBonus = 2;
@@ -450,7 +450,7 @@ public class CharacterCreatorUI : MonoBehaviour
                 break;
             case "Rogue":
                 data.spellSlots = new Dictionary<string, int>(); // No spell slots for Rogue
-                data.abilities = new List<string> { "Sneak Attack", "Thieves' Cant" };
+                data.abilities = new List<string> {"Sneak Attack"};
                 if(data.level <=3 && data.level >= 1)
                 {
                     data.proficiencyBonus = 2;
@@ -473,7 +473,7 @@ public class CharacterCreatorUI : MonoBehaviour
                     { "2nd", 0 },
                     { "3rd", 0 }
                 };
-                data.abilities = new List<string> { "Sorcerous Origin", "Metamagic" };
+                data.abilities = new List<string> { "Spellcasting" };
                 if(data.level <=3 && data.level >= 1)
                 {                    
                     data.proficiencyBonus = 2;
@@ -519,7 +519,7 @@ public class CharacterCreatorUI : MonoBehaviour
                     { "2nd", 0 },
                     { "3rd", 0 }
                 };
-                data.abilities = new List<string> { "Arcane Recovery", "Spellcasting" };
+                data.abilities = new List<string> { "Arcane Recovery" };
                 if(data.level <=3 && data.level >= 1)
                 {
                     data.proficiencyBonus = 2;
