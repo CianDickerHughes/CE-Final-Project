@@ -15,6 +15,8 @@ public class TokenData
     public CharacterType tokenType;  // Player, NPC, or Enemy
     public int gridX;           // X position on grid
     public int gridY;           // Y position on grid
+    public int hp;
+    public int ac;
     
     public TokenData()
     {
@@ -27,9 +29,11 @@ public class TokenData
         tokenType = CharacterType.Player;
         gridX = 0;
         gridY = 0;
+        hp = 0;
+        ac = 0;
     }
     
-    public TokenData(string charId, string enemyIdVal, CharacterType type, int x, int y)
+    public TokenData(string charId, string enemyIdVal, CharacterType type, int x, int y, int hpVal, int acVal)
     {
         characterId = charId ?? "";
         characterName = "";
@@ -40,10 +44,12 @@ public class TokenData
         tokenType = type;
         gridX = x;
         gridY = y;
+        hp = hpVal;
+        ac = acVal;
     }
     
     // Full constructor with all character data for network transmission
-    public TokenData(string charId, string charName, string charClass, string tokenFile, string charDesc, string enemyIdVal, CharacterType type, int x, int y)
+    public TokenData(string charId, string charName, string charClass, string tokenFile, string charDesc, string enemyIdVal, CharacterType type, int x, int y, int hpVal, int acVal)
     {
         characterId = charId ?? "";
         characterName = charName ?? "";
@@ -54,5 +60,7 @@ public class TokenData
         tokenType = type;
         gridX = x;
         gridY = y;
+        hp = hpVal;
+        ac = acVal;
     }
 }

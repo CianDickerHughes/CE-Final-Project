@@ -551,6 +551,8 @@ public class GameplayManager : MonoBehaviour
             string charDesc = "";
             string enemyId = "";
             CharacterType tokenType = token.getCharacterType();
+            int hp = 0;
+            int ac = 0;
             
             if (tokenType == CharacterType.Enemy)
             {
@@ -559,6 +561,8 @@ public class GameplayManager : MonoBehaviour
                 {
                     enemyId = enemyData.id;
                     tokenFileName = enemyData.tokenFileName ?? "";
+                    hp = token.GetHP();
+                    ac = token.GetAC();
                 }
             }
             else
@@ -571,6 +575,8 @@ public class GameplayManager : MonoBehaviour
                     charClass = charData.charClass ?? "";
                     tokenFileName = charData.tokenFileName ?? "";
                     charDesc = charData.race ?? "";
+                    hp = token.GetHP();
+                    ac = token.GetAC();
                 }
             }
             
