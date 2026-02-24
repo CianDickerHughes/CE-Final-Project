@@ -243,6 +243,31 @@ public class CharacterCreatorUI : MonoBehaviour
         //Also setting up things like spell slots here - number per level
         switch(data.charClass)
         {
+            case "Artificer":
+                data.spellSlots = new Dictionary<string, int>
+                {
+                    { "1st", 2 },
+                    { "2nd", 0 },
+                    { "3rd", 0 }
+                };
+                data.abilities = new List<string> { "Infuse Item", "Artificer Specialist" };
+                if(data.level <=3 && data.level >= 1)
+                {
+                    data.proficiencyBonus = 2;
+                }
+                else if(data.level > 3 && data.level <= 8)
+                {
+                    data.proficiencyBonus = 3;
+                }
+                else
+                {
+                    data.proficiencyBonus = 4;
+                }
+                //Calculating the Health Pool based on Constitution modifier/score
+                conMod = (data.constitution - 10) / 2;
+                data.HP = 8 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+
+                break;
             case "Barbarian":
                 data.spellSlots = new Dictionary<string, int>(); // No spell slots for Barbarian
                 data.abilities = new List<string> { "Rage", "Unarmored Defense" };
