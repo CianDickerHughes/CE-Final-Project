@@ -108,7 +108,7 @@ public class PlayerCharactersPageController : MonoBehaviour
         // Update title if assigned
         if (titleText != null)
         {
-            titleText.text = $"Player Characters ({loadedCount})";
+            titleText.text = "Player Characters";
         }
 
         Debug.Log($"PlayerCharactersPageController: Loaded {loadedCount} player characters from {playerCharactersFolder}");

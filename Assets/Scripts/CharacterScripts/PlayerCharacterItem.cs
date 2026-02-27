@@ -17,6 +17,7 @@ public class PlayerCharacterItem : MonoBehaviour
     [SerializeField] private TextMeshProUGUI classText;
     [SerializeField] private Image characterImage;
     [SerializeField] private Button spawnButton;
+    [SerializeField] private Button deleteButton;
     
     [Header("Assignment UI (Optional - for DM)")]
     [SerializeField] private TMP_Dropdown assignmentDropdown;
@@ -95,6 +96,12 @@ public class PlayerCharacterItem : MonoBehaviour
         if(spawnButton != null){
             spawnButton.onClick.RemoveAllListeners();
             spawnButton.onClick.AddListener(() => SelectForSpawning(CharacterType.Player));
+        }
+
+        // Wire up delete button if present
+        if(deleteButton != null){
+            deleteButton.onClick.RemoveAllListeners();
+            deleteButton.onClick.AddListener(DeleteCharacter);
         }
 
         isInitialized = true;
@@ -298,6 +305,64 @@ public class PlayerCharacterItem : MonoBehaviour
         {
             TokenManager.Instance.SetSelectedForSpawn(characterData, CharacterType.Player);
             Debug.Log($"Selected {characterData.charName} for spawning.");
+        }
+    }
+
+    /// <summary>
+    /// Delete this character from the campaign's PlayerCharacters folder.
+    /// Removes both the JSON file and the token image file.
+    /// </summary>
+    public void DeleteCharacter()
+    {
+        if (string.IsNullOrEmpty(filePath))
+        {
+            Debug.LogWarning("PlayerCharacterItem: Cannot delete - file path is empty.");
+            return;
+        }
+
+        try
+        {
+            // Delete the token image file if it exists
+            if (characterData != null && !string.IsNullOrEmpty(characterData.tokenFileName))
+            {
+                string folder = System.IO.Path.GetDirectoryName(filePath);
+                string tokenPath = System.IO.Path.Combine(folder, characterData.tokenFileName);
+                
+                if (System.IO.File.Exists(tokenPath))
+                {
+                    System.IO.File.Delete(tokenPath);
+                    Debug.Log($"PlayerCharacterItem: Deleted token image: {tokenPath}");
+                }
+            }
+
+            // Delete the JSON file
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+                Debug.Log($"PlayerCharacterItem: Deleted character file: {filePath}");
+            }
+
+            // Unassign the character if it was assigned to a player
+            if (characterData != null && PlayerConnectionManager.Instance != null)
+            {
+                PlayerConnectionManager.Instance.UnassignCharacter(characterData.id);
+            }
+
+            // Refresh the character list
+            var pageController = GetComponentInParent<PlayerCharactersPageController>();
+            if (pageController != null)
+            {
+                pageController.Refresh();
+            }
+            else
+            {
+                // If no page controller found, just destroy this item
+                Destroy(gameObject);
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"PlayerCharacterItem: Failed to delete character: {ex.Message}");
         }
     }
 }
