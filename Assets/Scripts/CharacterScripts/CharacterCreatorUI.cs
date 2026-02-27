@@ -266,6 +266,8 @@ public class CharacterCreatorUI : MonoBehaviour
                 //Calculating the Health Pool based on Constitution modifier/score
                 conMod = (data.constitution - 10) / 2;
                 data.HP = 8 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                data.weapon = "Light Hammer";
+                data.weaponDamage = "1d4";
 
                 break;
             case "Barbarian":
@@ -287,6 +289,8 @@ public class CharacterCreatorUI : MonoBehaviour
                 //Calculating the Health Pool based on Constitution modifier/score
                 conMod = (data.constitution - 10) / 2;
                 data.HP = 12 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                data.weapon = "Greataxe";
+                data.weaponDamage = "1d12";
 
                 break;
             case "Bard":
@@ -313,6 +317,9 @@ public class CharacterCreatorUI : MonoBehaviour
                 //Calculating the Health Pool based on Constitution modifier/score
                 conMod = (data.constitution - 10) / 2;
                 data.HP = 8 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                data.weapon = "Rapier";
+                data.weaponDamage = "1d8";
+
                 break;
             case "Cleric":
                 data.spellSlots = new Dictionary<string, int>
@@ -338,6 +345,9 @@ public class CharacterCreatorUI : MonoBehaviour
                 //Calculating the Health Pool based on Constitution modifier/score
                 conMod = (data.constitution - 10) / 2;
                 data.HP = 8 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                data.weapon = "Mace";
+                data.weaponDamage = "1d6";
+
                 break;
             case "Druid":
                 data.spellSlots = new Dictionary<string, int>
@@ -363,6 +373,9 @@ public class CharacterCreatorUI : MonoBehaviour
                 //Calculating the Health Pool based on Constitution modifier/score
                 conMod = (data.constitution - 10) / 2;
                 data.HP = 8 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                data.weapon = "Scimitar";
+                data.weaponDamage = "1d6";
+
                 break;
             case "Fighter":
                 data.spellSlots = new Dictionary<string, int>(); // No spell slots for Fighter
@@ -383,6 +396,9 @@ public class CharacterCreatorUI : MonoBehaviour
                 //Calculating the Health Pool based on Constitution modifier/score
                 conMod = (data.constitution - 10) / 2;
                 data.HP = 10 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                data.weapon = "Longsword";
+                data.weaponDamage = "1d8";
+
                 break;
             case "Monk":
                 data.spellSlots = new Dictionary<string, int>(); // No spell slots for Monk
@@ -401,6 +417,9 @@ public class CharacterCreatorUI : MonoBehaviour
                 }
                 conMod = (data.constitution - 10) / 2;
                 data.HP = 8 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                data.weapon = "Fists";
+                data.weaponDamage = "1d4";
+
                 break;
             case "Paladin":
                 data.spellSlots = new Dictionary<string, int>
@@ -424,6 +443,9 @@ public class CharacterCreatorUI : MonoBehaviour
                 }
                 conMod = (data.constitution - 10) / 2;
                 data.HP = 10 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                data.weapon = "Longsword";
+                data.weaponDamage = "1d8";
+
                 break;
             case "Ranger":
                 data.spellSlots = new Dictionary<string, int>
@@ -447,6 +469,9 @@ public class CharacterCreatorUI : MonoBehaviour
                 }
                 conMod = (data.constitution - 10) / 2;
                 data.HP = 10 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                data.weapon = "Longbow";
+                data.weaponDamage = "1d8";
+
                 break;
             case "Rogue":
                 data.spellSlots = new Dictionary<string, int>(); // No spell slots for Rogue
@@ -465,6 +490,9 @@ public class CharacterCreatorUI : MonoBehaviour
                 }
                 conMod = (data.constitution - 10) / 2;
                 data.HP = 8 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                data.weapon = "Rapier";
+                data.weaponDamage = "1d8";
+                
                 break;
             case "Sorcerer":
                 data.spellSlots = new Dictionary<string, int>
@@ -488,6 +516,8 @@ public class CharacterCreatorUI : MonoBehaviour
                 }
                 conMod = (data.constitution - 10) / 2;
                 data.HP = 6 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                data.weapon = "Dagger";
+                data.weaponDamage = "1d4";
                 break;
             case "Warlock":
                 data.spellSlots = new Dictionary<string, int>
@@ -511,6 +541,8 @@ public class CharacterCreatorUI : MonoBehaviour
                 }
                 conMod = (data.constitution - 10) / 2;
                 data.HP = 8 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                data.weapon = "Dagger";
+                data.weaponDamage = "1d4";
                 break;
             case "Wizard":
                 data.spellSlots = new Dictionary<string, int>
@@ -534,6 +566,8 @@ public class CharacterCreatorUI : MonoBehaviour
                 }
                 conMod = (data.constitution - 10) / 2;
                 data.HP = 6 * ParseIntOrDefault(levelInput.text, 1) + conMod;
+                data.weapon = "Dagger";
+                data.weaponDamage = "1d4";
                 break;
         }
 

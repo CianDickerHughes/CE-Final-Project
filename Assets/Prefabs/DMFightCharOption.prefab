@@ -496,6 +496,7 @@ GameObject:
   - component: {fileID: 5371240636978169423}
   - component: {fileID: 6900005080372739428}
   - component: {fileID: 992454692726869953}
+  - component: {fileID: 2841603278725273667}
   m_Layer: 5
   m_Name: DMFightCharOption
   m_TagString: Untagged
@@ -579,6 +580,43 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
   m_EffectDistance: {x: 10, y: -10}
   m_UseGraphicAlpha: 1
+--- !u!114 &2841603278725273667
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2756561812754943325}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 741150eebc3ed6042b319c2311cf5925, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DMFightCharItem
+  characterName: {fileID: 8132778194232938468}
+  characterClass: {fileID: 2527596336114719969}
+  charImg: {fileID: 5609475787008546905}
+  selectForFightButton: {fileID: 5670823773020849046}
+  characterData:
+    id: 7d4aae5a-9d8e-4342-842c-1b2eec4eb676
+    charName: 
+    race: 
+    charClass: 
+    level: 0
+    AC: 0
+    HP: 0
+    speed: 0
+    weapon: 
+    proficiencyBonus: 0
+    strength: 0
+    dexterity: 0
+    constitution: 0
+    intelligence: 0
+    wisdom: 0
+    charisma: 0
+    abilities: []
+    tokenFileName: 
+    createdAt: 2026-02-27T12:46:45.9916366Z
+    ownerUsername: 
 --- !u!1 &3838364422988213514
 GameObject:
   m_ObjectHideFlags: 0

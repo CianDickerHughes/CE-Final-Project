@@ -21,6 +21,8 @@ public class CharacterData
     public int HP;
     public int speed;
     public string weapon;
+    //Temporary for wpn dmg - could do this on the fly in combat manager later but here for now
+    public string weaponDamage;
     public int proficiencyBonus;
     //Individual stats for the character
     public int strength;
