@@ -171,13 +171,25 @@ public class CombatManager : MonoBehaviour
                 ? participant.getEnemyData().HP
                 : participant.getCharacterData().HP;
 
+            // Generate unique ID at creation time
+            string participantId;
+            if (participant.getCharacterType() == CharacterType.Enemy)
+            {
+                participantId = $"enemy_{participant.getEnemyData().name}";
+            }
+            else
+            {
+                participantId = participant.getCharacterData().id;
+            }
+
             CombatParticipant combatant = new CombatParticipant
             {
                 token = participant,
                 initiativeRoll = UnityEngine.Random.Range(1, 21) + dexMod,
                 hasActedThisRound = false,
                 maxHP = maxHPValue,
-                currentHP = maxHPValue  // Start at full health
+                currentHP = maxHPValue,
+                uniqueId = participantId  // Store ID at creation
             };
             initiativeOrder.Add(combatant);
         }
@@ -300,16 +312,16 @@ public class CombatManager : MonoBehaviour
     //Movement handling
     public bool CanTokenMove(Token token)
     {
-        //If combat hasnt started isnt active then just return true because at that point anyone can move
-        if (combatState != CombatState.Active)
-        {
-            return true;
-        }
-
         //If combat is paused, no one can move
         if (combatState == CombatState.Paused)
         {
             return false;
+        }
+        
+        //If combat hasn't started or isn't active, anyone can move
+        if (combatState != CombatState.Active)
+        {
+            return true;
         }
         
         //Check if this token belongs to the current turn participant
@@ -319,7 +331,30 @@ public class CombatManager : MonoBehaviour
         }
         
         CombatParticipant currentParticipant = initiativeOrder[currentTurnIndex];
-        return currentParticipant.token == token;
+        
+        //Compare by character/enemy ID instead of object reference
+        //This handles cases where tokens are recreated (e.g., network sync)
+        string currentTurnId = currentParticipant.GetUniqueId();
+        string tokenId = GetTokenUniqueId(token);
+        
+        return currentTurnId != null && tokenId != null && currentTurnId == tokenId;
+    }
+    
+    //Helper to get unique ID from a token
+    private string GetTokenUniqueId(Token token)
+    {
+        if(token == null) return null;
+        
+        if(token.getCharacterType() == CharacterType.Enemy)
+        {
+            var enemyData = token.getEnemyData();
+            return enemyData != null ? $"enemy_{enemyData.name}" : null;
+        }
+        else
+        {
+            var charData = token.getCharacterData();
+            return charData != null ? charData.id : null;
+        }
     }
 }
 
@@ -331,6 +366,7 @@ public struct CombatParticipant
     public bool hasActedThisRound;
     public int currentHP;
     public int maxHP;
+    public string uniqueId;  // Stored at creation time for reliable comparison
 
     //Getting AC
     public int GetAC(){
@@ -369,5 +405,29 @@ public struct CombatParticipant
             return token.getCharacterData().dexterity;
         }
         return token.getEnemyData().dexterity;
+    }
+
+    //Getting unique ID for comparison (handles both characters and enemies)
+    public string GetUniqueId()
+    {
+        // Return stored ID if available
+        if (!string.IsNullOrEmpty(uniqueId))
+        {
+            return uniqueId;
+        }
+        
+        // Fallback to computing from token
+        if(token == null) return null;
+        
+        if(token.getCharacterType() == CharacterType.Enemy)
+        {
+            var enemyData = token.getEnemyData();
+            return enemyData != null ? $"enemy_{enemyData.name}" : null;
+        }
+        else
+        {
+            var charData = token.getCharacterData();
+            return charData != null ? charData.id : null;
+        }
     }
 }

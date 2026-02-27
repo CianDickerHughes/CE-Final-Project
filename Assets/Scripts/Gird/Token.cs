@@ -306,13 +306,20 @@ public class Token : MonoBehaviour
             return; // Don't select tokens while in spawn mode
         }
 
-        PlayerAssignmentHelper assignmentHelper = PlayerAssignmentHelper.Instance;
-        if (assignmentHelper != null){
-            //Check if this token's character is assigned to this player - if not dont allow selection
-            if(characterData != null && !assignmentHelper.CanControlCharacter(characterData.id))
-            {
-                Debug.Log($"Token: Cant be selected for character {characterData.charName}");
-                return;
+        //Skip ownership checks for local testing (no network active)
+        bool isLocalTesting = Unity.Netcode.NetworkManager.Singleton == null || 
+            (!Unity.Netcode.NetworkManager.Singleton.IsClient && !Unity.Netcode.NetworkManager.Singleton.IsServer);
+        
+        if (!isLocalTesting)
+        {
+            PlayerAssignmentHelper assignmentHelper = PlayerAssignmentHelper.Instance;
+            if (assignmentHelper != null){
+                //Check if this token's character is assigned to this player - if not dont allow selection
+                if(characterData != null && !assignmentHelper.CanControlCharacter(characterData.id))
+                {
+                    Debug.Log($"Token: Cant be selected for character {characterData.charName}");
+                    return;
+                }
             }
         }
             

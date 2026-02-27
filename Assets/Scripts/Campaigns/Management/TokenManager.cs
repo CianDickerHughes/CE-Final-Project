@@ -179,11 +179,9 @@ public class TokenManager : MonoBehaviour
             if(CanCurrentPlayerControlToken(selectedToken) && CanTokenMoveNow(selectedToken))
             {
                 selectedToken.SetSelected(true);
-                Debug.Log($"Token selected: {selectedToken.name}");
             }
             else
             {
-                Debug.Log("Cant select token - not your turn!");
                 selectedToken = null;
                 return;
             }
@@ -218,25 +216,21 @@ public class TokenManager : MonoBehaviour
         //Checking if a player can move this token
         if(!CanCurrentPlayerControlToken(selectedToken))
         {
-            Debug.Log("Cant move token - player doesnt have control");
             return;
         }
 
         if(!CanTokenMoveNow(selectedToken))
         {
-            Debug.Log("Can't move token - not this token's turn in combat!");
             return;
         }
         
         //Check if tile is walkable
         if (!tile.IsWalkable())
         {
-            Debug.Log("Cannot move to non-walkable tile.");
             return;
         }
         
         selectedToken.MoveToTile(tile);
-        Debug.Log($"Moved {selectedToken.name} to tile ({tile.GridX}, {tile.GridY})");
 
         OnTokensChanged?.Invoke();
     }
@@ -308,9 +302,27 @@ public class TokenManager : MonoBehaviour
             return true;
         }
 
+        //Local testing fallback - if no network is active, allow all token control
+        if(NetworkManager.Singleton == null)
+        {
+            return true;
+        }
+        
+        //If network exists but not connected (local testing), allow control
+        if(!NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsServer)
+        {
+            return true;
+        }
+
+        //For enemy tokens in networked game, only server/DM can control
+        if(token.getCharacterType() == CharacterType.Enemy)
+        {
+            return false;
+        }
+
         //Retrieving the character data from the token to check ownership
         CharacterData characterData = token.getCharacterData();
-        if(characterData != null)
+        if(characterData != null && playerAssignmentHelper != null)
         {
             //Returning whether player can control this token - ownership
             return playerAssignmentHelper.CanControlCharacter(characterData.id);
