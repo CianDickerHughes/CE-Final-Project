@@ -2,66 +2,79 @@
     {
         "name": "Artificer",
         "hit_die": "1d8",
-        "primary_ability": "Intelligence"
+        "primary_ability": "Intelligence",
+        "spellcaster": true
     },
     {
         "name": "Barbarian",
         "hit_die": "1d12",
-        "primary_ability": "Strength"
+        "primary_ability": "Strength",
+        "spellcaster": false
     },
     {
         "name": "Bard",
         "hit_die": "1d8",
-        "primary_ability": "Charisma"
+        "primary_ability": "Charisma",
+        "spellcaster": true
     },
     {
         "name": "Cleric",
         "hit_die": "1d8",
-        "primary_ability": "Wisdom"
+        "primary_ability": "Wisdom",
+        "spellcaster": true
     },
     {
         "name": "Druid",
         "hit_die": "1d8",
-        "primary_ability": "Wisdom"
+        "primary_ability": "Wisdom",
+        "spellcaster": true
     },
     {
         "name": "Fighter",
         "hit_die": "1d10",
-        "primary_ability": "Strength or Dexterity"
+        "primary_ability": "Strength or Dexterity",
+        "spellcaster": false
     },
     {
         "name": "Monk",
         "hit_die": "1d8",
-        "primary_ability": "Dexterity and Wisdom"
+        "primary_ability": "Dexterity and Wisdom",
+        "spellcaster": false
     },
     {
         "name": "Paladin",
         "hit_die": "1d10",
-        "primary_ability": "Strength and Charisma"
+        "primary_ability": "Strength and Charisma",
+        "spellcaster": true
     },
     {
         "name": "Ranger",
         "hit_die": "1d10",
-        "primary_ability": "Dexterity and Wisdom"
+        "primary_ability": "Dexterity and Wisdom",
+        "spellcaster": true
     },
     {
         "name": "Rogue",
         "hit_die": "1d8",
-        "primary_ability": "Dexterity"
+        "primary_ability": "Dexterity",
+        "spellcaster": false
     },
     {
         "name": "Sorcerer",
         "hit_die": "1d6",
-        "primary_ability": "Charisma"
+        "primary_ability": "Charisma",
+        "spellcaster": true
     },
     {
         "name": "Warlock",
         "hit_die": "1d8",
-        "primary_ability": "Charisma"
+        "primary_ability": "Charisma",
+        "spellcaster": true
     },
     {
         "name": "Wizard",
         "hit_die": "1d6",
-        "primary_ability": "Intelligence"
+        "primary_ability": "Intelligence",
+        "spellcaster": true
     }
 ]
