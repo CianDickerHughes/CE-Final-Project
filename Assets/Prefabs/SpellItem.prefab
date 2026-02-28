@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 623946018991902438}
   - component: {fileID: 1825511857223926085}
   - component: {fileID: 8854596129223579328}
+  - component: {fileID: 7820706175888997365}
   m_Layer: 5
   m_Name: SpellItem
   m_TagString: Untagged
@@ -121,6 +122,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7820706175888997365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3166310501832681947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46111f53cf434d344802100489df96ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpellItem
+  spellNameText: {fileID: 1328419847808173198}
+  diceText: {fileID: 0}
+  button: {fileID: 8854596129223579328}
 --- !u!1 &4224812975006953916
 GameObject:
   m_ObjectHideFlags: 0
@@ -133,7 +149,7 @@ GameObject:
   - component: {fileID: 6369856402015637959}
   - component: {fileID: 1328419847808173198}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: SpellName
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
