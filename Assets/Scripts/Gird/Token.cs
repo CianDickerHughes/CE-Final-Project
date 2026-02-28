@@ -306,6 +306,12 @@ public class Token : MonoBehaviour
             return; // Don't select tokens while in spawn mode
         }
 
+        //Don't select if spell targeting is active - let SpellTargetingManager handle it
+        if (SpellTargetingManager.Instance != null && SpellTargetingManager.Instance.IsTargeting())
+        {
+            return; // SpellTargetingManager will handle this click via raycast
+        }
+
         //Skip ownership checks for local testing (no network active)
         bool isLocalTesting = Unity.Netcode.NetworkManager.Singleton == null || 
             (!Unity.Netcode.NetworkManager.Singleton.IsClient && !Unity.Netcode.NetworkManager.Singleton.IsServer);
