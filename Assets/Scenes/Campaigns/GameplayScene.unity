@@ -2157,7 +2157,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.000061035156, y: -474.84998}
+  m_AnchoredPosition: {x: 1098, y: 476.14}
   m_SizeDelta: {x: -0.00012207, y: -949.7}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &232401078
@@ -11600,6 +11600,57 @@ RectTransform:
   m_AnchoredPosition: {x: 647.88885, y: -0.91833}
   m_SizeDelta: {x: 434.3698, y: 75.946}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1263944838
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1263944840}
+  - component: {fileID: 1263944839}
+  m_Layer: 0
+  m_Name: 'SpellChoiceManager '
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1263944839
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1263944838}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 410db9bbbd77b0c4caf6df52da1d1b75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpellChoiceManager
+  spellChoicePanel: {fileID: 2062649134}
+  closeButton: {fileID: 2091600682}
+  titleText: {fileID: 671812655}
+  noSpellsText: {fileID: 317893405}
+  contentParent: {fileID: 1539196022}
+  spellItemPrefab: {fileID: 1280141131921457744, guid: d5d58e712026967429dfbc5596214621, type: 3}
+  spellAttackButton: {fileID: 750744736}
+--- !u!4 &1263944840
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1263944838}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 893.3685, y: 1157.3704, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1266344331
 GameObject:
   m_ObjectHideFlags: 0
@@ -14263,6 +14314,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1539196022}
+  - component: {fileID: 1539196024}
+  - component: {fileID: 1539196023}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -14287,8 +14340,48 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 300}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
+--- !u!114 &1539196023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1539196021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
+--- !u!114 &1539196024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1539196021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.VerticalLayoutGroup
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 0
+  m_Spacing: 10
+  m_ChildForceExpandWidth: 1
+  m_ChildForceExpandHeight: 1
+  m_ChildControlWidth: 1
+  m_ChildControlHeight: 0
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
+  m_ReverseArrangement: 0
 --- !u!1 &1545953619
 GameObject:
   m_ObjectHideFlags: 0
@@ -20063,3 +20156,4 @@ SceneRoots:
   - {fileID: 77721938}
   - {fileID: 72863826}
   - {fileID: 1284065413}
+  - {fileID: 1263944840}
