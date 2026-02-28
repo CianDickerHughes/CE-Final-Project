@@ -490,9 +490,9 @@ public class CharacterCreatorUI : MonoBehaviour
                 }
                 conMod = (data.constitution - 10) / 2;
                 data.HP = 8 * ParseIntOrDefault(levelInput.text, 1) + conMod;
-                data.weapon = "Rapier";
-                data.weaponDamage = "1d8";
-                
+                data.weapon = "Dagger";
+                data.weaponDamage = "1d4";
+
                 break;
             case "Sorcerer":
                 data.spellSlots = new Dictionary<string, int>
@@ -516,8 +516,8 @@ public class CharacterCreatorUI : MonoBehaviour
                 }
                 conMod = (data.constitution - 10) / 2;
                 data.HP = 6 * ParseIntOrDefault(levelInput.text, 1) + conMod;
-                data.weapon = "Dagger";
-                data.weaponDamage = "1d4";
+                data.weapon = "Quarterstaff";
+                data.weaponDamage = "1d6";
                 break;
             case "Warlock":
                 data.spellSlots = new Dictionary<string, int>
@@ -526,7 +526,7 @@ public class CharacterCreatorUI : MonoBehaviour
                     { "2nd", 0 },
                     { "3rd", 0 }
                 };
-                data.abilities = new List<string> { "Otherworldly Patron", "Pact Magic" };
+                data.abilities = new List<string> { "Pact Magic" };
                 if(data.level <=3 && data.level >= 1)
                 {
                     data.proficiencyBonus = 2;
@@ -566,8 +566,8 @@ public class CharacterCreatorUI : MonoBehaviour
                 }
                 conMod = (data.constitution - 10) / 2;
                 data.HP = 6 * ParseIntOrDefault(levelInput.text, 1) + conMod;
-                data.weapon = "Dagger";
-                data.weaponDamage = "1d4";
+                data.weapon = "Quarterstaff";
+                data.weaponDamage = "1d6";
                 break;
         }
 

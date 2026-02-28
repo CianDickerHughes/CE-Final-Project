@@ -3,78 +3,113 @@
         "name": "Artificer",
         "hit_die": "1d8",
         "primary_ability": "Intelligence",
-        "spellcaster": true
+        "spellcaster": true,
+        "spells": ["Cure Wounds", "Faerie Fire", "Heat Metal", "Revivify"],
+        "ability": "Infuse Item",
+        "weapon": "Light Hammer"
     },
     {
         "name": "Barbarian",
         "hit_die": "1d12",
         "primary_ability": "Strength",
-        "spellcaster": false
+        "spellcaster": false,
+        "ability": "Rage",
+        "weapon": "Greataxe"
     },
     {
         "name": "Bard",
         "hit_die": "1d8",
         "primary_ability": "Charisma",
-        "spellcaster": true
+        "spellcaster": true,
+        "spells": ["Vicious Mockery", "Healing Word", "Dissonant Whispers", "Faerie Fire"],
+        "ability": "Bardic Inspiration",
+        "weapon": "Rapier"
     },
     {
         "name": "Cleric",
         "hit_die": "1d8",
         "primary_ability": "Wisdom",
-        "spellcaster": true
+        "spellcaster": true,
+        "spells": ["Cure Wounds", "Sacred Flame", "Channel Divinity", "Spirit Guardians"],
+        "ability": "Channel Divinity",
+        "weapon": "Mace"
     },
     {
         "name": "Druid",
         "hit_die": "1d8",
         "primary_ability": "Wisdom",
-        "spellcaster": true
+        "spellcaster": true,
+        "spells": ["Entangle", "Faerie Fire", "Flaming Sphere", "Call Lightning"],
+        "ability": "Wild Shape",
+        "weapon": "Scimitar"
     },
     {
         "name": "Fighter",
         "hit_die": "1d10",
         "primary_ability": "Strength or Dexterity",
-        "spellcaster": false
+        "spellcaster": false,
+        "ability": "Action Surge",
+        "weapon": "Longsword"
     },
     {
         "name": "Monk",
         "hit_die": "1d8",
         "primary_ability": "Dexterity and Wisdom",
-        "spellcaster": false
+        "spellcaster": false,
+        "ability": "Martial Arts",
+        "weapon": "Fists"
     },
     {
         "name": "Paladin",
         "hit_die": "1d10",
         "primary_ability": "Strength and Charisma",
-        "spellcaster": true
+        "spellcaster": true,
+        "spells": ["Cure Wounds", "Divine Smite", "Shield of Faith", "Wrathful Smite"],
+        "ability": "Lay on Hands",
+        "weapon": "Longsword"
     },
     {
         "name": "Ranger",
         "hit_die": "1d10",
         "primary_ability": "Dexterity and Wisdom",
-        "spellcaster": true
+        "spellcaster": true,
+        "spells": ["Hunter's Mark", "Cure Wounds", "Hail of Thorns", "Pass without Trace"],
+        "ability": "Favored Enemy",
+        "weapon": "Longbow"
     },
     {
         "name": "Rogue",
         "hit_die": "1d8",
         "primary_ability": "Dexterity",
-        "spellcaster": false
+        "spellcaster": false,
+        "ability": "Sneak Attack",
+        "weapon": "Dagger"
     },
     {
         "name": "Sorcerer",
         "hit_die": "1d6",
         "primary_ability": "Charisma",
-        "spellcaster": true
+        "spellcaster": true,
+        "spells": ["Fire Bolt", "Mage Hand", "Shield", "Magic Missile"],
+        "ability": "Spellcasting",
+        "weapon": "Quarterstaff"
     },
     {
         "name": "Warlock",
         "hit_die": "1d8",
         "primary_ability": "Charisma",
-        "spellcaster": true
+        "spellcaster": true,
+        "spells": ["Eldritch Blast", "Hex", "Armor of Agathys", "Misty Step"],
+        "ability": "Pact Magic",
+        "weapon": "Dagger"
     },
     {
         "name": "Wizard",
         "hit_die": "1d6",
         "primary_ability": "Intelligence",
-        "spellcaster": true
+        "spellcaster": true,
+        "spells": ["Fire Bolt", "Mage Hand", "Shield", "Magic Missile"],
+        "ability": "Arcane Recovery",
+        "weapon": "Quarterstaff"
     }
 ]
