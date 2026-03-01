@@ -306,10 +306,36 @@ public class Token : MonoBehaviour
             return; // Don't select tokens while in spawn mode
         }
 
-        //Don't select if spell targeting is active - let SpellTargetingManager handle it
+        //If spell targeting is active
         if (SpellTargetingManager.Instance != null && SpellTargetingManager.Instance.IsTargeting())
         {
-            return; // SpellTargetingManager will handle this click via raycast
+            // If clicking on self (the caster), cancel targeting and allow selection
+            if (SpellTargetingManager.Instance.IsAttacker(this))
+            {
+                SpellTargetingManager.Instance.CancelTargeting();
+                // Fall through to normal selection
+            }
+            else
+            {
+                SpellTargetingManager.Instance.OnTokenClicked(this);
+                return;
+            }
+        }
+
+        //If weapon attack targeting is active
+        if (WeaponAttackManager.Instance != null && WeaponAttackManager.Instance.IsTargeting())
+        {
+            // If clicking on self (the attacker), cancel targeting and allow selection
+            if (WeaponAttackManager.Instance.IsAttacker(this))
+            {
+                WeaponAttackManager.Instance.CancelTargeting();
+                // Fall through to normal selection
+            }
+            else
+            {
+                WeaponAttackManager.Instance.OnTokenClicked(this);
+                return;
+            }
         }
 
         //Skip ownership checks for local testing (no network active)

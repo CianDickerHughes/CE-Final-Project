@@ -70,12 +70,15 @@ public class SpellTargetingManager : MonoBehaviour
             CancelTargeting();
             return;
         }
+    }
 
-        // Check for left-click on a token
-        if (Input.GetMouseButtonDown(0))
-        {
-            CheckForTargetClick();
-        }
+    /// <summary>
+    /// Called by Token when clicked during targeting mode
+    /// </summary>
+    public void OnTokenClicked(Token targetToken)
+    {
+        if (!isTargeting || targetToken == null) return;
+        TryTargetToken(targetToken);
     }
 
     /// <summary>
@@ -107,8 +110,6 @@ public class SpellTargetingManager : MonoBehaviour
             string targetTypeText = GetTargetTypeText(spell.spellType);
             targetingText.text = $"Casting {FormatSpellName(spell.spellName.ToString())}\n{targetTypeText}";
         }
-
-        Debug.Log($"SpellTargetingManager: Targeting mode started for {spell.spellName} ({spell.spellType})");
     }
 
     /// <summary>
@@ -125,31 +126,6 @@ public class SpellTargetingManager : MonoBehaviour
         {
             targetingIndicator.SetActive(false);
         }
-
-        Debug.Log("SpellTargetingManager: Targeting cancelled");
-    }
-
-    /// <summary>
-    /// Check if user clicked on a valid target
-    /// </summary>
-    private void CheckForTargetClick()
-    {
-        // Raycast to find what was clicked
-        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        RaycastHit2D hit = Physics2D.Raycast(mousePos, Vector2.zero);
-
-        if (hit.collider != null)
-        {
-            Token targetToken = hit.collider.GetComponent<Token>();
-            if (targetToken != null)
-            {
-                TryTargetToken(targetToken);
-                return;
-            }
-        }
-
-        // Clicked on nothing - optionally cancel or just ignore
-        Debug.Log("SpellTargetingManager: Clicked on non-target area");
     }
 
     /// <summary>
@@ -159,8 +135,6 @@ public class SpellTargetingManager : MonoBehaviour
     {
         if (!IsValidTarget(targetToken))
         {
-            Debug.Log($"SpellTargetingManager: Invalid target for {currentSpell.spellType} spell");
-            // Could show feedback to user here
             return;
         }
 
@@ -252,7 +226,6 @@ public class SpellTargetingManager : MonoBehaviour
             total += Random.Range(1, spell.diceSize + 1);
         }
 
-        Debug.Log($"SpellTargetingManager: Rolled {spell.diceCount}d{spell.diceSize} = {total}");
         return total;
     }
 
@@ -265,9 +238,6 @@ public class SpellTargetingManager : MonoBehaviour
         {
             CombatManager.Instance.ApplyDamage(participantIndex, damage);
         }
-
-        string targetName = GetTokenName(target);
-        Debug.Log($"SpellTargetingManager: {currentSpell.spellName} dealt {damage} damage to {targetName}");
     }
 
     /// <summary>
@@ -279,9 +249,6 @@ public class SpellTargetingManager : MonoBehaviour
         {
             CombatManager.Instance.ApplyHealing(participantIndex, healing);
         }
-
-        string targetName = GetTokenName(target);
-        Debug.Log($"SpellTargetingManager: {currentSpell.spellName} healed {targetName} for {healing}");
     }
 
     /// <summary>
@@ -290,9 +257,7 @@ public class SpellTargetingManager : MonoBehaviour
     private void ApplyUtilitySpell(Token target, int rollResult)
     {
         // Utility spells might not have direct HP effects
-        // This could trigger buffs, status effects, etc in the future
-        string targetName = GetTokenName(target);
-        Debug.Log($"SpellTargetingManager: {currentSpell.spellName} cast on {targetName}");
+        // Could trigger buffs/status effects in the future
     }
 
     /// <summary>
@@ -350,15 +315,52 @@ public class SpellTargetingManager : MonoBehaviour
     /// </summary>
     private CharacterData GetCaster()
     {
+        // First try: combat turn participant
         if (CombatManager.Instance != null && CombatManager.Instance.GetCombatState() == CombatState.Active)
         {
             var currentParticipant = CombatManager.Instance.GetCurrentTurnParticipant();
-            if (currentParticipant.token != null)
+            if (currentParticipant.token != null && currentParticipant.token.getCharacterData() != null)
             {
                 return currentParticipant.token.getCharacterData();
             }
+            
+            // If combat is active but token is null/destroyed, try to find the token by uniqueId from spawned tokens
+            if (!string.IsNullOrEmpty(currentParticipant.uniqueId))
+            {
+                var tokens = TokenManager.Instance?.GetSpawnedTokens();
+                if (tokens != null)
+                {
+                    foreach (var token in tokens)
+                    {
+                        if (token == null) continue;
+                        
+                        // Match by character ID or enemy name
+                        if (token.getCharacterData() != null && 
+                            token.getCharacterData().id == currentParticipant.uniqueId)
+                        {
+                            return token.getCharacterData();
+                        }
+                        if (token.getEnemyData() != null && 
+                            $"enemy_{token.getEnemyData().name}" == currentParticipant.uniqueId)
+                        {
+                            return token.getCharacterData(); // Enemies don't have CharacterData
+                        }
+                    }
+                }
+            }
         }
 
+        // Second try: currently selected token
+        if (TokenManager.Instance != null && TokenManager.Instance.GetSelectedToken() != null)
+        {
+            var selectedToken = TokenManager.Instance.GetSelectedToken();
+            if (selectedToken.getCharacterData() != null)
+            {
+                return selectedToken.getCharacterData();
+            }
+        }
+
+        // Third try: player assignment
         if (PlayerAssignmentHelper.Instance != null)
         {
             return PlayerAssignmentHelper.Instance.GetMyCharacter();
@@ -372,10 +374,45 @@ public class SpellTargetingManager : MonoBehaviour
     /// </summary>
     private Token GetCasterToken()
     {
+        // First try: combat turn participant
         if (CombatManager.Instance != null && CombatManager.Instance.GetCombatState() == CombatState.Active)
         {
             var currentParticipant = CombatManager.Instance.GetCurrentTurnParticipant();
-            return currentParticipant.token;
+            if (currentParticipant.token != null)
+            {
+                return currentParticipant.token;
+            }
+            
+            // If combat is active but token is null/destroyed, try to find the token by uniqueId from spawned tokens
+            if (!string.IsNullOrEmpty(currentParticipant.uniqueId))
+            {
+                var tokens = TokenManager.Instance?.GetSpawnedTokens();
+                if (tokens != null)
+                {
+                    foreach (var token in tokens)
+                    {
+                        if (token == null) continue;
+                        
+                        // Match by character ID or enemy name
+                        if (token.getCharacterData() != null && 
+                            token.getCharacterData().id == currentParticipant.uniqueId)
+                        {
+                            return token;
+                        }
+                        if (token.getEnemyData() != null && 
+                            $"enemy_{token.getEnemyData().name}" == currentParticipant.uniqueId)
+                        {
+                            return token;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Second try: currently selected token
+        if (TokenManager.Instance != null && TokenManager.Instance.GetSelectedToken() != null)
+        {
+            return TokenManager.Instance.GetSelectedToken();
         }
 
         return null;
@@ -422,6 +459,14 @@ public class SpellTargetingManager : MonoBehaviour
     public bool IsTargeting()
     {
         return isTargeting;
+    }
+
+    /// <summary>
+    /// Check if the given token is the caster (for clicking on self to cancel)
+    /// </summary>
+    public bool IsAttacker(Token token)
+    {
+        return token != null && token == casterToken;
     }
 
     /// <summary>
