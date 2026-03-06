@@ -3460,10 +3460,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CombatManager
   combatParticipant: []
   initiativeOrder: []
-  startCombatButton: {fileID: 1724953478}
+  controlCombatButton: {fileID: 1724953478}
+  controlButtonText: {fileID: 990861278}
   pauseCombatButton: {fileID: 0}
   pausedButtonText: {fileID: 0}
-  endCombatButton: {fileID: 2060385155}
   nextTurnButton: {fileID: 0}
   combatantsUIParent: {fileID: 0}
   combatantUIPrefab: {fileID: 0}
@@ -3871,7 +3871,7 @@ MonoBehaviour:
   titleText: {fileID: 1176356755}
   noSpellsText: {fileID: 494100973}
   contentParent: {fileID: 1507212413}
-  spellItemPrefab: {fileID: 1280141131921457744, guid: d5d58e712026967429dfbc5596214621, type: 3}
+  spellItemPrefab: {fileID: 584879053663775108, guid: b877c73720bf54a4c802c5338f71bc09, type: 3}
   spellAttackButton: {fileID: 0}
 --- !u!1 &1724953476
 GameObject:

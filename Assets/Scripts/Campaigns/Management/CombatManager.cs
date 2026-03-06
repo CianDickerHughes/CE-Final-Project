@@ -23,10 +23,10 @@ public class CombatManager : MonoBehaviour
     private CombatState combatState = CombatState.Inactive;
 
     //DM Controls
-    [SerializeField] private Button startCombatButton;
+    [SerializeField] private Button controlCombatButton;
+    [SerializeField] private TextMeshProUGUI controlButtonText;
     [SerializeField] private Button pauseCombatButton;
     [SerializeField] private TextMeshProUGUI pausedButtonText;
-    [SerializeField] private Button endCombatButton;
     [SerializeField] private Button nextTurnButton;
     //UI Elements for the characters in combat - like the initiative tracker in bg3
     [SerializeField] private Transform combatantsUIParent;
@@ -46,17 +46,14 @@ public class CombatManager : MonoBehaviour
         combatantUIElements = new List<CharInitToken>();
         
         //Wiring up the buttons for controlling combat
-        if (startCombatButton != null)
+        if (controlCombatButton != null)
         {
-            startCombatButton.onClick.AddListener(startCombat);
+            controlCombatButton.onClick.AddListener(controlCombat);
         } 
         if (pauseCombatButton != null)
         {
             pauseCombatButton.onClick.AddListener(pauseCombat);
-        }
-        if (endCombatButton != null)
-        {
-            endCombatButton.onClick.AddListener(endCombat);
+
         }
         if (nextTurnButton != null)
         {
@@ -90,7 +87,7 @@ public class CombatManager : MonoBehaviour
     }
 
     //DM Control methods
-    public void startCombat()
+    public void controlCombat()
     {
         if (combatState == CombatState.Inactive) {
             PopulateCombatList(); 
@@ -101,6 +98,28 @@ public class CombatManager : MonoBehaviour
             {
                 combatStateText.text = "Combat Started!";
             }
+            //Updating the combat control button to make sure its ui changes based on state of combat
+            controlButtonText.text = "End Combat";
+        }
+        else if (combatState == CombatState.Active)
+        {
+            combatState = CombatState.Inactive;
+            currentTurnIndex = 0;
+            initiativeOrder.Clear();
+            //Update UI to reflect end of combat, disable turn controls, etc
+            if(combatStateText != null)
+            {
+                combatStateText.text = "Combat Ended!";
+            }
+
+            //Clearing the combatants UI
+            foreach(Transform child in combatantsUIParent)
+            {
+                Destroy(child.gameObject);
+            }
+            combatantUIElements.Clear();
+            //Updating the combat control button to make sure its ui changes based on state of combat
+            controlButtonText.text = "ReStart Combat";
         }
     }
 
@@ -126,24 +145,6 @@ public class CombatManager : MonoBehaviour
                 combatStateText.text = "Combat Resumed!";
                 pausedButtonText.text = "Pause Combat";
             }
-        }
-    }
-
-    public void endCombat()
-    {
-        combatState = CombatState.Inactive;
-        currentTurnIndex = 0;
-        initiativeOrder.Clear();
-        //Update UI to reflect end of combat, disable turn controls, etc
-        if(combatStateText != null)
-        {
-            combatStateText.text = "Combat Ended!";
-        }
-
-        //Clearing the combatants UI
-        foreach(Transform child in combatantsUIParent)
-        {
-            Destroy(child.gameObject);
         }
     }
 

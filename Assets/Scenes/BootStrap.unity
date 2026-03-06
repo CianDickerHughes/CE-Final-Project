@@ -278,7 +278,7 @@ GameObject:
   - component: {fileID: 2121328964}
   - component: {fileID: 2121328963}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: BootStrap
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
