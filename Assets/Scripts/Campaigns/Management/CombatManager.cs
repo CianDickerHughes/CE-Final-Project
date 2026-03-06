@@ -197,6 +197,12 @@ public class CombatManager : MonoBehaviour
         initiativeOrder.Sort((a, b) => b.initiativeRoll.CompareTo(a.initiativeRoll));
         combatState = CombatState.Active;
         populateCharactersUI();
+
+        // Update ability UI when combat starts
+        if (AbilityManager.Instance != null)
+        {
+            AbilityManager.Instance.UpdateAbilityUI();
+        }
     }
 
     //UTILITY METHODS
@@ -306,6 +312,12 @@ public class CombatManager : MonoBehaviour
         if (combatStateText != null && initiativeOrder.Count > 0)
         {
             combatStateText.text = $"{initiativeOrder[currentTurnIndex].GetName()}'s Turn";
+        }
+
+        //Update ability UI for the new turn
+        if (AbilityManager.Instance != null)
+        {
+            AbilityManager.Instance.UpdateAbilityUI();
         }
     }
 
