@@ -36,6 +36,7 @@ public class CharacterCreatorUI : MonoBehaviour
     public TextMeshProUGUI levelText;
     public TextMeshProUGUI ACText;
     public TextMeshProUGUI HPText;
+    public TextMeshProUGUI weaponText;
     private int AC;
     private int HP;
     private string[] weapons;
@@ -91,14 +92,6 @@ public class CharacterCreatorUI : MonoBehaviour
             classDropdown.AddOptions(new System.Collections.Generic.List<string> {
                 "Artificer", "Barbarian", "Bard", "Cleric", "Druid", "Fighter",
                 "Monk", "Paladin", "Ranger", "Rogue", "Sorcerer", "Wizard"
-            });
-        }
-
-        if (weaponDropdown != null)
-        {
-            weaponDropdown.ClearOptions();
-            weaponDropdown.AddOptions(new System.Collections.Generic.List<string> {
-                "Broadsword", "Greatsword", "Axe", "Bow", "Crossbow", "Dagger", "Staff"
             });
         }
     }
@@ -179,8 +172,7 @@ public class CharacterCreatorUI : MonoBehaviour
         data.wisdom = ParseIntOrDefault(wisInput.text, 10);
         data.charisma = ParseIntOrDefault(chaInput.text, 10);
         data.level = ParseIntOrDefault(levelInput.text, 1);
-        data.speed = 30; // Default speed, could be modified later 
-        data.weapon = weaponDropdown.options[weaponDropdown.value].text;
+        data.speed = 30; // Default speed, could be modified later
 
         //Race Specific Bonuses
         switch(data.race)
@@ -683,6 +675,7 @@ public class CharacterCreatorUI : MonoBehaviour
         levelText.text = "Level: " + d.level.ToString();
         ACText.text = "AC: " + d.AC.ToString();
         HPText.text = "HP: " + d.HP.ToString();
+        weaponText.text = "Weapon: " + d.weapon + " (" + d.weaponDamage + ")";
 
         // Load token if exists
         if (!string.IsNullOrEmpty(d.tokenFileName))
