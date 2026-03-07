@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System;
 using UnityEngine.UI;
 using TMPro;
+using Unity.Netcode;
 
 //This class is meant to serve as a manager for the combat related behaviours in the gameplay scene
 // - Handling turns, initiative, combat actions, etc
@@ -152,9 +153,31 @@ public class CombatManager : MonoBehaviour
     {
         if(combatState == CombatState.Active)
         {
-            currentTurnIndex = (currentTurnIndex + 1) % initiativeOrder.Count;
-            //Update UI to highlight current turn, reset action states for the new turn, etc
-            UpdateTurnHighlight();
+            //Check if the user is the DM (host) - DMs can always advance turns
+            bool isDM = NetworkManager.Singleton != null && (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer);
+            
+            //Check if it's this player's turn by seeing if they control the current turn's token
+            CombatParticipant currentParticipant = GetCurrentTurnParticipant();
+            bool isMyTurn = currentParticipant.token != null && TokenManager.Instance != null && TokenManager.Instance.CanCurrentPlayerControlToken(currentParticipant.token);
+
+            //Only allow ending turn if: you're the DM OR it's your turn
+            if (!isDM && !isMyTurn)
+            {
+                Debug.Log("Cannot end turn - it's not your turn and you're not the DM.");
+                return;
+            }
+            
+            if (isDM || isMyTurn)
+            {
+                Debug.Log("Ending turn...");
+                currentTurnIndex = (currentTurnIndex + 1) % initiativeOrder.Count;
+                //Update UI to highlight current turn, reset action states for the new turn, etc
+                UpdateTurnHighlight();
+            }
+            else
+            {
+                Debug.Log("Player ended their turn.");
+            }
         }
     }
 
