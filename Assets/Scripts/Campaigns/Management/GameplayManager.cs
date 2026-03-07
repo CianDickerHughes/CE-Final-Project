@@ -97,6 +97,13 @@ public class GameplayManager : MonoBehaviour
 
     void Start()
     {
+        //Skip initialization if we're in the DMFight scene - DMFightManager handles that
+        if (SceneManager.GetActiveScene().name == "DMFight")
+        {
+            Debug.Log("GameplayManager: Skipping initialization in DMFight scene");
+            return;
+        }
+
         Debug.Log("=== GameplayManager Start() ===");
         
         // Initialize lists early so they're ready for token loading

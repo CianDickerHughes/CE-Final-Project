@@ -240,8 +240,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GridManager
   width: 0
   height: 0
-  tilePrefab: {fileID: 0}
-  cam: {fileID: 0}
+  tilePrefab: {fileID: 4486543169891831586, guid: adecb27cdad579d4abd772308c0fc208, type: 3}
+  cam: {fileID: 521333333}
   IsEditMode: 0
   columnsInput: {fileID: 0}
   rowsInput: {fileID: 0}
@@ -2615,6 +2615,51 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1153785353
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1153785355}
+  - component: {fileID: 1153785354}
+  m_Layer: 0
+  m_Name: TokenManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1153785354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1153785353}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 278ab0f2015073f41972d1c2a88ce570, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TokenManager
+  tokenPrefab: {fileID: 5285540989485798027, guid: 8cc39377f7b26e74e96c5f9c8aaf7c8d, type: 3}
+--- !u!4 &1153785355
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1153785353}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1528.5662, y: 802.1854, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1176274461
 GameObject:
   m_ObjectHideFlags: 0
@@ -3693,6 +3738,59 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!1 &1519662610
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1519662612}
+  - component: {fileID: 1519662611}
+  m_Layer: 0
+  m_Name: DMFightManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1519662611
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1519662610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84a1a3663f335304b993538a0bcd86ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DMFightSetupManager
+  gridManager: {fileID: 73811417}
+  tokenManager: {fileID: 1153785354}
+  exitButton: {fileID: 495751279}
+  dmEnemyName: Dungeon Master
+  dmEnemyHP: 50
+  dmEnemyAC: 15
+  dmEnemySpeed: 30
+  playerSpawnOffset: {x: 1, y: 5}
+  enemySpawnOffset: {x: 8, y: 5}
+--- !u!4 &1519662612
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1519662610}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1528.5662, y: 802.1854, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1645565737
 GameObject:
   m_ObjectHideFlags: 0
@@ -5011,3 +5109,5 @@ SceneRoots:
   - {fileID: 1867258906}
   - {fileID: 805901901}
   - {fileID: 504878682}
+  - {fileID: 1519662612}
+  - {fileID: 1153785355}

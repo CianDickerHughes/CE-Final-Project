@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
  
- //Manages a grid of tiles, allowing for dynamic generation and resizing.
+//Manages a grid of tiles, allowing for dynamic generation and resizing.
  
 public class GridManager : MonoBehaviour {
     [Header("Grid Settings")]

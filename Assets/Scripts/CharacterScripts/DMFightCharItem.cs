@@ -82,25 +82,13 @@ public class DMFightCharItem: MonoBehaviour
         }
 
         //Wiring up the button to call the onSelect action with the file path when clicked
-        //Selecting this character for the fight will load the character data from the file path and set it as the current character for the DM fight
-        //Then move them to the appropriate scene to start the fight
+        //The controller handles setting context and loading the scene
         if (selectForFightButton != null)
         {
             selectForFightButton.onClick.RemoveAllListeners();
             selectForFightButton.onClick.AddListener(() => {
                 onSelect?.Invoke(filePath);
-                OnSelectForFightClicked();
             });
         }
-    }
-
-    //This is called when the select for fight button is clicked
-    public void OnSelectForFightClicked()
-    {
-        //Here we would set the selected character for the DM fight and move to the fight scene
-        //For now we can just log the file path to show that it's working
-        Debug.Log("Selected character for DM fight: " + filePath);
-        CharacterSelectionContext.SelectedCharacterFilePath = filePath;
-        SceneManager.LoadScene("DMFight");
     }
 }

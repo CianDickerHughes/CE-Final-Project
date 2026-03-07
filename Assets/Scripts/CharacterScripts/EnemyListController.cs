@@ -68,4 +68,37 @@ public class EnemyListController : MonoBehaviour
             }
         }
     }
+
+    //Method for only getting the DM enemy - this is used in the DM fight so ill add it here to just call in the controller/manager
+    public EnemyData GetDMEnemy()
+    {
+        //Using the character IO method to get all saved enemy file paths
+        string[] files = CharacterIO.GetSavedEnemyFilePaths();
+        if (files == null || files.Length == 0)
+        {
+            Debug.LogError("EnemyListController: No enemy files found in " + CharacterIO.GetEnemiesFolder());
+            return null;
+        }
+
+        //Look for the DM enemy file - we can identify it by name since we know what we called it when we created it
+        string dmEnemyFile = Array.Find(files, f => Path.GetFileNameWithoutExtension(f).Equals("DungeonMaster", StringComparison.OrdinalIgnoreCase));
+        if (string.IsNullOrEmpty(dmEnemyFile))
+        {
+            Debug.LogError("EnemyListController: DM enemy file not found in " + CharacterIO.GetEnemiesFolder());
+            return null;
+        }
+
+        try
+        {
+            //Read the JSON file and parse it into EnemyData
+            string json = File.ReadAllText(dmEnemyFile);
+            var data = JsonUtility.FromJson<EnemyData>(json);
+            return data;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError("Failed to load DM enemy data: " + ex.Message);
+            return null;
+        }
+    }
 }

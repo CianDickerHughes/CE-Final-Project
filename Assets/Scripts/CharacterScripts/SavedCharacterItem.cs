@@ -118,6 +118,7 @@ public class SavedCharacterItem : MonoBehaviour
         if (characterData != null)
         {
             CharacterSelectionContext.SelectedCharacterFilePath = filePath;
+            CharacterSelectionContext.SetSelectedCharacter(characterData);
             Debug.Log($"Selected {characterData.charName} for DM fight.");
             SceneManager.LoadScene("DMFight");
         }
