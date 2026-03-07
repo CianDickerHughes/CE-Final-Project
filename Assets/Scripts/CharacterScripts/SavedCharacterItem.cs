@@ -2,6 +2,8 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.IO;
+using UnityEngine.SceneManagement;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -17,6 +19,7 @@ public class SavedCharacterItem : MonoBehaviour
     public TextMeshProUGUI charRace;
     public Button loadButton;
     public Button spawnButton;
+    public Button fightDMButton; //Used for the dm fight option where we send/setup this character for a fight against the dm
     public Button deleteButton;
     private string filePath;
     private CharacterData characterData;
@@ -95,6 +98,11 @@ public class SavedCharacterItem : MonoBehaviour
             deleteButton.onClick.RemoveAllListeners();
             deleteButton.onClick.AddListener(OnDeleteClicked);
         }
+
+        if(fightDMButton != null){
+            fightDMButton.onClick.RemoveAllListeners();
+            fightDMButton.onClick.AddListener(() => SelectCharForDMFight());
+        }
     }
 
     public void SelectForSpawning(CharacterType type){
@@ -103,6 +111,16 @@ public class SavedCharacterItem : MonoBehaviour
             TokenManager.Instance.SetSelectedForSpawn(characterData, CharacterType.NPC);
             Debug.Log($"Selected {characterData.charName} for spawning.");
         } 
+    }
+
+    //Takes the chosen character from the list and sets it as the current character for the DM fight, then moves to the fight scene
+    public void SelectCharForDMFight(){
+        if (characterData != null)
+        {
+            CharacterSelectionContext.SelectedCharacterFilePath = filePath;
+            Debug.Log($"Selected {characterData.charName} for DM fight.");
+            SceneManager.LoadScene("DMFight");
+        }
     }
 
     private void OnDeleteClicked()

@@ -72,10 +72,8 @@ public class AbilityManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Updates the ability button to show the current player's class ability.
-    /// Called when turns change or when combat starts.
-    /// </summary>
+    //Updates the ability button to show the current player's class ability.
+    //Called when turns change or when combat starts.
     public void UpdateAbilityUI()
     {
         CharacterData character = GetCurrentCharacter();
@@ -88,7 +86,7 @@ public class AbilityManager : MonoBehaviour
 
         currentCharacter = character;
         
-        // Get the single ability for this character's class
+        //Get the single ability for this character's class
         List<AbilityData> abilities = AbilityDatabase.GetAbilitiesForClass(character.charClass);
         
         if (abilities == null || abilities.Count == 0)
@@ -99,7 +97,7 @@ public class AbilityManager : MonoBehaviour
 
         currentAbility = abilities[0]; // Each class has one ability
         
-        // Check if ability has uses remaining
+        //Check if ability has uses remaining
         int usesLeft = GetUsesRemaining(currentAbility.abilityName);
         bool canUse = usesLeft != 0; // -1 means unlimited
         
@@ -239,7 +237,10 @@ public class AbilityManager : MonoBehaviour
 
     private bool IsValidTarget(Token target)
     {
-        if (currentAbility == null) return false;
+        if (currentAbility == null) 
+        {
+            return false;
+        }
 
         CharacterType targetType = target.getCharacterType();
         
@@ -275,7 +276,10 @@ public class AbilityManager : MonoBehaviour
 
     private void ExecuteAbility(Token target)
     {
-        if (currentAbility == null) return;
+        if (currentAbility == null) 
+        {
+            return;
+        }
 
         Debug.Log($"AbilityManager: Executing {currentAbility.abilityName}");
 
@@ -328,10 +332,20 @@ public class AbilityManager : MonoBehaviour
     {
         // Parse dice notation like "2d6"
         string[] parts = diceNotation.ToLower().Split('d');
-        if (parts.Length != 2) return 0;
+        if (parts.Length != 2) 
+        {
+            return 0;
+        }
         
-        if (!int.TryParse(parts[0], out int numDice)) numDice = 1;
-        if (!int.TryParse(parts[1], out int sides)) return 0;
+        if (!int.TryParse(parts[0], out int numDice)) 
+        {
+            numDice = 1;
+        }
+
+        if (!int.TryParse(parts[1], out int sides)) 
+        {
+            return 0;
+        }
         
         int total = 0;
         for (int i = 0; i < numDice; i++)
@@ -360,7 +374,10 @@ public class AbilityManager : MonoBehaviour
 
     private void ApplyDamageAbility(Token target, int amount)
     {
-        if (target == null) return;
+        if (target == null) 
+        {
+            return;
+        }
         
         if (CombatManager.Instance != null && CombatManager.Instance.IsCombatActive())
         {
@@ -380,14 +397,12 @@ public class AbilityManager : MonoBehaviour
         string targetName = target != null ? GetTokenName(target) : currentCharacter.charName;
         Debug.Log($"AbilityManager: {currentAbility.abilityName} applied to {targetName}");
         
-        // For now, just log the buff. You could expand this with a status effects system.
     }
 
     private void ApplyUtilityAbility()
     {
         Debug.Log($"AbilityManager: {currentAbility.abilityName} activated");
         
-        // Utility abilities have varied effects - implement specific logic as needed
     }
 
     private int GetParticipantIndex(Token token)
@@ -446,21 +461,17 @@ public class AbilityManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Reset ability uses (call on rest)
-    /// </summary>
+    //Reset ability uses (call on rest)
     public void ResetAbilityUses()
     {
         abilityUsesRemaining.Clear();
         UpdateAbilityUI();
     }
 
-    /// <summary>
-    /// Get the current character (follows same pattern as SpellChoiceManager)
-    /// </summary>
+    //Get the current character (follows same pattern as SpellChoiceManager)
     private CharacterData GetCurrentCharacter()
     {
-        // First priority: Check for current turn in combat
+        //First priority: Check for current turn in combat
         if (CombatManager.Instance != null && CombatManager.Instance.GetCombatState() == CombatState.Active)
         {
             var currentParticipant = CombatManager.Instance.GetCurrentTurnParticipant();
@@ -474,7 +485,7 @@ public class AbilityManager : MonoBehaviour
             }
         }
 
-        // Second priority: Check for a selected token
+        //Second priority: Check for a selected token
         if (TokenManager.Instance != null)
         {
             Token selectedToken = TokenManager.Instance.GetSelectedToken();
@@ -488,7 +499,7 @@ public class AbilityManager : MonoBehaviour
             }
         }
 
-        // Third priority: Try PlayerAssignmentHelper
+        //Third priority: Try PlayerAssignmentHelper
         if (PlayerAssignmentHelper.Instance != null)
         {
             CharacterData character = PlayerAssignmentHelper.Instance.GetMyCharacter();
