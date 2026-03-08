@@ -289,6 +289,17 @@ public class Token : MonoBehaviour
     public void MoveToTile(Tile tile)
     {
         if (tile == null) return;
+        
+        // Log movement if in combat
+        if (CombatLogger.Instance != null && CombatLogger.Instance.IsLogging())
+        {
+            GridPosition fromPos = CombatLogger.GetTokenPosition(this);
+            GridPosition toPos = new GridPosition { gridX = tile.GridX, gridY = tile.GridY };
+            string actorName = CombatLogger.GetParticipantName(this);
+            
+            CombatLogger.Instance.LogMovement(actorName, fromPos, toPos);
+        }
+        
         currentTile = tile;
         // Match tile position exactly
         transform.position = tile.transform.position;

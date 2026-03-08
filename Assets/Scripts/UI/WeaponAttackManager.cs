@@ -220,8 +220,19 @@ public class WeaponAttackManager : MonoBehaviour
             CombatManager.Instance.ApplyDamage(targetIndex, totalDamage);
         }
 
+        // Log the attack
+        if (CombatLogger.Instance != null)
+        {
+            string attackerName = CombatLogger.GetParticipantName(attackerToken);
+            string targetName = CombatLogger.GetParticipantName(targetToken);
+            GridPosition attackerPos = CombatLogger.GetTokenPosition(attackerToken);
+            GridPosition targetPos = CombatLogger.GetTokenPosition(targetToken);
+            
+            CombatLogger.Instance.LogDamage(attackerName, targetName, totalDamage,
+                $"attacked with {currentWeaponName}", attackerPos, targetPos);
+        }
+
         // Broadcast to chat
-        string attackerName = attacker?.charName ?? "Unknown";
         BroadcastAttack(targetToken, damage, strMod, totalDamage);
 
         // End targeting

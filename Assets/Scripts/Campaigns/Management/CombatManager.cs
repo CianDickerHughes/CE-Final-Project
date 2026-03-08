@@ -94,6 +94,10 @@ public class CombatManager : MonoBehaviour
             PopulateCombatList(); 
             combatState = CombatState.Rolling;
             RollInitiative();
+            
+            // Start combat logging
+            CombatLogger.Instance.StartLogging();
+            
             //Updating the UI reference to reflect combat starting
             if(combatStateText != null)
             {
@@ -104,6 +108,9 @@ public class CombatManager : MonoBehaviour
         }
         else if (combatState == CombatState.Active)
         {
+            // Stop combat logging and save
+            CombatLogger.Instance.StopLogging(true);
+            
             combatState = CombatState.Inactive;
             currentTurnIndex = 0;
             initiativeOrder.Clear();
@@ -170,6 +177,10 @@ public class CombatManager : MonoBehaviour
             if (isDM || isMyTurn)
             {
                 Debug.Log("Ending turn...");
+                
+                // Commit all pending combat actions from this turn
+                CombatLogger.Instance.CommitTurn();
+                
                 currentTurnIndex = (currentTurnIndex + 1) % initiativeOrder.Count;
                 //Update UI to highlight current turn, reset action states for the new turn, etc
                 UpdateTurnHighlight();

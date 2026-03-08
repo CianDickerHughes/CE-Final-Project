@@ -20,6 +20,7 @@ public class AbilityManager : MonoBehaviour
     [Header("Ability State")]
     private AbilityData currentAbility;
     private CharacterData currentCharacter;
+    private Token currentUserToken;  // For logging
     private bool isTargeting = false;
     private Dictionary<string, int> abilityUsesRemaining = new Dictionary<string, int>();
 
@@ -81,10 +82,12 @@ public class AbilityManager : MonoBehaviour
         if (character == null)
         {
             SetButtonState("No Ability", false);
+            currentUserToken = null;
             return;
         }
 
         currentCharacter = character;
+        currentUserToken = GetCurrentToken();  // Store for logging
         
         //Get the single ability for this character's class
         List<AbilityData> abilities = AbilityDatabase.GetAbilitiesForClass(character.charClass);
@@ -368,8 +371,16 @@ public class AbilityManager : MonoBehaviour
             }
         }
         
-        string targetName = target != null ? GetTokenName(target) : "self";
-        Debug.Log($"AbilityManager: {currentAbility.abilityName} healed {targetName} for {amount} HP");
+        // Log the healing
+        if (CombatLogger.Instance != null)
+        {
+            string userName = CombatLogger.GetParticipantName(currentUserToken);
+            string targetName = target != null ? CombatLogger.GetParticipantName(target) : userName;
+            GridPosition userPos = CombatLogger.GetTokenPosition(currentUserToken);
+            GridPosition targetPos = target != null ? CombatLogger.GetTokenPosition(target) : userPos;
+            
+            CombatLogger.Instance.LogHealing(userName, targetName, amount, userPos, targetPos);
+        }
     }
 
     private void ApplyDamageAbility(Token target, int amount)
@@ -388,7 +399,17 @@ public class AbilityManager : MonoBehaviour
             }
         }
         
-        Debug.Log($"AbilityManager: {currentAbility.abilityName} dealt {amount} damage to {GetTokenName(target)}");
+        // Log the damage
+        if (CombatLogger.Instance != null)
+        {
+            string userName = CombatLogger.GetParticipantName(currentUserToken);
+            string targetName = CombatLogger.GetParticipantName(target);
+            GridPosition userPos = CombatLogger.GetTokenPosition(currentUserToken);
+            GridPosition targetPos = CombatLogger.GetTokenPosition(target);
+            
+            CombatLogger.Instance.LogDamage(userName, targetName, amount,
+                $"used {currentAbility.abilityName}", userPos, targetPos);
+        }
     }
 
     private void ApplyBuffAbility(Token target)
@@ -507,6 +528,26 @@ public class AbilityManager : MonoBehaviour
             {
                 return character;
             }
+        }
+
+        return null;
+    }
+
+    //Get the current token (for logging)
+    private Token GetCurrentToken()
+    {
+        if (CombatManager.Instance != null && CombatManager.Instance.GetCombatState() == CombatState.Active)
+        {
+            var currentParticipant = CombatManager.Instance.GetCurrentTurnParticipant();
+            if (currentParticipant.token != null)
+            {
+                return currentParticipant.token;
+            }
+        }
+
+        if (TokenManager.Instance != null)
+        {
+            return TokenManager.Instance.GetSelectedToken();
         }
 
         return null;

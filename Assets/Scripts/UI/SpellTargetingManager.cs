@@ -238,6 +238,19 @@ public class SpellTargetingManager : MonoBehaviour
         {
             CombatManager.Instance.ApplyDamage(participantIndex, damage);
         }
+
+        // Log the damage
+        if (CombatLogger.Instance != null)
+        {
+            string casterName = CombatLogger.GetParticipantName(casterToken);
+            string targetName = CombatLogger.GetParticipantName(target);
+            GridPosition casterPos = CombatLogger.GetTokenPosition(casterToken);
+            GridPosition targetPos = CombatLogger.GetTokenPosition(target);
+            string spellName = FormatSpellName(currentSpell.spellName.ToString());
+            
+            CombatLogger.Instance.LogDamage(casterName, targetName, damage,
+                $"cast {spellName}", casterPos, targetPos);
+        }
     }
 
     /// <summary>
@@ -248,6 +261,17 @@ public class SpellTargetingManager : MonoBehaviour
         if (CombatManager.Instance != null && participantIndex >= 0)
         {
             CombatManager.Instance.ApplyHealing(participantIndex, healing);
+        }
+
+        // Log the healing
+        if (CombatLogger.Instance != null)
+        {
+            string casterName = CombatLogger.GetParticipantName(casterToken);
+            string targetName = CombatLogger.GetParticipantName(target);
+            GridPosition casterPos = CombatLogger.GetTokenPosition(casterToken);
+            GridPosition targetPos = CombatLogger.GetTokenPosition(target);
+            
+            CombatLogger.Instance.LogHealing(casterName, targetName, healing, casterPos, targetPos);
         }
     }
 
