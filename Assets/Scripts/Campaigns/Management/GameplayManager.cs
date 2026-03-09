@@ -722,7 +722,24 @@ public class GameplayManager : MonoBehaviour
                 if (fromManager != null) return fromManager;
             }
             
-            //Otherwise search through all character JSON files
+            // Check campaign's PlayerCharacters folder first
+            string campaignPlayerCharsFolder = GetCampaignPlayerCharactersFolder();
+            if (!string.IsNullOrEmpty(campaignPlayerCharsFolder) && System.IO.Directory.Exists(campaignPlayerCharsFolder))
+            {
+                string[] campaignFiles = System.IO.Directory.GetFiles(campaignPlayerCharsFolder, "*.json");
+                foreach (string filePath in campaignFiles)
+                {
+                    string json = System.IO.File.ReadAllText(filePath);
+                    CharacterData data = JsonUtility.FromJson<CharacterData>(json);
+                    if (data != null && data.id == characterId)
+                    {
+                        Debug.Log($"Found character {data.charName} in campaign PlayerCharacters folder");
+                        return data;
+                    }
+                }
+            }
+            
+            //Otherwise search through global character JSON files
             string[] files = CharacterIO.GetSavedCharacterFilePaths();
             foreach (string filePath in files)
             {
@@ -740,6 +757,20 @@ public class GameplayManager : MonoBehaviour
         }
         
         return null;
+    }
+    
+    private string GetCampaignPlayerCharactersFolder()
+    {
+        if (CampaignManager.Instance == null) return null;
+        
+        var campaign = CampaignManager.Instance.GetCurrentCampaign();
+        if (campaign == null || string.IsNullOrEmpty(campaign.campaignName)) return null;
+        
+        #if UNITY_EDITOR
+            return System.IO.Path.Combine(Application.dataPath, "Campaigns", campaign.campaignName, "PlayerCharacters");
+        #else
+            return System.IO.Path.Combine(Application.persistentDataPath, "Campaigns", campaign.campaignName, "PlayerCharacters");
+        #endif
     }
     
     //Find an enemy by ID from all saved enemy files

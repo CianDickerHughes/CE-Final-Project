@@ -417,41 +417,48 @@ public struct CombatParticipant
 
     //Getting AC
     public int GetAC(){
-        if(token.getCharacterType() == CharacterType.Player)
+        if(token == null) return 0;
+        if(token.getCharacterType() == CharacterType.Enemy)
         {
-            return token.getCharacterData().AC;
+            return token.getEnemyData()?.AC ?? 0;
         }
-        return token.getEnemyData().AC;
+        // Player and NPC both use CharacterData
+        return token.getCharacterData()?.AC ?? 0;
     }
 
     //Getting name
     public string GetName()
     {
+        if(token == null) return "unknown";
         if(token.getCharacterType() == CharacterType.Enemy)
         {
-            return token.getEnemyData().name;
+            return token.getEnemyData()?.name ?? "unknown";
         }
-        return token.getCharacterData().charName;
+        return token.getCharacterData()?.charName ?? "unknown";
     }
 
     //Getting speed
     public int GetSpeed()
     {
-        if(token.getCharacterType() == CharacterType.Player)
+        if(token == null) return 0;
+        if(token.getCharacterType() == CharacterType.Enemy)
         {
-            return token.getCharacterData().speed;
+            return token.getEnemyData()?.speed ?? 0;
         }
-        return token.getEnemyData().speed;
+        // Player and NPC both use CharacterData
+        return token.getCharacterData()?.speed ?? 0;
     }
 
     //Getting initative modifier
     public int GetInitiativeModifier()
     {
-        if(token.getCharacterType() == CharacterType.Player)
+        if(token == null) return 0;
+        if(token.getCharacterType() == CharacterType.Enemy)
         {
-            return token.getCharacterData().dexterity;
+            return token.getEnemyData()?.dexterity ?? 0;
         }
-        return token.getEnemyData().dexterity;
+        // Player and NPC both use CharacterData
+        return token.getCharacterData()?.dexterity ?? 0;
     }
 
     //Getting unique ID for comparison (handles both characters and enemies)

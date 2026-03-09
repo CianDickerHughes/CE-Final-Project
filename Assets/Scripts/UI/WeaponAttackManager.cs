@@ -228,8 +228,13 @@ public class WeaponAttackManager : MonoBehaviour
             GridPosition attackerPos = CombatLogger.GetTokenPosition(attackerToken);
             GridPosition targetPos = CombatLogger.GetTokenPosition(targetToken);
             
+            Debug.Log($"CombatLogger: Logging damage - {attackerName} -> {targetName} for {totalDamage} damage");
             CombatLogger.Instance.LogDamage(attackerName, targetName, totalDamage,
                 $"attacked with {currentWeaponName}", attackerPos, targetPos);
+        }
+        else
+        {
+            Debug.LogWarning("WeaponAttackManager: CombatLogger.Instance is null");
         }
 
         // Broadcast to chat

@@ -64,9 +64,27 @@ public class CombatLogger : MonoBehaviour
         currentLog = new CombatLog
         {
             timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+            participants = new List<ParticipantInfo>(),
             hp_summary = new Dictionary<string, int>(),
             action_log = new List<CombatAction>()
         };
+        
+        // Populate participant info from CombatManager
+        if (CombatManager.Instance != null)
+        {
+            foreach (var participant in CombatManager.Instance.GetInitiativeOrder())
+            {
+                if (participant.token == null) continue;
+                
+                currentLog.participants.Add(new ParticipantInfo
+                {
+                    name = participant.GetName(),
+                    max_hp = participant.maxHP,
+                    ac = participant.GetAC()
+                });
+            }
+        }
+        
         isLogging = true;
         
         // Create the file immediately
@@ -78,8 +96,7 @@ public class CombatLogger : MonoBehaviour
                 Directory.CreateDirectory(folderPath);
             }
             
-            string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-            currentLogFilePath = Path.Combine(folderPath, $"combat_log_{timestamp}.json");
+            currentLogFilePath = Path.Combine(folderPath, "combat_log.json");
             SaveLog();  // Create initial file
             Debug.Log($"CombatLogger: Started logging to {currentLogFilePath}");
         }
@@ -118,7 +135,13 @@ public class CombatLogger : MonoBehaviour
     /// </summary>
     public void CommitTurn()
     {
-        if (!isLogging || currentLog == null) return;
+        if (!isLogging || currentLog == null)
+        {
+            Debug.LogWarning($"CombatLogger.CommitTurn: Not logging - isLogging={isLogging}, currentLog={currentLog != null}");
+            return;
+        }
+        
+        Debug.Log($"CombatLogger.CommitTurn: pendingTurnActions={pendingTurnActions.Count}, movementOriginalPos={movementOriginalPos.Count}");
         
         // If there are NO damage/healing/ability actions, log movement only
         if (pendingTurnActions.Count == 0 && movementOriginalPos.Count > 0)
@@ -176,12 +199,20 @@ public class CombatLogger : MonoBehaviour
     }
 
     /// <summary>
-    /// Log a damage action
+    /// Log a damage action - replaces any previous action this turn (1 action per turn)
     /// </summary>
     public void LogDamage(string source, string target, int hpRemoved, string description, 
                           GridPosition sourcePos, GridPosition targetPos)
     {
-        if (!isLogging || currentLog == null) return;
+        if (!isLogging || currentLog == null)
+        {
+            Debug.LogWarning($"CombatLogger.LogDamage: Not logging - isLogging={isLogging}, currentLog={currentLog != null}");
+            return;
+        }
+
+        // Clear previous actions - only one action per turn
+        pendingTurnActions.Clear();
+        pendingHPChanges.Clear();
 
         var action = new CombatAction
         {
@@ -202,12 +233,16 @@ public class CombatLogger : MonoBehaviour
     }
 
     /// <summary>
-    /// Log a healing action
+    /// Log a healing action - replaces any previous action this turn (1 action per turn)
     /// </summary>
     public void LogHealing(string source, string target, int hpRestored,
                            GridPosition sourcePos, GridPosition targetPos)
     {
         if (!isLogging || currentLog == null) return;
+
+        // Clear previous actions - only one action per turn
+        pendingTurnActions.Clear();
+        pendingHPChanges.Clear();
 
         var action = new CombatAction
         {
@@ -245,12 +280,16 @@ public class CombatLogger : MonoBehaviour
     }
 
     /// <summary>
-    /// Log an ability use
+    /// Log an ability use - replaces any previous action this turn (1 action per turn)
     /// </summary>
     public void LogAbility(string source, string target, string abilityName, int effect,
                            bool isDamage, GridPosition sourcePos, GridPosition targetPos)
     {
         if (!isLogging || currentLog == null) return;
+
+        // Clear previous actions - only one action per turn
+        pendingTurnActions.Clear();
+        pendingHPChanges.Clear();
 
         var action = new CombatAction
         {
@@ -401,8 +440,17 @@ public class CombatLogger : MonoBehaviour
 public class CombatLog
 {
     public string timestamp;
+    public List<ParticipantInfo> participants;
     public Dictionary<string, int> hp_summary;
     public List<CombatAction> action_log;
+}
+
+[Serializable]
+public class ParticipantInfo
+{
+    public string name;
+    public int max_hp;
+    public int ac;
 }
 
 [Serializable]
@@ -437,12 +485,14 @@ public class GridPosition
 public class CombatLogWrapper
 {
     public string timestamp;
+    public List<ParticipantInfo> participants;
     public List<HPSummaryEntry> hp_summary;
     public List<CombatAction> action_log;
 
     public CombatLogWrapper(CombatLog log)
     {
         timestamp = log.timestamp;
+        participants = log.participants;
         action_log = log.action_log;
         hp_summary = new List<HPSummaryEntry>();
         
