@@ -236,7 +236,7 @@ public class CombatLogger : MonoBehaviour
     /// Log a healing action - replaces any previous action this turn (1 action per turn)
     /// </summary>
     public void LogHealing(string source, string target, int hpRestored,
-                           GridPosition sourcePos, GridPosition targetPos)
+                           GridPosition sourcePos, GridPosition targetPos, string description = "")
     {
         if (!isLogging || currentLog == null) return;
 
@@ -250,6 +250,7 @@ public class CombatLogger : MonoBehaviour
             source = source,
             target = target,
             hp_restored = hpRestored,
+            description = description,
             positions = new ActionPositions
             {
                 source = sourcePos,
@@ -296,7 +297,7 @@ public class CombatLogger : MonoBehaviour
             type = isDamage ? "damage" : "healing",
             source = source,
             target = target,
-            description = $"used {abilityName}",
+            description = $"Used {abilityName}",
             positions = new ActionPositions
             {
                 source = sourcePos,
@@ -314,6 +315,33 @@ public class CombatLogger : MonoBehaviour
             action.hp_restored = effect;
             AddPendingHPChange(target, effect);
         }
+
+        pendingTurnActions.Add(action);
+    }
+
+    /// <summary>
+    /// Log a buff/utility ability use (no HP change) - replaces any previous action this turn
+    /// </summary>
+    public void LogAbilityUse(string source, string abilityName, GridPosition sourcePos, string target = null, GridPosition? targetPos = null)
+    {
+        if (!isLogging || currentLog == null) return;
+
+        // Clear previous actions - only one action per turn
+        pendingTurnActions.Clear();
+        pendingHPChanges.Clear();
+
+        var action = new CombatAction
+        {
+            type = "ability",
+            source = source,
+            target = target ?? source,
+            description = $"Used {abilityName}",
+            positions = new ActionPositions
+            {
+                source = sourcePos,
+                target = targetPos ?? sourcePos
+            }
+        };
 
         pendingTurnActions.Add(action);
     }

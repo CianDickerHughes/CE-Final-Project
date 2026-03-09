@@ -379,7 +379,7 @@ public class AbilityManager : MonoBehaviour
             GridPosition userPos = CombatLogger.GetTokenPosition(currentUserToken);
             GridPosition targetPos = target != null ? CombatLogger.GetTokenPosition(target) : userPos;
             
-            CombatLogger.Instance.LogHealing(userName, targetName, amount, userPos, targetPos);
+            CombatLogger.Instance.LogHealing(userName, targetName, amount, userPos, targetPos, $"Used {currentAbility.abilityName}");
         }
     }
 
@@ -408,7 +408,7 @@ public class AbilityManager : MonoBehaviour
             GridPosition targetPos = CombatLogger.GetTokenPosition(target);
             
             CombatLogger.Instance.LogDamage(userName, targetName, amount,
-                $"used {currentAbility.abilityName}", userPos, targetPos);
+                $"Used {currentAbility.abilityName}", userPos, targetPos);
         }
     }
 
@@ -418,12 +418,36 @@ public class AbilityManager : MonoBehaviour
         string targetName = target != null ? GetTokenName(target) : currentCharacter.charName;
         Debug.Log($"AbilityManager: {currentAbility.abilityName} applied to {targetName}");
         
+        // Log the ability use
+        if (CombatLogger.Instance != null)
+        {
+            string userName = CombatLogger.GetParticipantName(currentUserToken);
+            GridPosition userPos = CombatLogger.GetTokenPosition(currentUserToken);
+            
+            if (target != null)
+            {
+                string logTargetName = CombatLogger.GetParticipantName(target);
+                GridPosition targetPos = CombatLogger.GetTokenPosition(target);
+                CombatLogger.Instance.LogAbilityUse(userName, currentAbility.abilityName, userPos, logTargetName, targetPos);
+            }
+            else
+            {
+                CombatLogger.Instance.LogAbilityUse(userName, currentAbility.abilityName, userPos);
+            }
+        }
     }
 
     private void ApplyUtilityAbility()
     {
         Debug.Log($"AbilityManager: {currentAbility.abilityName} activated");
         
+        // Log the ability use
+        if (CombatLogger.Instance != null)
+        {
+            string userName = CombatLogger.GetParticipantName(currentUserToken);
+            GridPosition userPos = CombatLogger.GetTokenPosition(currentUserToken);
+            CombatLogger.Instance.LogAbilityUse(userName, currentAbility.abilityName, userPos);
+        }
     }
 
     private int GetParticipantIndex(Token token)
