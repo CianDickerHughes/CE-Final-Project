@@ -372,6 +372,52 @@ public class TokenManager : MonoBehaviour
         playerTokens?.Clear();
         selectedToken = null;
     }
+    
+    //Removes a specific token from the game (used when a character dies)
+    public void RemoveToken(Token token)
+    {
+        if (token == null)
+        {
+            return;
+        }
+        
+        //Deselect if this was the selected token
+        if (selectedToken == token)
+        {
+            selectedToken = null;
+        }
+        
+        //Remove from spawned tokens list
+        if (spawnedTokens != null && spawnedTokens.Contains(token))
+        {
+            spawnedTokens.Remove(token);
+        }
+        
+        //Remove from player tokens dictionary if applicable
+        if (playerTokens != null)
+        {
+            string keyToRemove = null;
+            foreach (var kvp in playerTokens)
+            {
+                if (kvp.Value == token)
+                {
+                    keyToRemove = kvp.Key;
+                    break;
+                }
+            }
+            if (keyToRemove != null)
+            {
+                playerTokens.Remove(keyToRemove);
+            }
+        }
+        
+        //Destroy the game object
+        Debug.Log($"TokenManager: Removing token {token.name}");
+        Destroy(token.gameObject);
+        
+        //Notify listeners that tokens changed
+        OnTokensChanged?.Invoke();
+    }
 
     public Token GetSelectedToken() => selectedToken;
 }

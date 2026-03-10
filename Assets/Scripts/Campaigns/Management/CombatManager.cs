@@ -263,6 +263,167 @@ public class CombatManager : MonoBehaviour
         initiativeOrder[participantIndex] = target;  // Structs require reassignment
         
         Debug.Log($"{target.GetName()} took {damage} damage. HP: {target.currentHP}/{target.maxHP}");
+        
+        // Update the UI to reflect HP change
+        UpdateCombatantHP(participantIndex);
+        
+        // Check if the target has died (HP dropped to 0 or below)
+        if (target.currentHP <= 0)
+        {
+            HandleParticipantDeath(participantIndex);
+        }
+    }
+    
+    //Handles the death of a combat participant - removes from initiative, UI, and game
+    private void HandleParticipantDeath(int participantIndex)
+    {
+        if (participantIndex < 0 || participantIndex >= initiativeOrder.Count)
+        {
+            return;
+        }
+        
+        CombatParticipant deadParticipant = initiativeOrder[participantIndex];
+        string deadName = deadParticipant.GetName();
+        
+        Debug.Log($"{deadName} has been defeated!");
+        
+        //Log the death
+        if (CombatLogger.Instance != null)
+        {
+            CombatLogger.Instance.LogDeath(deadName, deadParticipant.GetUniqueId());
+        }
+        
+        //Remove the token from the game world
+        if (deadParticipant.token != null && TokenManager.Instance != null)
+        {
+            TokenManager.Instance.RemoveToken(deadParticipant.token);
+        }
+        
+        //Remove the UI element for this participant
+        RemoveCombatantUI(participantIndex);
+        
+        //Remove from initiative order
+        initiativeOrder.RemoveAt(participantIndex);
+        
+        //Adjust current turn index if needed
+        if (participantIndex < currentTurnIndex)
+        {
+            //Someone before the current turn died, shift index back
+            currentTurnIndex--;
+        }
+        else if (participantIndex == currentTurnIndex)
+        {
+            //The current turn participant died - move to next turn
+            //If we're at the end of the list, wrap around
+            if (currentTurnIndex >= initiativeOrder.Count)
+            {
+                currentTurnIndex = 0;
+            }
+        }
+        
+        //Check if combat should end (all enemies or all players dead)
+        CheckCombatEndCondition();
+        
+        //Update turn highlight to reflect changes
+        if (initiativeOrder.Count > 0)
+        {
+            UpdateTurnHighlight();
+        }
+    }
+
+    //Removes a specific combatant's UI element from the initiative display
+    private void RemoveCombatantUI(int participantIndex)
+    {
+        if (participantIndex < 0 || participantIndex >= combatantUIElements.Count)
+        {
+            return;
+        }
+        
+        CharInitToken uiElement = combatantUIElements[participantIndex];
+        if (uiElement != null)
+        {
+            Destroy(uiElement.gameObject);
+        }
+        combatantUIElements.RemoveAt(participantIndex);
+    }
+    
+    //Updates the HP display for a specific combatant
+    private void UpdateCombatantHP(int participantIndex)
+    {
+        if (participantIndex < 0 || participantIndex >= combatantUIElements.Count)
+        {
+            return;
+        }
+        
+        CharInitToken uiElement = combatantUIElements[participantIndex];
+        if (uiElement != null)
+        {
+            uiElement.UpdateParticipant(initiativeOrder[participantIndex]);
+        }
+    }
+    
+    //Checks if combat should end based on remaining participants
+    private void CheckCombatEndCondition()
+    {
+        if (initiativeOrder.Count == 0)
+        {
+            //No one left, end combat
+            Debug.Log("Combat ended - no participants remaining!");
+            EndCombatVictory("No combatants remaining");
+            return;
+        }
+        
+        bool hasPlayers = false;
+        bool hasEnemies = false;
+        
+        foreach (var participant in initiativeOrder)
+        {
+            if (participant.token != null)
+            {
+                if (participant.token.getCharacterType() == CharacterType.Enemy)
+                {
+                    hasEnemies = true;
+                }
+                else
+                {
+                    hasPlayers = true;
+                }
+            }
+        }
+        
+        if (!hasEnemies)
+        {
+            Debug.Log("All enemies defeated! Victory!");
+            EndCombatVictory("All enemies defeated");
+        }
+        else if (!hasPlayers)
+        {
+            Debug.Log("All players defeated! Defeat!");
+            EndCombatDefeat("All players defeated");
+        }
+    }
+    
+    //Ends combat with a victory message
+    private void EndCombatVictory(string reason)
+    {
+        if (combatStateText != null)
+        {
+            combatStateText.text = $"Victory! {reason}";
+        }
+        
+        //Let combat continue for a moment to show the message, then clean up
+        //The DM can manually end combat with the control button
+    }
+    
+    //Ends combat with a defeat message
+    private void EndCombatDefeat(string reason)
+    {
+        if (combatStateText != null)
+        {
+            combatStateText.text = $"Defeat! {reason}";
+        }
+        
+        //The DM can manually end combat with the control button
     }
 
     //Healing a token/character
@@ -277,6 +438,9 @@ public class CombatManager : MonoBehaviour
         initiativeOrder[participantIndex] = target;
         
         Debug.Log($"{target.GetName()} healed for {healing}. HP: {target.currentHP}/{target.maxHP}");
+        
+        //Update the UI to reflect HP change
+        UpdateCombatantHP(participantIndex);
     }
 
     public CombatParticipant GetCurrentTurnParticipant() {

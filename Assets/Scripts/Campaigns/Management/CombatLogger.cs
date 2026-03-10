@@ -262,6 +262,27 @@ public class CombatLogger : MonoBehaviour
         AddPendingHPChange(target, hpRestored);
     }
 
+    //Log a death event - when a participant is killed in combat
+    public void LogDeath(string victimName, string victimId)
+    {
+        if (!isLogging || currentLog == null) return;
+
+        var action = new CombatAction
+        {
+            type = "death",
+            target = victimName,
+            description = $"{victimName} was defeated"
+        };
+
+        //Death is always logged immediately as it's a significant event
+        currentLog.action_log.Add(action);
+        
+        Debug.Log($"CombatLogger: Logged death of {victimName}");
+        
+        //Save immediately to ensure death is recorded
+        SaveLog();
+    }
+
     /// <summary>
     /// Log a movement action - only tracks start and end positions.
     /// Movement is only logged if no other actions (damage/healing/ability) are performed.
