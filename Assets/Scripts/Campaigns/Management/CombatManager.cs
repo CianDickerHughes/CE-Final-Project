@@ -105,6 +105,7 @@ public class CombatManager : MonoBehaviour
             }
             //Updating the combat control button to make sure its ui changes based on state of combat
             controlButtonText.text = "End Combat";
+            combatState = CombatState.Active;
         }
         else if (combatState == CombatState.Active)
         {
@@ -127,7 +128,7 @@ public class CombatManager : MonoBehaviour
             }
             combatantUIElements.Clear();
             //Updating the combat control button to make sure its ui changes based on state of combat
-            controlButtonText.text = "ReStart Combat";
+            controlButtonText.text = "Restart Combat";
         }
     }
 
@@ -413,6 +414,23 @@ public class CombatManager : MonoBehaviour
         
         //Let combat continue for a moment to show the message, then clean up
         //The DM can manually end combat with the control button
+        combatState = CombatState.Inactive;
+        currentTurnIndex = 0;
+        initiativeOrder.Clear();
+        //Update UI to reflect end of combat, disable turn controls, etc
+        if(combatStateText != null)
+        {
+            combatStateText.text = "Combat Ended!";
+        }
+
+        //Clearing the combatants UI
+        foreach(Transform child in combatantsUIParent)
+        {
+            Destroy(child.gameObject);
+        }
+        combatantUIElements.Clear();
+        //Updating the combat control button to make sure its ui changes based on state of combat
+        controlButtonText.text = "Restart Combat";
     }
     
     //Ends combat with a defeat message
@@ -424,6 +442,23 @@ public class CombatManager : MonoBehaviour
         }
         
         //The DM can manually end combat with the control button
+        combatState = CombatState.Inactive;
+        currentTurnIndex = 0;
+        initiativeOrder.Clear();
+        //Update UI to reflect end of combat, disable turn controls, etc
+        if(combatStateText != null)
+        {
+            combatStateText.text = "Combat Ended!";
+        }
+
+        //Clearing the combatants UI
+        foreach(Transform child in combatantsUIParent)
+        {
+            Destroy(child.gameObject);
+        }
+        combatantUIElements.Clear();
+        //Updating the combat control button to make sure its ui changes based on state of combat
+        controlButtonText.text = "Restart Combat";
     }
 
     //Healing a token/character
