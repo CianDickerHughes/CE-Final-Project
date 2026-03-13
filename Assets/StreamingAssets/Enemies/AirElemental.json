@@ -14,6 +14,8 @@
     "intelligence": 6,
     "wisdom": 10,
     "charisma": 6,
+    "weapon": "Whirlwind",
+    "weapon_dmg": "2d8 + 5",
     "immunities": [
         "air",
         "poison",

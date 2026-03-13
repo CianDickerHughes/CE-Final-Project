@@ -14,6 +14,8 @@
     "intelligence": 13,
     "wisdom": 11,
     "charisma": 10,
+    "weapon": "Shortsword",
+    "weapon_dmg": "1d6 + 3",
     "immunities": [],
     "challengeRating": 8
 }

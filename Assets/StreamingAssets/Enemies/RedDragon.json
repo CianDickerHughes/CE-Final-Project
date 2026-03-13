@@ -14,6 +14,8 @@
     "intelligence": 16,
     "wisdom": 13,
     "charisma": 21,
+    "weapon": "Bite",
+    "weapon_dmg": "2d10 + 8",
     "immunities": [
         "fire"
     ],

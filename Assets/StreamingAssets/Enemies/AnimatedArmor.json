@@ -14,6 +14,8 @@
     "intelligence": 1,
     "wisdom": 3,
     "charisma": 1,
+    "weapon": "Slam",
+    "weapon_dmg": "1d6 + 2",
     "immunities": [
         "poison",
         "psychic"

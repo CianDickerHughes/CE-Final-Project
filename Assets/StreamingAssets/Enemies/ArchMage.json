@@ -14,6 +14,8 @@
     "intelligence": 20,
     "wisdom": 15,
     "charisma": 16,
+    "weapon": "Dagger",
+    "weapon_dmg": "1d4 + 2",
     "immunities": [],
     "challengeRating": 12
 }

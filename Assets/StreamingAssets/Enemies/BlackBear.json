@@ -14,6 +14,8 @@
     "intelligence": 2,
     "wisdom": 12,
     "charisma": 7,
+    "weapon": "Bite",
+    "weapon_dmg": "1d6 + 2",
     "immunities": [],
     "challengeRating": 1
 }

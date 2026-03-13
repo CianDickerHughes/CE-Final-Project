@@ -9,5 +9,4 @@ public class LinkResourceNav : MonoBehaviour
     {
         Application.OpenURL("https://5e.tools/" + specificURL);
     }
-    
 }

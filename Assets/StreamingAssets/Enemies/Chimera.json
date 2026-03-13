@@ -14,6 +14,8 @@
     "intelligence": 3,
     "wisdom": 14,
     "charisma": 1,
+    "weapon": "Claws",
+    "weapon_dmg": "2d6 + 4",
     "immunities": [],
     "challengeRating": 6
 }
