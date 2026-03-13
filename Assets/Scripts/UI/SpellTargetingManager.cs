@@ -206,6 +206,12 @@ public class SpellTargetingManager : MonoBehaviour
         // Fire event
         OnSpellCast?.Invoke(currentSpell, targetToken, rollResult);
 
+        // Mark as acted this turn
+        if (CombatManager.Instance != null)
+        {
+            CombatManager.Instance.SetCurrentParticipantActed(true);
+        }
+
         // End targeting mode
         CancelTargeting();
     }

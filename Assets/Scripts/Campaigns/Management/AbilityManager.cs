@@ -111,7 +111,10 @@ public class AbilityManager : MonoBehaviour
             buttonText += $" ({usesLeft}/{currentAbility.usesPerRest})";
         }
         
-        SetButtonState(buttonText, canUse);
+        // Check if already acted this turn
+        bool canAct = canUse && (CombatManager.Instance == null || !CombatManager.Instance.HasCurrentParticipantActed());
+        
+        SetButtonState(buttonText, canAct);
 
         Debug.Log($"AbilityManager: Updated UI for {character.charName} ({character.charClass}) - Ability: {currentAbility.abilityName}");
     }
@@ -314,6 +317,12 @@ public class AbilityManager : MonoBehaviour
 
         // Fire event
         OnAbilityUsed?.Invoke(currentAbility, target);
+
+        // Mark as acted this turn
+        if (CombatManager.Instance != null)
+        {
+            CombatManager.Instance.SetCurrentParticipantActed(true);
+        }
 
         // Update UI
         UpdateAbilityUI();

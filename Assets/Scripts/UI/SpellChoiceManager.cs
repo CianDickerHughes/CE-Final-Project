@@ -74,6 +74,13 @@ public class SpellChoiceManager : MonoBehaviour
     /// </summary>
     public void OpenSpellPanel()
     {
+        // Check if already acted this turn
+        if (CombatManager.Instance != null && CombatManager.Instance.HasCurrentParticipantActed())
+        {
+            Debug.Log("SpellChoiceManager: Already acted this turn");
+            return;
+        }
+
         if (spellChoicePanel == null)
         {
             Debug.LogError("SpellChoiceManager: SpellChoicePanel is not assigned!");
@@ -296,11 +303,15 @@ public class SpellChoiceManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Get the currently selected spell (if any)
+    /// Update the spell attack button state based on combat turn
     /// </summary>
-    public SpellDefinition GetSelectedSpell()
+    public void UpdateSpellButtonState()
     {
-        return selectedSpell;
+        if (spellAttackButton != null)
+        {
+            bool canAct = CombatManager.Instance == null || !CombatManager.Instance.HasCurrentParticipantActed();
+            spellAttackButton.interactable = canAct;
+        }
     }
 
     /// <summary>

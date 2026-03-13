@@ -91,6 +91,13 @@ public class WeaponAttackManager : MonoBehaviour
             return;
         }
 
+        // Check if already acted this turn
+        if (CombatManager.Instance != null && CombatManager.Instance.HasCurrentParticipantActed())
+        {
+            Debug.Log("WeaponAttackManager: Already acted this turn");
+            return;
+        }
+
         // Get weapon info
         currentWeaponName = attacker.weapon;
         currentWeaponDamage = attacker.weaponDamage;
@@ -239,6 +246,12 @@ public class WeaponAttackManager : MonoBehaviour
 
         // Broadcast to chat
         BroadcastAttack(targetToken, damage, strMod, totalDamage);
+
+        // Mark as acted this turn
+        if (CombatManager.Instance != null)
+        {
+            CombatManager.Instance.SetCurrentParticipantActed(true);
+        }
 
         // End targeting
         CancelTargeting();
@@ -468,6 +481,18 @@ public class WeaponAttackManager : MonoBehaviour
     public bool IsAttacker(Token token)
     {
         return token != null && token == attackerToken;
+    }
+
+    /// <summary>
+    /// Update the weapon attack button state based on combat turn
+    /// </summary>
+    public void UpdateWeaponButtonState()
+    {
+        if (weaponAttackButton != null)
+        {
+            bool canAct = CombatManager.Instance == null || !CombatManager.Instance.HasCurrentParticipantActed();
+            weaponAttackButton.interactable = canAct;
+        }
     }
 
     void OnDestroy()

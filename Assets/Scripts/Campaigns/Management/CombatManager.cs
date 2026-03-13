@@ -106,6 +106,16 @@ public class CombatManager : MonoBehaviour
             //Updating the combat control button to make sure its ui changes based on state of combat
             controlButtonText.text = "End Combat";
             combatState = CombatState.Active;
+
+            // Update action buttons
+            if (SpellChoiceManager.Instance != null)
+            {
+                SpellChoiceManager.Instance.UpdateSpellButtonState();
+            }
+            if (WeaponAttackManager.Instance != null)
+            {
+                WeaponAttackManager.Instance.UpdateWeaponButtonState();
+            }
         }
         else if (combatState == CombatState.Active)
         {
@@ -183,6 +193,7 @@ public class CombatManager : MonoBehaviour
                 CombatLogger.Instance.CommitTurn();
                 
                 currentTurnIndex = (currentTurnIndex + 1) % initiativeOrder.Count;
+                SetCurrentParticipantActed(false);
                 //Update UI to highlight current turn, reset action states for the new turn, etc
                 UpdateTurnHighlight();
             }
@@ -496,10 +507,20 @@ public class CombatManager : MonoBehaviour
         return currentTurnIndex;
     }
 
-    //Check if combat is currently active
-    public bool IsCombatActive()
-    {
+    public bool IsCombatActive() {
         return combatState == CombatState.Active;
+    }
+
+    public bool HasCurrentParticipantActed() {
+        if (initiativeOrder.Count == 0 || currentTurnIndex >= initiativeOrder.Count) return false;
+        return initiativeOrder[currentTurnIndex].hasActedThisRound;
+    }
+
+    public void SetCurrentParticipantActed(bool acted) {
+        if (initiativeOrder.Count == 0 || currentTurnIndex >= initiativeOrder.Count) return;
+        var p = initiativeOrder[currentTurnIndex];
+        p.hasActedThisRound = acted;
+        initiativeOrder[currentTurnIndex] = p;
     }
 
     //Method for populating the simple UI feature in the header with the combatants tokens - like bg3
@@ -552,6 +573,18 @@ public class CombatManager : MonoBehaviour
         if (AbilityManager.Instance != null)
         {
             AbilityManager.Instance.UpdateAbilityUI();
+        }
+
+        //Update spell button for the new turn
+        if (SpellChoiceManager.Instance != null)
+        {
+            SpellChoiceManager.Instance.UpdateSpellButtonState();
+        }
+
+        //Update weapon button for the new turn
+        if (WeaponAttackManager.Instance != null)
+        {
+            WeaponAttackManager.Instance.UpdateWeaponButtonState();
         }
     }
 
