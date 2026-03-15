@@ -28,6 +28,8 @@ public class EnemyData
     public int intelligence;
     public int wisdom;
     public int charisma;
+    public string weapon;
+    public string weaponDamage;
 
     public EnemyData()
     {

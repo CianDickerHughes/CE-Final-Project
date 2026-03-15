@@ -15,7 +15,7 @@
     "wisdom": 8,
     "charisma": 8,
     "weapon": "Scimitar",
-    "weapon_dmg": "1d6 + 2",
+    "weaponDamage": "1d6 + 2",
     "immunities": [],
     "challengeRating": 0.25
 }

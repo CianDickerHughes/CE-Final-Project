@@ -12,7 +12,7 @@ public class CharInitToken : MonoBehaviour
 
     //Highligting UI fields
     [Header("Highlight Colors")]
-    //[SerializeField] private Color normalColor = new Color(0.2f, 0.2f, 0.2f, 1f);
+    [SerializeField] private Color normalColor = new Color(0.2f, 0.2f, 0.2f, 1f);
     [SerializeField] private Color highlightColor = new Color(0.4f, 0.8f, 0.4f, 1f);
 
     private CombatParticipant participant;
@@ -31,9 +31,9 @@ public class CharInitToken : MonoBehaviour
     //UI method for highlighting and Unhighlighting an item in the initiative order when its that players turn
     public void SetHighlight(bool isActive)
     {
-        if (backgroundImage != null && isActive)
+        if (backgroundImage != null)
         {
-            backgroundImage.color = highlightColor;
+            backgroundImage.color = isActive ? highlightColor : normalColor;
         }
     }
 

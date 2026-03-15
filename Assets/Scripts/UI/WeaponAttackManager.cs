@@ -20,6 +20,8 @@ public class WeaponAttackManager : MonoBehaviour
     // State
     private bool isTargeting = false;
     private CharacterData attacker;
+    private EnemyData enemyAttacker;
+    private bool isEnemyAttacker;
     private Token attackerToken;
     private string currentWeaponName;
     private string currentWeaponDamage;
@@ -81,34 +83,67 @@ public class WeaponAttackManager : MonoBehaviour
     /// </summary>
     private void OnWeaponAttackButtonClicked()
     {
-        // Get the current attacker
-        attacker = GetCurrentCharacter();
-        attackerToken = GetCurrentToken();
-
-        if (attacker == null)
+        //Get the current participant
+        if (CombatManager.Instance == null || CombatManager.Instance.GetCombatState() != CombatState.Active)
         {
-            Debug.LogWarning("WeaponAttackManager: No character found for weapon attack");
+            Debug.LogWarning("WeaponAttackManager: Combat not active");
             return;
         }
 
-        // Check if already acted this turn
-        if (CombatManager.Instance != null && CombatManager.Instance.HasCurrentParticipantActed())
+        var currentParticipant = CombatManager.Instance.GetCurrentTurnParticipant();
+        if (currentParticipant.token == null)
+        {
+            Debug.LogWarning("WeaponAttackManager: No token for current participant");
+            return;
+        }
+
+        attackerToken = currentParticipant.token;
+
+        if (currentParticipant.token.getCharacterType() == CharacterType.Enemy)
+        {
+            enemyAttacker = currentParticipant.token.getEnemyData();
+            attacker = null;
+            isEnemyAttacker = true;
+        }
+        else
+        {
+            attacker = currentParticipant.token.getCharacterData();
+            enemyAttacker = null;
+            isEnemyAttacker = false;
+        }
+
+        if (attacker == null && enemyAttacker == null)
+        {
+            Debug.LogWarning("WeaponAttackManager: No attacker data found");
+            return;
+        }
+
+        //Check if already acted this turn
+        if (CombatManager.Instance.HasCurrentParticipantActed())
         {
             Debug.Log("WeaponAttackManager: Already acted this turn");
             return;
         }
 
-        // Get weapon info
-        currentWeaponName = attacker.weapon;
-        currentWeaponDamage = attacker.weaponDamage;
+        //Get weapon info
+        if (isEnemyAttacker)
+        {
+            currentWeaponName = enemyAttacker.weapon;
+            currentWeaponDamage = enemyAttacker.weaponDamage;
+        }
+        else
+        {
+            currentWeaponName = attacker.weapon;
+            currentWeaponDamage = attacker.weaponDamage;
+        }
 
         if (string.IsNullOrEmpty(currentWeaponName) || string.IsNullOrEmpty(currentWeaponDamage))
         {
-            Debug.LogWarning("WeaponAttackManager: Character has no weapon equipped");
+            Debug.LogWarning("WeaponAttackManager: Attacker has no weapon equipped");
             return;
         }
 
-        // Enter targeting mode
+        //Enter targeting mode
         StartTargeting();
     }
 
@@ -138,6 +173,8 @@ public class WeaponAttackManager : MonoBehaviour
     {
         isTargeting = false;
         attacker = null;
+        enemyAttacker = null;
+        isEnemyAttacker = false;
         attackerToken = null;
         currentWeaponName = null;
         currentWeaponDamage = null;
@@ -302,8 +339,14 @@ public class WeaponAttackManager : MonoBehaviour
     /// </summary>
     private int GetStrengthModifier(CharacterData character)
     {
-        if (character == null) return 0;
-        return (character.strength - 10) / 2;
+        if (isEnemyAttacker)
+        {
+            return enemyAttacker != null ? (enemyAttacker.strength - 10) / 2 : 0;
+        }
+        else
+        {
+            return character != null ? (character.strength - 10) / 2 : 0;
+        }
     }
 
     /// <summary>
@@ -313,7 +356,7 @@ public class WeaponAttackManager : MonoBehaviour
     {
         if (ChatNetwork.Instance == null) return;
 
-        string attackerName = attacker?.charName ?? "Unknown";
+        string attackerName = isEnemyAttacker ? (enemyAttacker?.name ?? "Unknown") : (attacker?.charName ?? "Unknown");
         string targetName = GetTokenName(target);
         string modText = strMod >= 0 ? $"+{strMod}" : strMod.ToString();
 

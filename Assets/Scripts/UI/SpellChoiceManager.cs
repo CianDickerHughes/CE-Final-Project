@@ -314,6 +314,12 @@ public class SpellChoiceManager : MonoBehaviour
         }
     }
 
+    //Get currently selected spell (if any)
+    public SpellDefinition GetSelectedSpell()
+    {
+        return selectedSpell;
+    }
+
     /// <summary>
     /// Format spell name from enum (e.g., "MagicMissile" -> "Magic Missile")
     /// </summary>

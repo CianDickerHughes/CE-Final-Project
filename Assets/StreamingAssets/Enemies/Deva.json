@@ -15,7 +15,7 @@
     "wisdom": 20,
     "charisma": 20,
     "weapon": "Greatsword",
-    "weapon_dmg": "2d6 + 4",
+    "weaponDamage": "2d6 + 4",
     "immunities": [
         "radiant",
         "necrotic"

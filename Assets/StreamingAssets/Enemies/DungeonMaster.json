@@ -15,7 +15,7 @@
     "wisdom": 12,
     "charisma": 8,
     "weapon": "Sword of Justice",
-    "weapon_dmg": "3d8 + 5",
+    "weaponDamage": "3d8 + 5",
     "immunities": [
         "poison"
     ],

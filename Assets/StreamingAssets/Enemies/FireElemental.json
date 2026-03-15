@@ -15,7 +15,7 @@
     "wisdom": 10,
     "charisma": 7,
     "weapon": "Flame Touch",
-    "weapon_dmg": "2d6 + 3",
+    "weaponDamage": "2d6 + 3",
     "immunities": [
         "fire",
         "poison"
