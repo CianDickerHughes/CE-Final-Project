@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -53,6 +54,8 @@ public class CampaignSceneItem : MonoBehaviour
             statusText.text = !string.IsNullOrEmpty(data.status) ? data.status : "Unknown Status";
         }
 
+        LoadSceneSnapshot(data);
+
         // Set up button callbacks
         //Just helps us set up what happens/actions to take when we click the various buttons on the scene item
         if (loadButton != null)
@@ -68,6 +71,50 @@ public class CampaignSceneItem : MonoBehaviour
         if (settingsButton != null)
         {
             settingsButton.onClick.AddListener(() => onSelectSettings?.Invoke(filePath));
+        }
+    }
+    
+    //New Method to load the scene snapshot image for the campaign scene item
+    //This will look for the snapshot image file based on the path stored in the SceneData
+    private void LoadSceneSnapshot(SceneData data)
+    {
+        if (sceneThumbnailImage == null || data == null)
+        {
+            return;
+        }
+
+        if (string.IsNullOrEmpty(data.sceneSnapshotPath) || string.IsNullOrEmpty(CampaignSelectionContext.SelectedCampaignFilePath))
+        {
+            return;
+        }
+
+        string campaignFolder = Path.GetDirectoryName(CampaignSelectionContext.SelectedCampaignFilePath);
+        if (string.IsNullOrEmpty(campaignFolder))
+        {
+            return;
+        }
+
+        string snapshotPath = Path.Combine(campaignFolder, data.sceneSnapshotPath);
+        if (!File.Exists(snapshotPath))
+        {
+            return;
+        }
+
+        try
+        {
+            byte[] bytes = File.ReadAllBytes(snapshotPath);
+            Texture2D texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            if (!texture.LoadImage(bytes))
+            {
+                return;
+            }
+
+            sceneThumbnailImage.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+            sceneThumbnailImage.preserveAspect = true;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"CampaignSceneItem: Failed to load snapshot for scene '{data.sceneName}'. {ex.Message}");
         }
     }
 }

@@ -6,6 +6,7 @@ using TMPro;
 using UnityEngine.UI;
 using Unity.Netcode;
 using Unity.Services.Authentication;
+using System.IO;
 
 //This class will help outline and control the basic behaviour we'll need to implement
 //This included - if scene is combat or roleplay
@@ -443,6 +444,11 @@ public class GameplayManager : MonoBehaviour
         if(gridManager != null && currentSceneData != null){
             currentSceneData.mapData = gridManager.SaveMapData();
             Debug.Log("Compass: Map data saved to current scene.");
+
+            CaptureSceneSnapshot(currentSceneData);
+            currentSceneData.lastPlayed = DateTime.Now.ToString("g");
+            currentSceneData.status = "In Progress";
+            PersistSceneUpdateInCampaign(currentSceneData);
             
             //Save all token positions to the scene data
             SaveTokensToSceneData();
@@ -457,6 +463,103 @@ public class GameplayManager : MonoBehaviour
         //For now, we just log and move
         Debug.Log("Compass: Exiting to Campaign Manager scene...");
         SceneManager.LoadScene("CampaignManager");
+    }
+
+    private void CaptureSceneSnapshot(SceneData scene)
+    {
+        if (scene == null)
+        {
+            return;
+        }
+
+        Camera snapshotCamera = Camera.main;
+        if (snapshotCamera == null)
+        {
+            Debug.LogWarning("GameplayManager: No main camera found; snapshot not captured.");
+            return;
+        }
+
+        string campaignFolder = GetCurrentCampaignFolder();
+        if (string.IsNullOrEmpty(campaignFolder))
+        {
+            Debug.LogWarning("GameplayManager: Could not resolve campaign folder for snapshot.");
+            return;
+        }
+
+        string snapshotsFolder = Path.Combine(campaignFolder, "SceneSnapshots");
+        if (!Directory.Exists(snapshotsFolder))
+        {
+            Directory.CreateDirectory(snapshotsFolder);
+        }
+
+        string fileName = $"{scene.sceneId}.png";
+        string fullPath = Path.Combine(snapshotsFolder, fileName);
+
+        const int width = 512;
+        const int height = 288;
+        RenderTexture renderTexture = new RenderTexture(width, height, 24);
+        Texture2D snapshotTexture = new Texture2D(width, height, TextureFormat.RGB24, false);
+        RenderTexture previousActive = RenderTexture.active;
+        RenderTexture previousTarget = snapshotCamera.targetTexture;
+
+        try
+        {
+            snapshotCamera.targetTexture = renderTexture;
+            snapshotCamera.Render();
+            RenderTexture.active = renderTexture;
+            snapshotTexture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+            snapshotTexture.Apply();
+
+            byte[] pngBytes = snapshotTexture.EncodeToPNG();
+            File.WriteAllBytes(fullPath, pngBytes);
+
+            scene.sceneSnapshotPath = Path.Combine("SceneSnapshots", fileName).Replace('\\', '/');
+            Debug.Log($"GameplayManager: Scene snapshot saved to {fullPath}");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"GameplayManager: Failed to capture scene snapshot. {ex.Message}");
+        }
+        finally
+        {
+            snapshotCamera.targetTexture = previousTarget;
+            RenderTexture.active = previousActive;
+            Destroy(renderTexture);
+            Destroy(snapshotTexture);
+        }
+    }
+
+    private void PersistSceneUpdateInCampaign(SceneData scene)
+    {
+        if (scene == null || CampaignManager.Instance == null)
+        {
+            return;
+        }
+
+        bool updated = CampaignManager.Instance.UpdateScene(scene);
+        if (!updated)
+        {
+            Debug.LogWarning($"GameplayManager: Could not persist scene '{scene.sceneName}' update in campaign file.");
+        }
+    }
+
+    private string GetCurrentCampaignFolder()
+    {
+        if (CampaignManager.Instance != null)
+        {
+            string folder = CampaignManager.Instance.GetCurrentCampaignFolder();
+            if (!string.IsNullOrEmpty(folder))
+            {
+                return folder;
+            }
+        }
+
+        if (!string.IsNullOrEmpty(CampaignSelectionContext.SelectedCampaignFilePath))
+        {
+            return Path.GetDirectoryName(CampaignSelectionContext.SelectedCampaignFilePath);
+        }
+
+        return null;
     }
     
     /// <summary>

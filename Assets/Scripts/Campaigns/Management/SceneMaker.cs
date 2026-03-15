@@ -125,6 +125,9 @@ public class SceneMaker : MonoBehaviour
     {
         // Get map data from grid
         currentScene.mapData = gridManager.SaveMapData();
+
+        // Capture/update the scene card snapshot whenever this scene is saved
+        CaptureSceneSnapshot(currentScene);
         
         Debug.Log($"SceneMaker: Saving scene '{currentScene.sceneName}' with mapData {currentScene.mapData.width}x{currentScene.mapData.height}, tiles array length: {currentScene.mapData.tiles?.Length ?? 0}");
         
@@ -148,6 +151,89 @@ public class SceneMaker : MonoBehaviour
         
         // Return to Campaign Manager
         SceneManager.LoadScene("CampaignManager"); // Your scene name
+    }
+
+    //Similar method for capturing the snapshot of the current state of the scene when exiting
+    private void CaptureSceneSnapshot(SceneData scene)
+    {
+        if (scene == null)
+        {
+            return;
+        }
+
+        Camera snapshotCamera = Camera.main;
+        if (snapshotCamera == null)
+        {
+            Debug.LogWarning("SceneMaker: No main camera found; snapshot not captured.");
+            return;
+        }
+
+        string campaignFolder = GetCurrentCampaignFolder();
+        if (string.IsNullOrEmpty(campaignFolder))
+        {
+            Debug.LogWarning("SceneMaker: Could not resolve campaign folder for snapshot.");
+            return;
+        }
+
+        string snapshotsFolder = Path.Combine(campaignFolder, "SceneSnapshots");
+        if (!Directory.Exists(snapshotsFolder))
+        {
+            Directory.CreateDirectory(snapshotsFolder);
+        }
+
+        string fileName = $"{scene.sceneId}.png";
+        string fullPath = Path.Combine(snapshotsFolder, fileName);
+
+        const int width = 512;
+        const int height = 288;
+        RenderTexture renderTexture = new RenderTexture(width, height, 24);
+        Texture2D snapshotTexture = new Texture2D(width, height, TextureFormat.RGB24, false);
+        RenderTexture previousActive = RenderTexture.active;
+        RenderTexture previousTarget = snapshotCamera.targetTexture;
+
+        try
+        {
+            snapshotCamera.targetTexture = renderTexture;
+            snapshotCamera.Render();
+            RenderTexture.active = renderTexture;
+            snapshotTexture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+            snapshotTexture.Apply();
+
+            byte[] pngBytes = snapshotTexture.EncodeToPNG();
+            File.WriteAllBytes(fullPath, pngBytes);
+
+            scene.sceneSnapshotPath = Path.Combine("SceneSnapshots", fileName).Replace('\\', '/');
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"SceneMaker: Failed to capture snapshot for scene '{scene.sceneName}'. {ex.Message}");
+        }
+        finally
+        {
+            snapshotCamera.targetTexture = previousTarget;
+            RenderTexture.active = previousActive;
+            Destroy(renderTexture);
+            Destroy(snapshotTexture);
+        }
+    }
+
+    private string GetCurrentCampaignFolder()
+    {
+        if (CampaignManager.Instance != null)
+        {
+            string folder = CampaignManager.Instance.GetCurrentCampaignFolder();
+            if (!string.IsNullOrEmpty(folder))
+            {
+                return folder;
+            }
+        }
+
+        if (!string.IsNullOrEmpty(CampaignSelectionContext.SelectedCampaignFilePath))
+        {
+            return Path.GetDirectoryName(CampaignSelectionContext.SelectedCampaignFilePath);
+        }
+
+        return null;
     }
 
     //Canceling without saving
