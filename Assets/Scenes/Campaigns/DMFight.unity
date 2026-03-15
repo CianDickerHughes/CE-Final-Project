@@ -928,6 +928,58 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 358133928}
   m_CullTransparentMesh: 1
+--- !u!1 &388644877
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 388644879}
+  - component: {fileID: 388644878}
+  m_Layer: 0
+  m_Name: GameplayManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &388644878
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 388644877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b441c46724be64d44b45d5a0b8a3193c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameplayManager
+  currentMode: 0
+  gridManager: {fileID: 73811417}
+  sceneName: {fileID: 0}
+  playerName: {fileID: 0}
+  isPlayerTurn: 0
+  saveAndExitButton: {fileID: 0}
+  exitButton: {fileID: 0}
+  leaveSessionButton: {fileID: 0}
+--- !u!4 &388644879
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 388644877}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1736.8708, y: 1337.1643, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &451172203
 GameObject:
   m_ObjectHideFlags: 0
@@ -1739,7 +1791,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a31c96c2c290074c8464057ceadb886, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponAttackManager
-  weaponAttackButton: {fileID: 0}
+  weaponAttackButton: {fileID: 1393767966}
   targetingIndicator: {fileID: 0}
   targetingText: {fileID: 0}
   weaponNameText: {fileID: 0}
@@ -2629,6 +2681,41 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1173752022
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1173752023}
+  m_Layer: 5
+  m_Name: CombatScroll
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1173752023
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1173752022}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2090682703}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -12.6436, y: -126}
+  m_SizeDelta: {x: 1332.334, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1176274461
 GameObject:
   m_ObjectHideFlags: 0
@@ -3491,8 +3578,8 @@ MonoBehaviour:
   pauseCombatButton: {fileID: 2060385155}
   pausedButtonText: {fileID: 1936553408}
   nextTurnButton: {fileID: 358133930}
-  combatantsUIParent: {fileID: 0}
-  combatantUIPrefab: {fileID: 0}
+  combatantsUIParent: {fileID: 1173752023}
+  combatantUIPrefab: {fileID: 8782892036283975287, guid: 3a83bc3ea3f703e4ea59ca7164689dc7, type: 3}
   combatStateText: {fileID: 0}
 --- !u!1 &1486511014
 GameObject:
@@ -3951,7 +4038,7 @@ MonoBehaviour:
   noSpellsText: {fileID: 494100973}
   contentParent: {fileID: 1507212413}
   spellItemPrefab: {fileID: 584879053663775108, guid: b877c73720bf54a4c802c5338f71bc09, type: 3}
-  spellAttackButton: {fileID: 0}
+  spellAttackButton: {fileID: 105153119}
 --- !u!1 &1724953476
 GameObject:
   m_ObjectHideFlags: 0
@@ -4283,6 +4370,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1867258906}
+  - component: {fileID: 1867258907}
   m_Layer: 0
   m_Name: AbilityManager
   m_TagString: Untagged
@@ -4305,6 +4393,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1867258907
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1867258905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5632c392e718e4a4ea78b760b3ec78d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AbilityManager
+  abilityButton: {fileID: 1176274463}
+  abilityButtonText: {fileID: 2103639273}
+  abilityTargetingPanel: {fileID: 0}
+  targetingInstructionText: {fileID: 0}
 --- !u!1 &1915755670
 GameObject:
   m_ObjectHideFlags: 0
@@ -4881,6 +4985,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 325829893}
+  - {fileID: 1173752023}
   m_Father: {fileID: 764258692}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -5079,3 +5184,4 @@ SceneRoots:
   - {fileID: 805901901}
   - {fileID: 1519662612}
   - {fileID: 1153785355}
+  - {fileID: 388644879}
