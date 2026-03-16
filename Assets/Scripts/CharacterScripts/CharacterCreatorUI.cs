@@ -19,7 +19,9 @@ public class CharacterCreatorUI : MonoBehaviour
     public TextMeshProUGUI raceText;
     public TMP_Dropdown classDropdown;
     public TextMeshProUGUI classText;
-    public TMP_Dropdown weaponDropdown;
+    public GameObject classAbilityPanel;
+    public TextMeshProUGUI classAbilityNameText;
+    public TextMeshProUGUI classAbilityDescriptionText;
     public TMP_InputField strengthInput;
     public TextMeshProUGUI strengthText;
     public TMP_InputField dexInput;
@@ -53,6 +55,8 @@ public class CharacterCreatorUI : MonoBehaviour
     void Start()
     {
         SetupDropdowns();
+        if (classDropdown != null)
+            classDropdown.onValueChanged.AddListener(OnClassDropdownChanged);
         if (uploadButton != null)
             uploadButton.onClick.AddListener(OnUploadClicked);
         if (saveButton != null)
@@ -71,6 +75,16 @@ public class CharacterCreatorUI : MonoBehaviour
             // New character: clear UI
             ClearUI();
         }
+    }
+
+    void OnDestroy()
+    {
+        if (classDropdown != null)
+            classDropdown.onValueChanged.RemoveListener(OnClassDropdownChanged);
+        if (uploadButton != null)
+            uploadButton.onClick.RemoveListener(OnUploadClicked);
+        if (saveButton != null)
+            saveButton.onClick.RemoveListener(OnSaveClicked);
     }
 
     //Method called to setup the dropdown menus with their options
@@ -126,6 +140,49 @@ public class CharacterCreatorUI : MonoBehaviour
         if (intText != null) intText.text = "10";
         if (wisText != null) wisText.text = "10";
         if (chaText != null) chaText.text = "10";
+        UpdateClassAbilityPanel();
+    }
+
+    void OnClassDropdownChanged(int _)
+    {
+        UpdateClassAbilityPanel();
+    }
+
+    void UpdateClassAbilityPanel()
+    {
+        string selectedClass = GetSelectedClassName();
+        AbilityData ability = GetPrimaryAbilityForClass(selectedClass);
+        bool shouldShowPanel = ability != null;
+
+        if (classAbilityPanel != null)
+            classAbilityPanel.SetActive(shouldShowPanel);
+
+        if (classAbilityNameText != null)
+            classAbilityNameText.text = shouldShowPanel ? ability.abilityName : string.Empty;
+
+        if (classAbilityDescriptionText != null)
+            classAbilityDescriptionText.text = shouldShowPanel ? ability.description : string.Empty;
+    }
+
+    string GetSelectedClassName()
+    {
+        if (classDropdown == null || classDropdown.options == null || classDropdown.options.Count == 0)
+            return string.Empty;
+
+        int selectedIndex = Mathf.Clamp(classDropdown.value, 0, classDropdown.options.Count - 1);
+        return classDropdown.options[selectedIndex].text;
+    }
+
+    AbilityData GetPrimaryAbilityForClass(string className)
+    {
+        if (string.IsNullOrEmpty(className))
+            return null;
+
+        List<AbilityData> classAbilities = AbilityDatabase.GetAbilitiesForClass(className);
+        if (classAbilities == null || classAbilities.Count == 0)
+            return null;
+
+        return classAbilities[0];
     }
 
     // Upload image: editor-only file picker, else ask user to paste a file path (simple fallback)
@@ -659,6 +716,7 @@ public class CharacterCreatorUI : MonoBehaviour
         raceText.text = "Race: " + d.race.ToString();
         classDropdown.value = Math.Max(0, classDropdown.options.FindIndex(o => o.text == d.charClass));
         classText.text = "Class: " + d.charClass.ToString();
+        UpdateClassAbilityPanel();
         strengthInput.text = d.strength.ToString();
         strengthText.text = d.strength.ToString();
         dexInput.text = d.dexterity.ToString();
