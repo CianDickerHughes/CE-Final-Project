@@ -190,6 +190,11 @@ public class PlayerAssignmentHelper : MonoBehaviour
     /// </summary>
     public CharacterPlayerAssignment GetMyAssignment()
     {
+        // Use cached assignment first (populated by OnCharacterAssigned event from server RPC)
+        if (myAssignment != null)
+            return myAssignment;
+        
+        // Fallback to campaign data (works for host/offline scenarios)
         string myPlayerId = GetMyPlayerId();
         var campaign = CampaignManager.Instance?.GetCurrentCampaign();
         return campaign?.characterAssignments?.GetAssignmentForPlayer(myPlayerId);
@@ -525,6 +530,10 @@ public class PlayerAssignmentHelper : MonoBehaviour
     /// </summary>
     public bool IsMyCharacter(string characterId)
     {
+        // Fast path: check cached assignment directly
+        if (myAssignment != null)
+            return myAssignment.characterId == characterId;
+        
         var assignment = GetMyAssignment();
         return assignment != null && assignment.characterId == characterId;
     }

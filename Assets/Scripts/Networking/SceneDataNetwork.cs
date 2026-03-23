@@ -88,6 +88,53 @@ public class SceneDataNetwork : NetworkBehaviour
     }
 
     /// <summary>
+    /// Client requests a token move. Server validates, applies, and broadcasts.
+    /// </summary>
+    [Rpc(SendTo.Server)]
+    public void RequestTokenMoveServerRpc(string characterId, int gridX, int gridY, RpcParams rpcParams = default)
+    {
+        // Validate the requesting client owns this character
+        var senderClientId = rpcParams.Receive.SenderClientId;
+        var player = PlayerConnectionManager.Instance?.GetPlayerByClientId(senderClientId);
+        if (player == null)
+        {
+            Debug.LogWarning($"SceneDataNetwork: Move request from unknown client {senderClientId}");
+            return;
+        }
+        
+        // Check assignment
+        var campaign = CampaignManager.Instance?.GetCurrentCampaign();
+        var assignment = campaign?.characterAssignments?.GetAssignmentForCharacter(characterId);
+        if (assignment == null || assignment.assignedPlayerId != player.playerId)
+        {
+            Debug.LogWarning($"SceneDataNetwork: Client {player.playerId} not authorized to move character {characterId}");
+            return;
+        }
+        
+        // Find the token and move it on the server
+        if (TokenManager.Instance != null)
+        {
+            Token token = TokenManager.Instance.GetTokenForCharacter(characterId);
+            if (token != null)
+            {
+                var gridManager = FindAnyObjectByType<GridManager>();
+                Tile targetTile = gridManager?.GetTileAtPosition(new Vector2(gridX, gridY));
+                if (targetTile != null && targetTile.IsWalkable())
+                {
+                    token.MoveToTile(targetTile);
+                    Debug.Log($"SceneDataNetwork: Server applied move for {characterId} to ({gridX}, {gridY})");
+                    
+                    // Trigger save + broadcast to all clients
+                    if (GameplayManager.Instance != null)
+                    {
+                        GameplayManager.Instance.TriggerAutoSave();
+                    }
+                }
+            }
+        }
+    }
+    
+    /// <summary>
     /// Send all token images for the scene to clients
     /// </summary>
     private void SendTokenImages(SceneData sceneData, string campaignName)

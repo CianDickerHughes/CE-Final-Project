@@ -343,7 +343,7 @@ public class CombatLogger : MonoBehaviour
     /// <summary>
     /// Log a buff/utility ability use (no HP change) - replaces any previous action this turn
     /// </summary>
-    public void LogAbilityUse(string source, string abilityName, GridPosition sourcePos, string target = null, GridPosition? targetPos = null)
+    public void LogAbilityUse(string source, string abilityName, GridPosition sourcePos, string target = null, GridPosition targetPos = default)
     {
         if (!isLogging || currentLog == null) return;
 

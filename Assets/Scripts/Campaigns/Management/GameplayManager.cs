@@ -129,6 +129,13 @@ public class GameplayManager : MonoBehaviour
             Debug.LogError("SceneDataTransfer.Instance is NULL! Make sure it exists in an earlier scene.");
         }
         
+        //Setting up instances for the player assignment helper and network manager
+        playerAssignmentHelper = PlayerAssignmentHelper.Instance;
+        if(playerAssignmentHelper == null)
+        {
+            Debug.LogError("PlayerAssignmentHelper instance is null, make sure it exists in the scene");
+        }
+
         //Load the map from the specific scene data
         if (gridManager != null)
         {
@@ -184,13 +191,6 @@ public class GameplayManager : MonoBehaviour
         else
         {
             Debug.LogWarning("playerName TextMeshProUGUI or SessionManager instance is NULL.");
-        }
-
-        //Setting up instances for the player assignment helper and network manager
-        playerAssignmentHelper = PlayerAssignmentHelper.Instance;
-        if(playerAssignmentHelper == null)
-        {
-            Debug.LogError("PlayerAssignmentHelper instance is null, make sure it exists in the scene");
         }
 
         // Subscribe to scene data updates from the network (for clients to receive DM changes)
@@ -747,6 +747,14 @@ public class GameplayManager : MonoBehaviour
     {
         SaveTokensToSceneData();
         SaveCurrentSceneToFile();
+    }
+    
+    /// <summary>
+    /// Public entry point to trigger a save and broadcast (used by server-side RPC handlers)
+    /// </summary>
+    public void TriggerAutoSave()
+    {
+        AutoSaveTokens();
     }
     
     //Load tokens from the scene data and spawn them on the grid

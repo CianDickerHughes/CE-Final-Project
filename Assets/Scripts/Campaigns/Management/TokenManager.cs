@@ -230,6 +230,20 @@ public class TokenManager : MonoBehaviour
             return;
         }
         
+        // If we're a client (not the server), send the move request to the server
+        // The server will apply it and broadcast the updated scene to all clients
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsServer)
+        {
+            CharacterData charData = selectedToken.getCharacterData();
+            if (charData != null && SceneDataNetwork.Instance != null)
+            {
+                SceneDataNetwork.Instance.RequestTokenMoveServerRpc(charData.id, tile.GridX, tile.GridY);
+                // Move locally for immediate feedback
+                selectedToken.MoveToTile(tile);
+                return;
+            }
+        }
+        
         selectedToken.MoveToTile(tile);
 
         OnTokensChanged?.Invoke();

@@ -593,6 +593,15 @@ public class PlayerConnectionManager : NetworkBehaviour
             PlayerAssignmentHelper.Instance?.CacheCharacterData(characterId, characterDataJson, campaignName);
         }
         
+        // Sync assignment into the client's local campaign data so all queries work
+        var campaign = CampaignManager.Instance?.GetCurrentCampaign();
+        if (campaign != null)
+        {
+            if (campaign.characterAssignments == null)
+                campaign.characterAssignments = new CampaignCharacterAssignments();
+            campaign.characterAssignments.AssignPlayerToCharacter(characterId, playerId, username);
+        }
+        
         OnCharacterAssigned?.Invoke(characterId, playerId, username);
     }
     
