@@ -112,7 +112,8 @@ public class AbilityManager : MonoBehaviour
         }
         
         // Check if already acted this turn
-        bool canAct = canUse && (CombatManager.Instance == null || !CombatManager.Instance.HasCurrentParticipantActed());
+        bool combatActive = CombatManager.Instance != null && CombatManager.Instance.IsCombatActive();
+        bool canAct = canUse && (!combatActive || (!CombatManager.Instance.HasCurrentParticipantActed() && CombatManager.Instance.IsMyTurn()));
         
         SetButtonState(buttonText, canAct);
 
@@ -150,15 +151,10 @@ public class AbilityManager : MonoBehaviour
         // Check if it's this player's turn in combat
         if (CombatManager.Instance != null && CombatManager.Instance.IsCombatActive())
         {
-            var currentParticipant = CombatManager.Instance.GetCurrentTurnParticipant();
-            if (currentParticipant.token != null)
+            if (!CombatManager.Instance.IsMyTurn())
             {
-                CharacterData turnCharacter = currentParticipant.token.getCharacterData();
-                if (turnCharacter == null || turnCharacter.id != currentCharacter.id)
-                {
-                    Debug.Log("AbilityManager: Not your turn!");
-                    return;
-                }
+                Debug.Log("AbilityManager: Not your turn!");
+                return;
             }
         }
 
@@ -291,22 +287,60 @@ public class AbilityManager : MonoBehaviour
 
         // Calculate effect
         int effectValue = CalculateAbilityEffect();
-
-        // Apply effect based on ability type
-        switch (currentAbility.abilityType)
+        
+        bool isClient = Unity.Netcode.NetworkManager.Singleton != null 
+            && Unity.Netcode.NetworkManager.Singleton.IsClient 
+            && !Unity.Netcode.NetworkManager.Singleton.IsServer;
+        
+        int targetIndex = target != null ? GetParticipantIndex(target) : -1;
+        
+        // Clients send via RPC for damage/healing, host applies directly
+        if (isClient && PlayerConnectionManager.Instance != null && targetIndex >= 0)
         {
-            case AbilityType.Healing:
-                ApplyHealingAbility(target, effectValue);
-                break;
-            case AbilityType.Damage:
-                ApplyDamageAbility(target, effectValue);
-                break;
-            case AbilityType.Buff:
-                ApplyBuffAbility(target);
-                break;
-            case AbilityType.Utility:
-                ApplyUtilityAbility();
-                break;
+            string userName = currentCharacter?.charName ?? "Unknown";
+            
+            switch (currentAbility.abilityType)
+            {
+                case AbilityType.Healing:
+                    PlayerConnectionManager.Instance.RequestCombatHealingServerRpc(
+                        targetIndex, effectValue, $"{userName} used {currentAbility.abilityName}");
+                    break;
+                case AbilityType.Damage:
+                    PlayerConnectionManager.Instance.RequestCombatDamageServerRpc(
+                        targetIndex, effectValue, $"{userName} used {currentAbility.abilityName}");
+                    break;
+                case AbilityType.Buff:
+                    ApplyBuffAbility(target);
+                    break;
+                case AbilityType.Utility:
+                    ApplyUtilityAbility();
+                    break;
+            }
+        }
+        else
+        {
+            // Host path - apply directly
+            switch (currentAbility.abilityType)
+            {
+                case AbilityType.Healing:
+                    ApplyHealingAbility(target, effectValue);
+                    break;
+                case AbilityType.Damage:
+                    ApplyDamageAbility(target, effectValue);
+                    break;
+                case AbilityType.Buff:
+                    ApplyBuffAbility(target);
+                    break;
+                case AbilityType.Utility:
+                    ApplyUtilityAbility();
+                    break;
+            }
+            
+            // Mark as acted this turn (host only - server RPC handles this for clients)
+            if (CombatManager.Instance != null)
+            {
+                CombatManager.Instance.SetCurrentParticipantActed(true);
+            }
         }
 
         // Consume a use if limited
@@ -317,12 +351,6 @@ public class AbilityManager : MonoBehaviour
 
         // Fire event
         OnAbilityUsed?.Invoke(currentAbility, target);
-
-        // Mark as acted this turn
-        if (CombatManager.Instance != null)
-        {
-            CombatManager.Instance.SetCurrentParticipantActed(true);
-        }
 
         // Update UI
         UpdateAbilityUI();
@@ -525,16 +553,30 @@ public class AbilityManager : MonoBehaviour
     //Get the current character (follows same pattern as SpellChoiceManager)
     private CharacterData GetCurrentCharacter()
     {
-        //First priority: Check for current turn in combat
+        //First priority: Check for current turn in combat - use IsMyTurn for client support
         if (CombatManager.Instance != null && CombatManager.Instance.GetCombatState() == CombatState.Active)
         {
-            var currentParticipant = CombatManager.Instance.GetCurrentTurnParticipant();
-            if (currentParticipant.token != null)
+            if (CombatManager.Instance.IsMyTurn())
             {
-                CharacterData charData = currentParticipant.token.getCharacterData();
-                if (charData != null)
+                var currentParticipant = CombatManager.Instance.GetCurrentTurnParticipant();
+                if (currentParticipant.token != null)
                 {
-                    return charData;
+                    CharacterData charData = currentParticipant.token.getCharacterData();
+                    if (charData != null)
+                    {
+                        return charData;
+                    }
+                }
+                
+                // Fallback: find token by uniqueId (client may not have token reference)
+                if (!string.IsNullOrEmpty(currentParticipant.uniqueId) && TokenManager.Instance != null)
+                {
+                    Token foundToken = TokenManager.Instance.GetTokenForCharacter(currentParticipant.uniqueId);
+                    if (foundToken != null)
+                    {
+                        CharacterData charData = foundToken.getCharacterData();
+                        if (charData != null) return charData;
+                    }
                 }
             }
         }

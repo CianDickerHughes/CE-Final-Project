@@ -650,6 +650,194 @@ public class PlayerConnectionManager : NetworkBehaviour
     {
         PlayerAssignmentHelper.Instance?.ReceiveImageChunk(characterId, chunkIndex, chunkData);
     }
+    
+    // ========== COMBAT SYNC RPCs ==========
+    
+    /// <summary>
+    /// Host broadcasts combat start with the full initiative order to all clients.
+    /// </summary>
+    public void BroadcastCombatStart(string initiativeJson, int currentTurnIndex)
+    {
+        if (!IsServer) return;
+        SyncCombatStartClientRpc(initiativeJson, currentTurnIndex);
+    }
+    
+    [Rpc(SendTo.ClientsAndHost)]
+    private void SyncCombatStartClientRpc(string initiativeJson, int currentTurnIndex)
+    {
+        if (IsServer) return; // Host already has the data
+        CombatManager.Instance?.ReceiveCombatStart(initiativeJson, currentTurnIndex);
+    }
+    
+    /// <summary>
+    /// Host broadcasts turn change to all clients.
+    /// </summary>
+    public void BroadcastTurnChange(int newTurnIndex)
+    {
+        if (!IsServer) return;
+        SyncTurnChangeClientRpc(newTurnIndex);
+    }
+    
+    [Rpc(SendTo.ClientsAndHost)]
+    private void SyncTurnChangeClientRpc(int newTurnIndex)
+    {
+        if (IsServer) return;
+        CombatManager.Instance?.ReceiveTurnChange(newTurnIndex);
+    }
+    
+    /// <summary>
+    /// Host broadcasts combat state change (pause/resume/end) to all clients.
+    /// </summary>
+    public void BroadcastCombatStateChange(int combatStateInt)
+    {
+        if (!IsServer) return;
+        SyncCombatStateClientRpc(combatStateInt);
+    }
+    
+    [Rpc(SendTo.ClientsAndHost)]
+    private void SyncCombatStateClientRpc(int combatStateInt)
+    {
+        if (IsServer) return;
+        CombatManager.Instance?.ReceiveCombatStateChange(combatStateInt);
+    }
+    
+    /// <summary>
+    /// Host broadcasts HP change for a combat participant to all clients.
+    /// </summary>
+    public void BroadcastHPChange(int participantIndex, int currentHP)
+    {
+        if (!IsServer) return;
+        SyncHPChangeClientRpc(participantIndex, currentHP);
+    }
+    
+    [Rpc(SendTo.ClientsAndHost)]
+    private void SyncHPChangeClientRpc(int participantIndex, int currentHP)
+    {
+        if (IsServer) return;
+        CombatManager.Instance?.ReceiveHPChange(participantIndex, currentHP);
+    }
+    
+    /// <summary>
+    /// Host broadcasts that the current participant has acted.
+    /// </summary>
+    public void BroadcastActedState(bool acted)
+    {
+        if (!IsServer) return;
+        SyncActedStateClientRpc(acted);
+    }
+    
+    [Rpc(SendTo.ClientsAndHost)]
+    private void SyncActedStateClientRpc(bool acted)
+    {
+        if (IsServer) return;
+        CombatManager.Instance?.ReceiveActedState(acted);
+    }
+    
+    /// <summary>
+    /// Host broadcasts participant death to all clients.
+    /// </summary>
+    public void BroadcastParticipantDeath(int participantIndex)
+    {
+        if (!IsServer) return;
+        SyncParticipantDeathClientRpc(participantIndex);
+    }
+    
+    [Rpc(SendTo.ClientsAndHost)]
+    private void SyncParticipantDeathClientRpc(int participantIndex)
+    {
+        if (IsServer) return;
+        CombatManager.Instance?.ReceiveParticipantDeath(participantIndex);
+    }
+    
+    /// <summary>
+    /// Client requests to apply damage to a target. Server validates and applies.
+    /// </summary>
+    [Rpc(SendTo.Server)]
+    public void RequestCombatDamageServerRpc(int targetIndex, int damage, string attackDescription, RpcParams rpcParams = default)
+    {
+        // Validate the requesting client
+        var senderClientId = rpcParams.Receive.SenderClientId;
+        var player = GetPlayerByClientId(senderClientId);
+        if (player == null)
+        {
+            Debug.LogWarning($"Combat damage request from unknown client {senderClientId}");
+            return;
+        }
+        
+        // Validate it's this player's turn
+        if (CombatManager.Instance == null || !CombatManager.Instance.IsCombatActive()) return;
+        var currentParticipant = CombatManager.Instance.GetCurrentTurnParticipant();
+        string currentCharId = currentParticipant.GetUniqueId();
+        
+        // Check the player is assigned to the current turn's character
+        var campaign = CampaignManager.Instance?.GetCurrentCampaign();
+        var assignment = campaign?.characterAssignments?.GetAssignmentForCharacter(currentCharId);
+        if (assignment == null || assignment.assignedPlayerId != player.playerId)
+        {
+            Debug.LogWarning($"Combat damage request denied - not {player.username}'s turn");
+            return;
+        }
+        
+        // Apply the damage on server (this will broadcast HP change via CombatManager)
+        CombatManager.Instance.ApplyDamage(targetIndex, damage);
+        CombatManager.Instance.SetCurrentParticipantActed(true);
+        
+        Debug.Log($"Server applied {damage} damage to participant {targetIndex} from {player.username}: {attackDescription}");
+    }
+    
+    /// <summary>
+    /// Client requests to apply healing to a target. Server validates and applies.
+    /// </summary>
+    [Rpc(SendTo.Server)]
+    public void RequestCombatHealingServerRpc(int targetIndex, int healing, string healDescription, RpcParams rpcParams = default)
+    {
+        var senderClientId = rpcParams.Receive.SenderClientId;
+        var player = GetPlayerByClientId(senderClientId);
+        if (player == null) return;
+        
+        if (CombatManager.Instance == null || !CombatManager.Instance.IsCombatActive()) return;
+        var currentParticipant = CombatManager.Instance.GetCurrentTurnParticipant();
+        string currentCharId = currentParticipant.GetUniqueId();
+        
+        var campaign = CampaignManager.Instance?.GetCurrentCampaign();
+        var assignment = campaign?.characterAssignments?.GetAssignmentForCharacter(currentCharId);
+        if (assignment == null || assignment.assignedPlayerId != player.playerId)
+        {
+            Debug.LogWarning($"Combat healing request denied - not {player.username}'s turn");
+            return;
+        }
+        
+        CombatManager.Instance.ApplyHealing(targetIndex, healing);
+        CombatManager.Instance.SetCurrentParticipantActed(true);
+        
+        Debug.Log($"Server applied {healing} healing to participant {targetIndex} from {player.username}: {healDescription}");
+    }
+    
+    /// <summary>
+    /// Client requests to end their turn. Server validates and advances the turn.
+    /// </summary>
+    [Rpc(SendTo.Server)]
+    public void RequestEndTurnServerRpc(RpcParams rpcParams = default)
+    {
+        var senderClientId = rpcParams.Receive.SenderClientId;
+        var player = GetPlayerByClientId(senderClientId);
+        if (player == null) return;
+        
+        if (CombatManager.Instance == null || !CombatManager.Instance.IsCombatActive()) return;
+        var currentParticipant = CombatManager.Instance.GetCurrentTurnParticipant();
+        string currentCharId = currentParticipant.GetUniqueId();
+        
+        var campaign = CampaignManager.Instance?.GetCurrentCampaign();
+        var assignment = campaign?.characterAssignments?.GetAssignmentForCharacter(currentCharId);
+        if (assignment == null || assignment.assignedPlayerId != player.playerId)
+        {
+            Debug.LogWarning($"End turn request denied - not {player.username}'s turn");
+            return;
+        }
+        
+        // Advance the turn on the server (this will broadcast via CombatManager)
+        CombatManager.Instance.AdvanceTurn();
+    }
 }
 
 

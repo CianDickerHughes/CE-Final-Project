@@ -5,6 +5,24 @@ using UnityEngine.UI;
 using TMPro;
 using Unity.Netcode;
 
+// Serializable data for syncing initiative order to clients
+[Serializable]
+public class CombatParticipantNetData
+{
+    public string uniqueId;
+    public string name;
+    public int initiativeRoll;
+    public int currentHP;
+    public int maxHP;
+    public bool isEnemy;
+}
+
+[Serializable]
+public class CombatInitiativeNetData
+{
+    public List<CombatParticipantNetData> participants;
+}
+
 //This class is meant to serve as a manager for the combat related behaviours in the gameplay scene
 // - Handling turns, initiative, combat actions, etc
 public class CombatManager : MonoBehaviour
@@ -107,6 +125,9 @@ public class CombatManager : MonoBehaviour
             controlButtonText.text = "End Combat";
             combatState = CombatState.Active;
 
+            // Broadcast combat start to clients
+            BroadcastCombatStartToClients();
+
             // Update action buttons
             if (SpellChoiceManager.Instance != null)
             {
@@ -139,6 +160,9 @@ public class CombatManager : MonoBehaviour
             combatantUIElements.Clear();
             //Updating the combat control button to make sure its ui changes based on state of combat
             controlButtonText.text = "Restart Combat";
+            
+            // Broadcast combat end to clients
+            BroadcastCombatStateToClients((int)CombatState.Inactive);
         }
     }
 
@@ -154,6 +178,7 @@ public class CombatManager : MonoBehaviour
                 //Changing the UI of the button to reflect the paused state
                 pausedButtonText.text = "Resume Combat";
             }
+            BroadcastCombatStateToClients((int)CombatState.Paused);
         }
         else if(combatState == CombatState.Paused)
         {
@@ -164,6 +189,7 @@ public class CombatManager : MonoBehaviour
                 combatStateText.text = "Combat Resumed!";
                 pausedButtonText.text = "Pause Combat";
             }
+            BroadcastCombatStateToClients((int)CombatState.Active);
         }
     }
 
@@ -173,10 +199,11 @@ public class CombatManager : MonoBehaviour
         {
             //Check if the user is the DM (host) - DMs can always advance turns
             bool isDM = NetworkManager.Singleton != null && (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer);
+            bool isClient = NetworkManager.Singleton != null && NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsServer;
             
             //Check if it's this player's turn by seeing if they control the current turn's token
             CombatParticipant currentParticipant = GetCurrentTurnParticipant();
-            bool isMyTurn = currentParticipant.token != null && TokenManager.Instance != null && TokenManager.Instance.CanCurrentPlayerControlToken(currentParticipant.token);
+            bool isMyTurn = IsMyTurn();
 
             //Only allow ending turn if: you're the DM OR it's your turn
             if (!isDM && !isMyTurn)
@@ -185,23 +212,39 @@ public class CombatManager : MonoBehaviour
                 return;
             }
             
+            // If client, send request to server instead of advancing locally
+            if (isClient && isMyTurn)
+            {
+                PlayerConnectionManager.Instance?.RequestEndTurnServerRpc();
+                return;
+            }
+            
             if (isDM || isMyTurn)
             {
-                Debug.Log("Ending turn...");
-                
-                // Commit all pending combat actions from this turn
-                CombatLogger.Instance.CommitTurn();
-                
-                currentTurnIndex = (currentTurnIndex + 1) % initiativeOrder.Count;
-                SetCurrentParticipantActed(false);
-                //Update UI to highlight current turn, reset action states for the new turn, etc
-                UpdateTurnHighlight();
-            }
-            else
-            {
-                Debug.Log("Player ended their turn.");
+                AdvanceTurn();
             }
         }
+    }
+    
+    /// <summary>
+    /// Actually advance the turn. Called on server/host only.
+    /// </summary>
+    public void AdvanceTurn()
+    {
+        if (combatState != CombatState.Active || initiativeOrder.Count == 0) return;
+        
+        Debug.Log("Ending turn...");
+        
+        // Commit all pending combat actions from this turn
+        CombatLogger.Instance.CommitTurn();
+        
+        currentTurnIndex = (currentTurnIndex + 1) % initiativeOrder.Count;
+        SetCurrentParticipantActed(false);
+        //Update UI to highlight current turn, reset action states for the new turn, etc
+        UpdateTurnHighlight();
+        
+        // Broadcast turn change to clients
+        BroadcastTurnChangeToClients();
     }
 
     //Combat Setup methods
@@ -279,6 +322,9 @@ public class CombatManager : MonoBehaviour
         // Update the UI to reflect HP change
         UpdateCombatantHP(participantIndex);
         
+        // Broadcast HP change to clients
+        BroadcastHPChangeToClients(participantIndex, target.currentHP);
+        
         // Check if the target has died (HP dropped to 0 or below)
         if (target.currentHP <= 0)
         {
@@ -335,6 +381,12 @@ public class CombatManager : MonoBehaviour
         
         //Check if combat should end (all enemies or all players dead)
         CheckCombatEndCondition();
+        
+        // Broadcast death to clients
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
+        {
+            PlayerConnectionManager.Instance?.BroadcastParticipantDeath(participantIndex);
+        }
         
         //Update turn highlight to reflect changes
         if (initiativeOrder.Count > 0)
@@ -487,6 +539,9 @@ public class CombatManager : MonoBehaviour
         
         //Update the UI to reflect HP change
         UpdateCombatantHP(participantIndex);
+        
+        // Broadcast HP change to clients
+        BroadcastHPChangeToClients(participantIndex, target.currentHP);
     }
 
     public CombatParticipant GetCurrentTurnParticipant() {
@@ -521,6 +576,20 @@ public class CombatManager : MonoBehaviour
         var p = initiativeOrder[currentTurnIndex];
         p.hasActedThisRound = acted;
         initiativeOrder[currentTurnIndex] = p;
+        
+        // Broadcast acted state to clients
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
+        {
+            PlayerConnectionManager.Instance?.BroadcastActedState(acted);
+        }
+        
+        // Update action button states
+        if (SpellChoiceManager.Instance != null)
+            SpellChoiceManager.Instance.UpdateSpellButtonState();
+        if (WeaponAttackManager.Instance != null)
+            WeaponAttackManager.Instance.UpdateWeaponButtonState();
+        if (AbilityManager.Instance != null)
+            AbilityManager.Instance.UpdateAbilityUI();
     }
 
     //Method for populating the simple UI feature in the header with the combatants tokens - like bg3
@@ -634,6 +703,286 @@ public class CombatManager : MonoBehaviour
             var charData = token.getCharacterData();
             return charData != null ? charData.id : null;
         }
+    }
+    
+    // ========== CLIENT/SERVER TURN CHECK ==========
+    
+    /// <summary>
+    /// Check if it's the local player's turn based on character assignment
+    /// </summary>
+    public bool IsMyTurn()
+    {
+        if (initiativeOrder == null || initiativeOrder.Count == 0) return false;
+        
+        // DM/host can always act on any turn
+        if (NetworkManager.Singleton != null && (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer))
+            return true;
+        
+        CombatParticipant currentParticipant = initiativeOrder[currentTurnIndex];
+        
+        // Check via token control (works on host)
+        if (currentParticipant.token != null && TokenManager.Instance != null)
+        {
+            if (TokenManager.Instance.CanCurrentPlayerControlToken(currentParticipant.token))
+                return true;
+        }
+        
+        // Check via assignment (works on clients without token references)
+        string currentId = currentParticipant.GetUniqueId();
+        if (!string.IsNullOrEmpty(currentId) && PlayerAssignmentHelper.Instance != null)
+        {
+            return PlayerAssignmentHelper.Instance.IsMyCharacter(currentId);
+        }
+        
+        return false;
+    }
+    
+    // ========== NETWORK BROADCAST METHODS (host only) ==========
+    
+    private void BroadcastCombatStartToClients()
+    {
+        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer) return;
+        if (PlayerConnectionManager.Instance == null) return;
+        
+        // Serialize initiative order
+        var netData = new CombatInitiativeNetData { participants = new List<CombatParticipantNetData>() };
+        foreach (var p in initiativeOrder)
+        {
+            netData.participants.Add(new CombatParticipantNetData
+            {
+                uniqueId = p.GetUniqueId(),
+                name = p.GetName(),
+                initiativeRoll = p.initiativeRoll,
+                currentHP = p.currentHP,
+                maxHP = p.maxHP,
+                isEnemy = p.token != null && p.token.getCharacterType() == CharacterType.Enemy
+            });
+        }
+        
+        string json = JsonUtility.ToJson(netData);
+        PlayerConnectionManager.Instance.BroadcastCombatStart(json, currentTurnIndex);
+        Debug.Log($"CombatManager: Broadcast combat start with {initiativeOrder.Count} participants");
+    }
+    
+    private void BroadcastTurnChangeToClients()
+    {
+        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer) return;
+        PlayerConnectionManager.Instance?.BroadcastTurnChange(currentTurnIndex);
+    }
+    
+    private void BroadcastCombatStateToClients(int state)
+    {
+        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer) return;
+        PlayerConnectionManager.Instance?.BroadcastCombatStateChange(state);
+    }
+    
+    private void BroadcastHPChangeToClients(int participantIndex, int currentHP)
+    {
+        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer) return;
+        PlayerConnectionManager.Instance?.BroadcastHPChange(participantIndex, currentHP);
+    }
+    
+    // ========== NETWORK RECEIVE METHODS (client only) ==========
+    
+    /// <summary>
+    /// Client receives combat start data from host
+    /// </summary>
+    public void ReceiveCombatStart(string initiativeJson, int turnIndex)
+    {
+        Debug.Log("CombatManager: Receiving combat start from host");
+        
+        var netData = JsonUtility.FromJson<CombatInitiativeNetData>(initiativeJson);
+        if (netData == null || netData.participants == null)
+        {
+            Debug.LogError("CombatManager: Failed to deserialize initiative data");
+            return;
+        }
+        
+        // Build local initiative order from received data
+        initiativeOrder = new List<CombatParticipant>();
+        var spawnedTokens = TokenManager.Instance?.GetSpawnedTokens();
+        
+        foreach (var pData in netData.participants)
+        {
+            // Try to find matching local token
+            Token matchedToken = null;
+            if (spawnedTokens != null)
+            {
+                foreach (var token in spawnedTokens)
+                {
+                    if (token == null) continue;
+                    string tokenId = GetTokenUniqueId(token);
+                    if (tokenId == pData.uniqueId)
+                    {
+                        matchedToken = token;
+                        break;
+                    }
+                }
+            }
+            
+            CombatParticipant participant = new CombatParticipant
+            {
+                token = matchedToken,
+                initiativeRoll = pData.initiativeRoll,
+                hasActedThisRound = false,
+                currentHP = pData.currentHP,
+                maxHP = pData.maxHP,
+                uniqueId = pData.uniqueId
+            };
+            initiativeOrder.Add(participant);
+        }
+        
+        currentTurnIndex = turnIndex;
+        combatState = CombatState.Active;
+        combatParticipant = new List<Token>();
+        foreach (var p in initiativeOrder)
+        {
+            if (p.token != null) combatParticipant.Add(p.token);
+        }
+        
+        // Populate UI
+        populateCharactersUI();
+        
+        // Update combat state text
+        if (combatStateText != null)
+        {
+            combatStateText.text = "Combat Started!";
+        }
+        
+        // Update action buttons
+        if (AbilityManager.Instance != null)
+            AbilityManager.Instance.UpdateAbilityUI();
+        if (SpellChoiceManager.Instance != null)
+            SpellChoiceManager.Instance.UpdateSpellButtonState();
+        if (WeaponAttackManager.Instance != null)
+            WeaponAttackManager.Instance.UpdateWeaponButtonState();
+        
+        Debug.Log($"CombatManager: Client received {initiativeOrder.Count} combat participants, turn {turnIndex}");
+    }
+    
+    /// <summary>
+    /// Client receives turn change from host
+    /// </summary>
+    public void ReceiveTurnChange(int newTurnIndex)
+    {
+        Debug.Log($"CombatManager: Receiving turn change to index {newTurnIndex}");
+        currentTurnIndex = newTurnIndex;
+        SetCurrentParticipantActedLocal(false);
+        UpdateTurnHighlight();
+    }
+    
+    /// <summary>
+    /// Client receives combat state change from host
+    /// </summary>
+    public void ReceiveCombatStateChange(int combatStateInt)
+    {
+        CombatState newState = (CombatState)combatStateInt;
+        Debug.Log($"CombatManager: Receiving combat state change to {newState}");
+        combatState = newState;
+        
+        if (newState == CombatState.Inactive)
+        {
+            // Combat ended
+            currentTurnIndex = 0;
+            initiativeOrder.Clear();
+            
+            if (combatStateText != null)
+                combatStateText.text = "Combat Ended!";
+            
+            foreach (Transform child in combatantsUIParent)
+                Destroy(child.gameObject);
+            combatantUIElements.Clear();
+        }
+        else if (newState == CombatState.Paused)
+        {
+            if (combatStateText != null)
+                combatStateText.text = "Combat Paused!";
+        }
+        else if (newState == CombatState.Active)
+        {
+            if (combatStateText != null)
+                combatStateText.text = "Combat Resumed!";
+        }
+    }
+    
+    /// <summary>
+    /// Client receives HP change for a participant from host
+    /// </summary>
+    public void ReceiveHPChange(int participantIndex, int currentHP)
+    {
+        if (participantIndex < 0 || participantIndex >= initiativeOrder.Count) return;
+        
+        var p = initiativeOrder[participantIndex];
+        p.currentHP = currentHP;
+        initiativeOrder[participantIndex] = p;
+        
+        UpdateCombatantHP(participantIndex);
+    }
+    
+    /// <summary>
+    /// Client receives acted state change from host
+    /// </summary>
+    public void ReceiveActedState(bool acted)
+    {
+        SetCurrentParticipantActedLocal(acted);
+        
+        // Update action button states
+        if (SpellChoiceManager.Instance != null)
+            SpellChoiceManager.Instance.UpdateSpellButtonState();
+        if (WeaponAttackManager.Instance != null)
+            WeaponAttackManager.Instance.UpdateWeaponButtonState();
+        if (AbilityManager.Instance != null)
+            AbilityManager.Instance.UpdateAbilityUI();
+    }
+    
+    /// <summary>
+    /// Client receives participant death from host
+    /// </summary>
+    public void ReceiveParticipantDeath(int participantIndex)
+    {
+        if (participantIndex < 0 || participantIndex >= initiativeOrder.Count) return;
+        
+        CombatParticipant deadParticipant = initiativeOrder[participantIndex];
+        Debug.Log($"CombatManager: {deadParticipant.GetName()} has been defeated (synced from host)");
+        
+        // Remove the token from the game world
+        if (deadParticipant.token != null && TokenManager.Instance != null)
+        {
+            TokenManager.Instance.RemoveToken(deadParticipant.token);
+        }
+        
+        // Remove the UI element
+        RemoveCombatantUI(participantIndex);
+        
+        // Remove from initiative order
+        initiativeOrder.RemoveAt(participantIndex);
+        
+        // Adjust current turn index
+        if (participantIndex < currentTurnIndex)
+        {
+            currentTurnIndex--;
+        }
+        else if (participantIndex == currentTurnIndex)
+        {
+            if (currentTurnIndex >= initiativeOrder.Count)
+                currentTurnIndex = 0;
+        }
+        
+        if (initiativeOrder.Count > 0)
+        {
+            UpdateTurnHighlight();
+        }
+    }
+    
+    /// <summary>
+    /// Set acted state locally without broadcasting (to avoid infinite loops on receive)
+    /// </summary>
+    private void SetCurrentParticipantActedLocal(bool acted)
+    {
+        if (initiativeOrder.Count == 0 || currentTurnIndex >= initiativeOrder.Count) return;
+        var p = initiativeOrder[currentTurnIndex];
+        p.hasActedThisRound = acted;
+        initiativeOrder[currentTurnIndex] = p;
     }
 }
 

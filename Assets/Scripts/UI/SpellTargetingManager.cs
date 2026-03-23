@@ -183,21 +183,57 @@ public class SpellTargetingManager : MonoBehaviour
 
         // Get target's participant index in combat
         int targetIndex = GetParticipantIndex(targetToken);
+        
+        bool isClient = Unity.Netcode.NetworkManager.Singleton != null 
+            && Unity.Netcode.NetworkManager.Singleton.IsClient 
+            && !Unity.Netcode.NetworkManager.Singleton.IsServer;
 
         // Apply effect based on spell type
-        switch (currentSpell.spellType)
+        // Clients send via RPC, host applies directly
+        if (isClient && PlayerConnectionManager.Instance != null && targetIndex >= 0)
         {
-            case SpellType.Damage:
-                ApplyDamageSpell(targetToken, targetIndex, rollResult);
-                break;
-
-            case SpellType.Healing:
-                ApplyHealingSpell(targetToken, targetIndex, rollResult);
-                break;
-
-            case SpellType.Utility:
-                ApplyUtilitySpell(targetToken, rollResult);
-                break;
+            string casterName = caster?.charName ?? "Unknown";
+            string spellName = FormatSpellName(currentSpell.spellName.ToString());
+            
+            switch (currentSpell.spellType)
+            {
+                case SpellType.Damage:
+                    PlayerConnectionManager.Instance.RequestCombatDamageServerRpc(
+                        targetIndex, rollResult, $"{casterName} cast {spellName}");
+                    break;
+                case SpellType.Healing:
+                    PlayerConnectionManager.Instance.RequestCombatHealingServerRpc(
+                        targetIndex, rollResult, $"{casterName} cast {spellName}");
+                    break;
+                case SpellType.Utility:
+                    ApplyUtilitySpell(targetToken, rollResult);
+                    break;
+            }
+            
+            // Log locally
+            LogSpellCast(targetToken, rollResult);
+        }
+        else
+        {
+            // Host path - apply directly
+            switch (currentSpell.spellType)
+            {
+                case SpellType.Damage:
+                    ApplyDamageSpell(targetToken, targetIndex, rollResult);
+                    break;
+                case SpellType.Healing:
+                    ApplyHealingSpell(targetToken, targetIndex, rollResult);
+                    break;
+                case SpellType.Utility:
+                    ApplyUtilitySpell(targetToken, rollResult);
+                    break;
+            }
+            
+            // Mark as acted this turn (host only - server RPC handles this for clients)
+            if (CombatManager.Instance != null)
+            {
+                CombatManager.Instance.SetCurrentParticipantActed(true);
+            }
         }
 
         // Broadcast to chat
@@ -206,14 +242,24 @@ public class SpellTargetingManager : MonoBehaviour
         // Fire event
         OnSpellCast?.Invoke(currentSpell, targetToken, rollResult);
 
-        // Mark as acted this turn
-        if (CombatManager.Instance != null)
-        {
-            CombatManager.Instance.SetCurrentParticipantActed(true);
-        }
-
         // End targeting mode
         CancelTargeting();
+    }
+    
+    private void LogSpellCast(Token targetToken, int rollResult)
+    {
+        if (CombatLogger.Instance == null) return;
+        
+        string casterName = CombatLogger.GetParticipantName(casterToken);
+        string targetName = CombatLogger.GetParticipantName(targetToken);
+        GridPosition casterPos = CombatLogger.GetTokenPosition(casterToken);
+        GridPosition targetPos = CombatLogger.GetTokenPosition(targetToken);
+        string spellName = FormatSpellName(currentSpell.spellName.ToString());
+        
+        if (currentSpell.spellType == SpellType.Damage)
+            CombatLogger.Instance.LogDamage(casterName, targetName, rollResult, $"cast {spellName}", casterPos, targetPos);
+        else if (currentSpell.spellType == SpellType.Healing)
+            CombatLogger.Instance.LogHealing(casterName, targetName, rollResult, casterPos, targetPos);
     }
 
     /// <summary>
@@ -345,7 +391,7 @@ public class SpellTargetingManager : MonoBehaviour
     /// </summary>
     private CharacterData GetCaster()
     {
-        // First try: combat turn participant
+        // First try: combat turn participant - use IsMyTurn for client support
         if (CombatManager.Instance != null && CombatManager.Instance.GetCombatState() == CombatState.Active)
         {
             var currentParticipant = CombatManager.Instance.GetCurrentTurnParticipant();
@@ -354,29 +400,12 @@ public class SpellTargetingManager : MonoBehaviour
                 return currentParticipant.token.getCharacterData();
             }
             
-            // If combat is active but token is null/destroyed, try to find the token by uniqueId from spawned tokens
+            // If token is null, try to find by uniqueId (works on clients)
             if (!string.IsNullOrEmpty(currentParticipant.uniqueId))
             {
-                var tokens = TokenManager.Instance?.GetSpawnedTokens();
-                if (tokens != null)
-                {
-                    foreach (var token in tokens)
-                    {
-                        if (token == null) continue;
-                        
-                        // Match by character ID or enemy name
-                        if (token.getCharacterData() != null && 
-                            token.getCharacterData().id == currentParticipant.uniqueId)
-                        {
-                            return token.getCharacterData();
-                        }
-                        if (token.getEnemyData() != null && 
-                            $"enemy_{token.getEnemyData().name}" == currentParticipant.uniqueId)
-                        {
-                            return token.getCharacterData(); // Enemies don't have CharacterData
-                        }
-                    }
-                }
+                Token foundToken = TokenManager.Instance?.GetTokenForCharacter(currentParticipant.uniqueId);
+                if (foundToken != null && foundToken.getCharacterData() != null)
+                    return foundToken.getCharacterData();
             }
         }
 
@@ -413,29 +442,12 @@ public class SpellTargetingManager : MonoBehaviour
                 return currentParticipant.token;
             }
             
-            // If combat is active but token is null/destroyed, try to find the token by uniqueId from spawned tokens
+            // If token is null, try to find by uniqueId (works on clients)
             if (!string.IsNullOrEmpty(currentParticipant.uniqueId))
             {
-                var tokens = TokenManager.Instance?.GetSpawnedTokens();
-                if (tokens != null)
-                {
-                    foreach (var token in tokens)
-                    {
-                        if (token == null) continue;
-                        
-                        // Match by character ID or enemy name
-                        if (token.getCharacterData() != null && 
-                            token.getCharacterData().id == currentParticipant.uniqueId)
-                        {
-                            return token;
-                        }
-                        if (token.getEnemyData() != null && 
-                            $"enemy_{token.getEnemyData().name}" == currentParticipant.uniqueId)
-                        {
-                            return token;
-                        }
-                    }
-                }
+                Token foundToken = TokenManager.Instance?.GetTokenForCharacter(currentParticipant.uniqueId);
+                if (foundToken != null)
+                    return foundToken;
             }
         }
 

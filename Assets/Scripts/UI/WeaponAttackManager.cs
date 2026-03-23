@@ -89,25 +89,38 @@ public class WeaponAttackManager : MonoBehaviour
             Debug.LogWarning("WeaponAttackManager: Combat not active");
             return;
         }
+        
+        // Check if it's this player's turn
+        if (!CombatManager.Instance.IsMyTurn())
+        {
+            Debug.Log("WeaponAttackManager: Not your turn!");
+            return;
+        }
 
         var currentParticipant = CombatManager.Instance.GetCurrentTurnParticipant();
-        if (currentParticipant.token == null)
+        
+        // Try to find the token - on clients it may need to be found by uniqueId
+        attackerToken = currentParticipant.token;
+        if (attackerToken == null && !string.IsNullOrEmpty(currentParticipant.uniqueId))
+        {
+            attackerToken = TokenManager.Instance?.GetTokenForCharacter(currentParticipant.uniqueId);
+        }
+        
+        if (attackerToken == null)
         {
             Debug.LogWarning("WeaponAttackManager: No token for current participant");
             return;
         }
 
-        attackerToken = currentParticipant.token;
-
-        if (currentParticipant.token.getCharacterType() == CharacterType.Enemy)
+        if (attackerToken.getCharacterType() == CharacterType.Enemy)
         {
-            enemyAttacker = currentParticipant.token.getEnemyData();
+            enemyAttacker = attackerToken.getEnemyData();
             attacker = null;
             isEnemyAttacker = true;
         }
         else
         {
-            attacker = currentParticipant.token.getCharacterData();
+            attacker = attackerToken.getCharacterData();
             enemyAttacker = null;
             isEnemyAttacker = false;
         }
@@ -258,10 +271,24 @@ public class WeaponAttackManager : MonoBehaviour
         // Get target's participant index
         int targetIndex = GetParticipantIndex(targetToken);
 
-        // Apply damage
+        bool isClient = Unity.Netcode.NetworkManager.Singleton != null 
+            && Unity.Netcode.NetworkManager.Singleton.IsClient 
+            && !Unity.Netcode.NetworkManager.Singleton.IsServer;
+
+        // Apply damage - clients send via RPC, host applies directly
         if (CombatManager.Instance != null && targetIndex >= 0)
         {
-            CombatManager.Instance.ApplyDamage(targetIndex, totalDamage);
+            if (isClient && PlayerConnectionManager.Instance != null)
+            {
+                string attackerName = isEnemyAttacker ? (enemyAttacker?.name ?? "Unknown") : (attacker?.charName ?? "Unknown");
+                PlayerConnectionManager.Instance.RequestCombatDamageServerRpc(
+                    targetIndex, totalDamage, $"{attackerName} attacked with {currentWeaponName}");
+            }
+            else
+            {
+                CombatManager.Instance.ApplyDamage(targetIndex, totalDamage);
+                CombatManager.Instance.SetCurrentParticipantActed(true);
+            }
         }
 
         // Log the attack
@@ -283,12 +310,6 @@ public class WeaponAttackManager : MonoBehaviour
 
         // Broadcast to chat
         BroadcastAttack(targetToken, damage, strMod, totalDamage);
-
-        // Mark as acted this turn
-        if (CombatManager.Instance != null)
-        {
-            CombatManager.Instance.SetCurrentParticipantActed(true);
-        }
 
         // End targeting
         CancelTargeting();
@@ -533,7 +554,8 @@ public class WeaponAttackManager : MonoBehaviour
     {
         if (weaponAttackButton != null)
         {
-            bool canAct = CombatManager.Instance == null || !CombatManager.Instance.HasCurrentParticipantActed();
+            bool combatActive = CombatManager.Instance != null && CombatManager.Instance.IsCombatActive();
+            bool canAct = !combatActive || (!CombatManager.Instance.HasCurrentParticipantActed() && CombatManager.Instance.IsMyTurn());
             weaponAttackButton.interactable = canAct;
         }
     }

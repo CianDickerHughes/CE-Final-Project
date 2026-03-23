@@ -80,6 +80,13 @@ public class SpellChoiceManager : MonoBehaviour
             Debug.Log("SpellChoiceManager: Already acted this turn");
             return;
         }
+        
+        // Check if it's this player's turn
+        if (CombatManager.Instance != null && CombatManager.Instance.IsCombatActive() && !CombatManager.Instance.IsMyTurn())
+        {
+            Debug.Log("SpellChoiceManager: Not your turn!");
+            return;
+        }
 
         if (spellChoicePanel == null)
         {
@@ -258,17 +265,37 @@ public class SpellChoiceManager : MonoBehaviour
     /// </summary>
     private CharacterData GetPlayerCharacter()
     {
-        // First priority: Check for current turn in combat
+        // First priority: Check for current turn in combat - use IsMyTurn for client support
         if (CombatManager.Instance != null && CombatManager.Instance.GetCombatState() == CombatState.Active)
         {
-            var currentParticipant = CombatManager.Instance.GetCurrentTurnParticipant();
-            if (currentParticipant.token != null)
+            if (CombatManager.Instance.IsMyTurn())
             {
-                CharacterData charData = currentParticipant.token.getCharacterData();
-                if (charData != null)
+                var currentParticipant = CombatManager.Instance.GetCurrentTurnParticipant();
+                
+                // Try token reference first
+                if (currentParticipant.token != null)
                 {
-                    Debug.Log($"SpellChoiceManager: Using current turn character: {charData.charName} ({charData.charClass})");
-                    return charData;
+                    CharacterData charData = currentParticipant.token.getCharacterData();
+                    if (charData != null)
+                    {
+                        Debug.Log($"SpellChoiceManager: Using current turn character: {charData.charName} ({charData.charClass})");
+                        return charData;
+                    }
+                }
+                
+                // Fallback: find token by uniqueId (client may not have token reference)
+                if (!string.IsNullOrEmpty(currentParticipant.uniqueId) && TokenManager.Instance != null)
+                {
+                    Token foundToken = TokenManager.Instance.GetTokenForCharacter(currentParticipant.uniqueId);
+                    if (foundToken != null)
+                    {
+                        CharacterData charData = foundToken.getCharacterData();
+                        if (charData != null)
+                        {
+                            Debug.Log($"SpellChoiceManager: Using token found by ID: {charData.charName} ({charData.charClass})");
+                            return charData;
+                        }
+                    }
                 }
             }
         }
@@ -309,7 +336,8 @@ public class SpellChoiceManager : MonoBehaviour
     {
         if (spellAttackButton != null)
         {
-            bool canAct = CombatManager.Instance == null || !CombatManager.Instance.HasCurrentParticipantActed();
+            bool combatActive = CombatManager.Instance != null && CombatManager.Instance.IsCombatActive();
+            bool canAct = !combatActive || (!CombatManager.Instance.HasCurrentParticipantActed() && CombatManager.Instance.IsMyTurn());
             spellAttackButton.interactable = canAct;
         }
     }
