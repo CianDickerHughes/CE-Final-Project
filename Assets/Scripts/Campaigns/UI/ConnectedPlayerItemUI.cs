@@ -1,10 +1,12 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Unity.Netcode;
 
 /// <summary>
 /// UI component for displaying a connected player in the players list.
 /// Shows the player's name and which character they are assigned to (if any).
+/// DM/Host sees a kick button to remove the player from the session.
 /// </summary>
 public class ConnectedPlayerItemUI : MonoBehaviour
 {
@@ -12,6 +14,7 @@ public class ConnectedPlayerItemUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI usernameText;
     [SerializeField] private TextMeshProUGUI assignedCharacterText;
     [SerializeField] private Image playerIcon;
+    [SerializeField] private Button kickButton;
     
     [Header("Status Indicators")]
     [SerializeField] private GameObject assignedIndicator;   // Shows when player has a character
@@ -58,6 +61,37 @@ public class ConnectedPlayerItemUI : MonoBehaviour
         {
             statusColor.color = hasAssignment ? assignedColor : unassignedColor;
         }
+
+        // Kick button - only visible for host/DM and not for the host's own entry
+        SetupKickButton();
+    }
+
+    /// <summary>
+    /// Configure the kick button visibility and listener
+    /// </summary>
+    private void SetupKickButton()
+    {
+        if (kickButton == null) return;
+
+        bool isHost = NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer;
+        bool isPlayerHost = playerData != null && playerData.isHost;
+
+        // Only show kick button if we are the host AND this entry is not the host
+        kickButton.gameObject.SetActive(isHost && !isPlayerHost);
+
+        if (isHost && !isPlayerHost)
+        {
+            kickButton.onClick.RemoveAllListeners();
+            kickButton.onClick.AddListener(OnKickClicked);
+        }
+    }
+
+    private void OnKickClicked()
+    {
+        if (playerData == null) return;
+
+        Debug.Log($"Kick button clicked for player: {playerData.username} (ClientId: {playerData.clientId})");
+        PlayerConnectionManager.Instance?.KickPlayer(playerData.clientId);
     }
     
     /// <summary>

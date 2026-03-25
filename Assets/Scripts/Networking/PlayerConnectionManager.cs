@@ -583,6 +583,52 @@ public class PlayerConnectionManager : NetworkBehaviour
         return campaign?.characterAssignments?.assignments ?? new List<CharacterPlayerAssignment>();
     }
     
+    /// <summary>
+    /// DM kicks a connected player from the session by their client ID.
+    /// </summary>
+    public void KickPlayer(ulong clientId)
+    {
+        if (!IsServer)
+        {
+            Debug.LogWarning("Only the host can kick players");
+            return;
+        }
+
+        // Don't let the host kick themselves
+        if (clientId == NetworkManager.Singleton.LocalClientId)
+        {
+            Debug.LogWarning("Cannot kick yourself (host)");
+            return;
+        }
+
+        if (connectedPlayers.TryGetValue(clientId, out var player))
+        {
+            Debug.Log($"Kicking player: {player.username} (ClientId: {clientId})");
+            
+            // Notify the client they are being kicked before disconnecting
+            NotifyKickedClientRpc(clientId);
+            
+            // Disconnect the client
+            NetworkManager.Singleton.DisconnectClient(clientId);
+        }
+        else
+        {
+            Debug.LogWarning($"Cannot kick client {clientId} - not found in connected players");
+        }
+    }
+
+    /// <summary>
+    /// Notify a specific client that they have been kicked.
+    /// </summary>
+    [Rpc(SendTo.NotServer)]
+    private void NotifyKickedClientRpc(ulong targetClientId)
+    {
+        if (NetworkManager.Singleton.LocalClientId == targetClientId)
+        {
+            Debug.Log("You have been kicked from the session.");
+        }
+    }
+
     // ========== NETWORK SYNC RPCs ==========
     
     [Rpc(SendTo.ClientsAndHost)]
