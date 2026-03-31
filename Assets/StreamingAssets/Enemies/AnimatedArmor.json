@@ -1,24 +1,3 @@
-{
-    "id": "AnimatedArmor",
-    "name": "Animated Armor",
-    "size": "Medium",
-    "type": "Construct",
-    "alignment": "Unaligned",
-    "AC": 18,
-    "HP": 33,
-    "speed": 25,
-    "tokenFileName": "AnimatedArmor.png",
-    "strength": 14,
-    "dexterity": 11,
-    "constitution": 13,
-    "intelligence": 1,
-    "wisdom": 3,
-    "charisma": 1,
-    "weapon": "Slam",
-    "weaponDamage": "1d6 + 2",
-    "immunities": [
-        "poison",
-        "psychic"
-    ],
-    "challengeRating": 1
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:77ab9df6dddd33826b55d5ab05f4c862983b986c47166b11bf3dcea283920274
+size 512

@@ -1,21 +1,3 @@
-{
-    "id": "Assassin",
-    "name": "Assassin",
-    "size": "Medium",
-    "type": "Humanoid",
-    "alignment": "Any Evil Alignment",
-    "AC": 15,
-    "HP": 78,
-    "speed": 30,
-    "tokenFileName": "Assassin.png",
-    "strength": 11,
-    "dexterity": 16,
-    "constitution": 14,
-    "intelligence": 13,
-    "wisdom": 11,
-    "charisma": 10,
-    "weapon": "Shortsword",
-    "weaponDamage": "1d6 + 3",
-    "immunities": [],
-    "challengeRating": 8
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:5ae1ef2355ed0f4deb9c88609d0121d774c30559c0ab36211be0ea6627a5f0d7
+size 469

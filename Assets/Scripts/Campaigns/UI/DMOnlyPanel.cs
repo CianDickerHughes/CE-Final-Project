@@ -1,25 +1,3 @@
-using UnityEngine;
-using Unity.Netcode;
-using Unity.Services.Authentication;
-
-public class DMOnlyPanel : MonoBehaviour
-{
-    //Declaring the variable for the DM only panel
-    [SerializeField] private GameObject dmPanel;
-
-    //Checking if the player is the dm and if not hiding the panel
-    void Start()
-    {
-        NetworkManager networkManager = NetworkManager.Singleton;
-        if(networkManager != null && networkManager.IsServer)
-        {
-            //Player is the DM, show the panel
-            dmPanel.SetActive(true);
-        }
-        else
-        {
-            //Player isnt the DM, hide the dm panel
-            dmPanel.SetActive(false);
-        }
-    }
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:8bb3a0c21d66c8367aaaa43678fa4d4e03d08fa476f949f6f5ca14368eb92bda
+size 700

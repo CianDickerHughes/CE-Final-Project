@@ -1,24 +1,3 @@
-using UnityEngine;
-
-//Static context class to pass the selected campaign data between scenes
-//Works just like CharacterSelectionContext - stores the campaign ID and file path
-//so the CampaignManager scene knows which campaign to load and display
-
-public static class CampaignSelectionContext
-{
-    //The campaign ID of the selected campaign
-    public static string SelectedCampaignId = null;
-    
-    //The file path to the campaign JSON (useful for saving/deleting)
-    public static string SelectedCampaignFilePath = null;
-    
-    //Clear the selection (call when going back or creating new)
-    public static void Clear()
-    {
-        SelectedCampaignId = null;
-        SelectedCampaignFilePath = null;
-    }
-    
-    //Check if a campaign is selected
-    public static bool HasSelection => !string.IsNullOrEmpty(SelectedCampaignId);
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:52c082217d92b0ba7ee7c0bb4969750e7937a7ac2d1b0ffde614aee82229c017
+size 868

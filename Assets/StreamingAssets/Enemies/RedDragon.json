@@ -1,23 +1,3 @@
-{
-    "id": "RedDragon",
-    "name": "Red Dragon",
-    "size": "Gargantuan",
-    "type": "Dragon",
-    "alignment": "Chaotic Evil",
-    "AC": 22,
-    "HP": 256,
-    "speed": 40,
-    "tokenFileName": "RedDragon.png",
-    "strength": 27,
-    "dexterity": 10,
-    "constitution": 25,
-    "intelligence": 16,
-    "wisdom": 13,
-    "charisma": 21,
-    "weapon": "Bite",
-    "weaponDamage": "2d10 + 8",
-    "immunities": [
-        "fire"
-    ],
-    "challengeRating": 17
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:197c60ca012184c154b9b9ea3f9d2a9536fb32c829ec3a3a9a8d08736dbd3939
+size 488

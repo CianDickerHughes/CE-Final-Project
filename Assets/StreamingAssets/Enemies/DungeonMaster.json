@@ -1,23 +1,3 @@
-{
-    "id": "DM",
-    "name": "DM",
-    "size": "Large",
-    "type": "Monstrosity",
-    "alignment": "Neutral",
-    "AC": 15,
-    "HP": 150,
-    "speed": 30,
-    "tokenFileName": "DungeonMaster.png",
-    "strength": 20,
-    "dexterity": 18,
-    "constitution": 16,
-    "intelligence": 10,
-    "wisdom": 12,
-    "charisma": 8,
-    "weapon": "Sword of Justice",
-    "weaponDamage": "3d8 + 5",
-    "immunities": [
-        "poison"
-    ],
-    "challengeRating": 20
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:7fa877fe6f66ea0e610c67a72dbc50b3c8b4c6e004f5d85b4abc5b9fe4372018
+size 484

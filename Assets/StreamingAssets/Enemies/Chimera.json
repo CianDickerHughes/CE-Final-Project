@@ -1,21 +1,3 @@
-{
-    "id": "Chimera",
-    "name": "Chimera",
-    "size": "Large",
-    "type": "Monstrosity",
-    "alignment": "Chaotic Evil",
-    "armor_class": 14,
-    "hp": 114,
-    "speed": 30,
-    "tokenFileName": "Chimera.png",
-    "strength": 19,
-    "dexterity": 11,
-    "constitution": 19,
-    "intelligence": 3,
-    "wisdom": 14,
-    "charisma": 1,
-    "weapon": "Claws",
-    "weaponDamage": "2d6 + 4",
-    "immunities": [],
-    "challengeRating": 6
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:fda9eb75a099d0b226aab10dbbefd1a9cedb024a8069ff4330f633c5387b83d5
+size 465

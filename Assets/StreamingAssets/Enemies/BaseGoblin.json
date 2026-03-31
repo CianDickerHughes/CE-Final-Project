@@ -1,21 +1,3 @@
-{
-    "id": "BaseGoblin",
-    "name": "Base Goblin",
-    "size": "Small",
-    "type": "Humanoid",
-    "alignment": "Neutral Evil",
-    "AC": 15,
-    "HP": 7,
-    "speed": 30,
-    "tokenFileName": "BaseGoblin.png",
-    "strength": 8,
-    "dexterity": 14,
-    "constitution": 10,
-    "intelligence": 10,
-    "wisdom": 8,
-    "charisma": 8,
-    "weapon": "Scimitar",
-    "weaponDamage": "1d6 + 2",
-    "immunities": [],
-    "challengeRating": 0.25
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:6ddacab77d9b000c0d7972cb7ccaa45b3ccb410738380cd6730e4ffa61b2ba32
+size 466

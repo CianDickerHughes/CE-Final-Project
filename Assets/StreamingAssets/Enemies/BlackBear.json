@@ -1,21 +1,3 @@
-{
-    "id": "BlackBear",
-    "name": "Black Bear",
-    "size": "Medium",
-    "type": "Beast",
-    "alignment": "Unaligned",
-    "AC": 11,
-    "HP": 19,
-    "speed": 40,
-    "tokenFileName": "BlackBear.png",
-    "strength": 15,
-    "dexterity": 10,
-    "constitution": 14,
-    "intelligence": 2,
-    "wisdom": 12,
-    "charisma": 7,
-    "weapon": "Bite",
-    "weaponDamage": "1d6 + 2",
-    "immunities": [],
-    "challengeRating": 1
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:910be219bc67ec341cb0f7b3e1ce724c1de5d1911d03330a71b480358b70afb5
+size 453
