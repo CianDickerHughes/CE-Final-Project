@@ -1,3 +1,4 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:1610d7e0ea6502701973fd961f4306639c15dbd6076181fd3e83b86145d50486
-size 89
+{
+  "EnvironmentName": "production",
+  "EnvironmentId": "f8503185-901c-48a7-b9ce-17296508e2dc"
+}

@@ -1,3 +1,98 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:b033f5ee4be3e571b93219ba3200de6c1e98cfa0d622e52f56c2e53fa5079c07
-size 3456
+using UnityEngine;
+using System;
+using UnityEngine.UI;
+using TMPro;
+
+//Same as the other classes we've seen
+//This is meant to higlight the information about enemy items in the game
+public class EnemyItem : MonoBehaviour
+{
+    //Variables for UI References
+    public TextMeshProUGUI enemyNameText;
+    public TextMeshProUGUI enemyTypeText;
+    public TMP_Dropdown enemyTypeDropdown;
+    public Image enemyIconImage;
+    //Same spawn functionalities as we have for characters
+    public Button spawnButton;
+    private string filePath;
+    private EnemyData enemyData;
+    private EnemyType enemyType;
+
+    //Setup method to initialize the enemy item with data
+    public void Setup(string jsonFilePath, EnemyData data)
+    {
+        filePath = jsonFilePath;
+        enemyData = data;
+
+        if (enemyNameText != null)
+        {
+            enemyNameText.text = string.IsNullOrEmpty(data.name) ? "(Unnamed)" : data.name;
+        }
+
+        if (enemyTypeText != null)
+        {
+            enemyTypeText.text = !string.IsNullOrEmpty(data.type) ? data.type : "";
+        }
+
+        if(enemyTypeDropdown != null)
+        {
+            enemyTypeDropdown.options.Clear();
+            foreach (EnemyType type in Enum.GetValues(typeof(EnemyType)))
+            {
+                enemyTypeDropdown.options.Add(new TMP_Dropdown.OptionData(type.ToString()));
+            }
+        }
+
+        // load icon image if available (async is not required here for local files)
+        if (enemyIconImage != null)
+        {
+            enemyIconImage.sprite = null;
+            enemyIconImage.preserveAspect = true;
+
+            if (!string.IsNullOrEmpty(data.tokenFileName))
+            {
+                string folder = CharacterIO.GetEnemiesFolder();
+                string iconPath = System.IO.Path.Combine(folder, data.tokenFileName);
+                if (System.IO.File.Exists(iconPath))
+                {
+                    try
+                    {
+                        byte[] bytes = System.IO.File.ReadAllBytes(iconPath);
+                        Texture2D tex = new Texture2D(2,2);
+                        tex.LoadImage(bytes);
+                        Sprite sprite = Sprite.Create(tex, new Rect(0,0,tex.width, tex.height), new Vector2(0.5f,0.5f));
+                        enemyIconImage.sprite = sprite;
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError("Error loading enemy icon image: " + ex.Message);
+                    }
+                }
+            }
+        }
+
+        //Wiring up the spawn button
+        if (spawnButton != null)
+        {
+            spawnButton.onClick.RemoveAllListeners();
+            spawnButton.onClick.AddListener(() => SelectForSpawning(CharacterType.Enemy));
+        }
+        
+    }
+
+    //Method for selecting this enemy for spawning
+    void SelectForSpawning(CharacterType type)
+    {
+        //Making sure the type is enemy
+        if (type != CharacterType.Enemy)
+        {
+            Debug.LogWarning("SelectForSpawning called with non-enemy type on EnemyItem.");
+            return;
+        }
+        if (TokenManager.Instance != null && enemyData != null)
+        {
+            TokenManager.Instance.SetSelectedEnemyForSpawn(enemyData, CharacterType.Enemy);
+            Debug.Log($"Selected {enemyData.name} for spawning.");
+        }
+    }
+}

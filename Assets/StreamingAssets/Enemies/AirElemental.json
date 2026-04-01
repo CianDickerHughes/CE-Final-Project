@@ -1,3 +1,25 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:7a4981e8d9c7797a23706960fb8dddea872d5fa70005eb8f5f8aef5a0d88a9b5
-size 528
+{
+    "id": "AirElemental",
+    "name": "Air Elemental",
+    "size": "Large",
+    "type": "Elemental",
+    "alignment": "Neutral",
+    "AC": 15,
+    "HP": 90,
+    "speed": 90,
+    "tokenFileName": "AirElemental.png",
+    "strength": 14,
+    "dexterity": 20,
+    "constitution": 14,
+    "intelligence": 6,
+    "wisdom": 10,
+    "charisma": 6,
+    "weapon": "Whirlwind",
+    "weaponDamage": "2d8 + 5",
+    "immunities": [
+        "air",
+        "poison",
+        "disease"
+    ],
+    "challengeRating": 5
+}

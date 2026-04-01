@@ -1,3 +1,8 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:07bc2b2800d54834f92615c9ed6c97e99db8704e08048e1c9cb55674b11f8d19
-size 316
+//Tracking what "Type" of enemy this is
+public enum EnemyType
+{
+    //Manual - The DM is manually controlling this enemy themselves
+    Manual,
+    //Boss/Adaptive - Enemy is controlled by the adaptive enemy AI behaviour - learns/has actions informed by the specialised AI model in the system
+    Adaptive
+}

@@ -1,3 +1,12 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:2973a6af930e142f62cde00076beda8a3cc3a66d9bfcde7a58ba7d4be2251c26
-size 525
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!937362698 &1
+VFXManager:
+  m_ObjectHideFlags: 0
+  m_IndirectShader: {fileID: 0}
+  m_CopyBufferShader: {fileID: 0}
+  m_SortShader: {fileID: 0}
+  m_StripUpdateShader: {fileID: 0}
+  m_RenderPipeSettingsPath: 
+  m_FixedTimeStep: 0.016666668
+  m_MaxDeltaTime: 0.05

@@ -1,3 +1,24 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:32ec2572bdef200ae4e7e7d0d92b0dac2ef54ad3bc80c79acf57731b7c1e1212
-size 499
+{
+    "id": "Deva",
+    "name": "Deva",
+    "size": "Medium",
+    "type": "Celestial",
+    "alignment": "Lawful Good",
+    "AC": 17,
+    "HP": 136,
+    "speed": 30,
+    "tokenFileName": "Deva.png",
+    "strength": 18,
+    "dexterity": 18,
+    "constitution": 18,
+    "intelligence": 17,
+    "wisdom": 20,
+    "charisma": 20,
+    "weapon": "Greatsword",
+    "weaponDamage": "2d6 + 4",
+    "immunities": [
+        "radiant",
+        "necrotic"
+    ],
+    "challengeRating": 10
+}

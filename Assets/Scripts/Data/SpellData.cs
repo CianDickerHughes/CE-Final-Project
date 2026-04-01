@@ -1,3 +1,19 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:64518f11b5cafa86babff40ff441e3888c512a39cfb41d72fc393b10ff3f4915
-size 451
+using UnityEngine;
+using System;
+using System.Collections.Generic;
+
+[Serializable]
+public class SpellDefinition
+{
+    public SpellName spellName;
+    public SpellType spellType;
+    public int spellLevel;
+    public List<string> allowedClasses;
+    //Damage and healing dice
+    public int diceCount;
+    public int diceSize;
+
+    //Potentiall later we can add fields for:
+    //public int range;
+    //public string description;
+}
