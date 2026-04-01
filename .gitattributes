@@ -1,3 +1,2 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:2532a5c8e3a4c823d9480fb13316cf54e79b23058fd033c294ab02ff90fae281
-size 152
+*.gguf filter=lfs diff=lfs merge=lfs -text
+Assets/AI[[:space:]]Files/** filter=lfs diff=lfs merge=lfs -text
