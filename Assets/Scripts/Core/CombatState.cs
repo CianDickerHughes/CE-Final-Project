@@ -1,3 +1,14 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:8285cc1fad012979c04ccdac36572aa3feecd5a3ab20a8abb1f6462dc3cd8697
-size 435
+using UnityEngine;
+
+//Defnining the state that combat can be in at any given point in time
+public enum CombatState
+{
+    //Combat hasnt started/has ended
+    Inactive,
+    //Rolling phase - setting things up
+    Rolling,
+    //Active combat phase - players and npcs taking actions
+    Active,
+    //Paused - for things like when the DM needs to pause combat to do something or if a player needs to step away
+    Paused
+}

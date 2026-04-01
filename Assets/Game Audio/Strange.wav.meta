@@ -1,3 +1,29 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:5fb552ba12232b458d61ab155012ba485f3d6cee53ec6d5be18d434394d246cf
-size 659
+fileFormatVersion: 2
+guid: fe3018dbfd00f04429fa5b0feab4ac61
+AudioImporter:
+  externalObjects: {}
+  serializedVersion: 6
+  defaultSettings:
+    loadType: 0
+    sampleRateSetting: 0
+    sampleRateOverride: 44100
+    compressionFormat: 1
+    quality: 1
+    conversionMode: 0
+  platformSettingOverrides: {}
+  forceToMono: 0
+  normalize: 1
+  preloadAudioData: 1
+  loadInBackground: 0
+  ambisonic: 0
+  3D: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240154
+  packageName: 25 Fantasy RPG Game Tracks Music Pack
+  packageVersion: 1.0
+  assetPath: Assets/25 Rpg Game Tracks/Strange.wav
+  uploadId: 545865

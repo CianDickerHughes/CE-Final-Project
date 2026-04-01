@@ -1,3 +1,44 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:7f8b11c6d19f624a7d23aa01578ac104d0c2f6283234271110ce1e4bdd4f27a0
-size 1231
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+
+// Shows a "You have been kicked" popup on the Campaigns scene.
+// Lives on a panel that starts disabled. A static flag triggers it on scene load.
+public class KickNotification : MonoBehaviour
+{
+    [SerializeField] private GameObject notificationPanel;
+    [SerializeField] private TextMeshProUGUI messageText;
+    [SerializeField] private Button closeButton;
+
+    // Static flag set before loading the Campaigns scene
+    private static bool wasKicked = false;
+    private static string kickMessage = "";
+
+    public static void SetKicked(string message = "You have been kicked from the session.")
+    {
+        wasKicked = true;
+        kickMessage = message;
+    }
+
+    void Start()
+    {
+        closeButton.onClick.AddListener(CloseNotification);
+
+        if (wasKicked)
+        {
+            messageText.text = kickMessage;
+            notificationPanel.SetActive(true);
+            wasKicked = false;
+            kickMessage = "";
+        }
+        else
+        {
+            notificationPanel.SetActive(false);
+        }
+    }
+
+    private void CloseNotification()
+    {
+        notificationPanel.SetActive(false);
+    }
+}

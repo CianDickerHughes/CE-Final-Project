@@ -1,3 +1,38 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:972fd7992ceb7ac6de158d077267b4ed2a4634bfc46099e4d92b70380fefd5e7
-size 914
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using Unity.Netcode;
+
+public class NetworkShutdownButton : MonoBehaviour
+{
+    [SerializeField] string backSceneName = "";
+
+    void Awake()
+    {
+        var btn = GetComponent<Button>();
+        if (btn != null)
+        {
+            btn.onClick.AddListener(OnBackClicked);
+        }
+    }
+
+    void OnBackClicked()
+    {
+        try
+        {
+            if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+            {
+                NetworkManager.Singleton.Shutdown();
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning($"NetworkShutdownButton: Exception during shutdown: {ex}");
+        }
+
+        if (!string.IsNullOrEmpty(backSceneName))
+        {
+            SceneManager.LoadScene(backSceneName);
+        }
+    }
+}

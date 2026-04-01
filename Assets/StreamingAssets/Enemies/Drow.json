@@ -1,3 +1,21 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:20ae234f4ed5facd0e20c79a9c85bb1cb03412cae6ef3529d993c5556a07eb79
-size 454
+{
+    "id": "Drow",
+    "name": "Drow",
+    "size": "Medium",
+    "type": "Humanoid",
+    "alignment": "Chaotic Evil",
+    "AC": 15,
+    "HP": 13,
+    "speed": 30,
+    "tokenFileName": "Drow.png",
+    "strength": 10,
+    "dexterity": 14,
+    "constitution": 10,
+    "intelligence": 11,
+    "wisdom": 11,
+    "charisma": 12,
+    "weapon": "Shortsword",
+    "weaponDamage": "1d8 + 2",
+    "immunities": [],
+    "challengeRating": 0.25
+}

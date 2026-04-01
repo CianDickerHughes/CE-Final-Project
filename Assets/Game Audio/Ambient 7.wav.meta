@@ -1,3 +1,29 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:cdeb6a182392153a5e2c658ab3be60dc3cbb1edd369d83cdaace7a8a92db5843
-size 661
+fileFormatVersion: 2
+guid: 8b9cb98176c68a2409b2dc72d30e95a3
+AudioImporter:
+  externalObjects: {}
+  serializedVersion: 6
+  defaultSettings:
+    loadType: 0
+    sampleRateSetting: 0
+    sampleRateOverride: 44100
+    compressionFormat: 1
+    quality: 1
+    conversionMode: 0
+  platformSettingOverrides: {}
+  forceToMono: 0
+  normalize: 1
+  preloadAudioData: 1
+  loadInBackground: 0
+  ambisonic: 0
+  3D: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 240154
+  packageName: 25 Fantasy RPG Game Tracks Music Pack
+  packageVersion: 1.0
+  assetPath: Assets/25 Rpg Game Tracks/Ambient 7.wav
+  uploadId: 545865

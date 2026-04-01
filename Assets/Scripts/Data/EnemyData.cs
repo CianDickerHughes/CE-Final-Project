@@ -1,3 +1,38 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:183314745aa95fc2a3ef47b3feba075d6e657e8b8606d87180ea661a02870ec6
-size 912
+using UnityEngine;
+using System;
+
+[Serializable]
+public class EnemyData
+{
+    //Unique ID for each enemy
+    public string id;
+    //Name, type, and challenge rating
+    public string name;
+    public string type;
+    public EnemyType enemyType;
+    public string challengeRating;
+    public string size;
+    public string alignment;
+    //String for handling the image relating to this enemy
+    public string tokenFileName;
+    //Immunities
+    public string[] immunities;
+    //Game-related stats
+    public int HP;
+    public int AC;
+    public int speed;
+    //Ability scores
+    public int strength;
+    public int dexterity;
+    public int constitution;
+    public int intelligence;
+    public int wisdom;
+    public int charisma;
+    public string weapon;
+    public string weaponDamage;
+
+    public EnemyData()
+    {
+        id = Guid.NewGuid().ToString();
+    }
+}

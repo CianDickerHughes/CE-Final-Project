@@ -1,3 +1,17 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:cd606d8608eab4105507841fe423cb0662b58bacfbe179b10fdb9aa48ed73a53
-size 664
+using UnityEngine;
+
+//More dynamic way of us doing the music for each scene
+//We can just attach this script to an empty game object in each scene, and assign the music clip for that scene. Then it will automatically play the music when the scene starts.
+//If its the same music as the previous scene, it will just continue playing without restarting. If it's different, it will fade out the previous music and fade in the new music.
+public class SceneMusic : MonoBehaviour
+{
+    public AudioClip musicClip;
+
+    void Start()
+    {
+        if (musicClip != null)
+        {
+            MusicManager.instance.PlayMusic(musicClip);
+        }
+    }
+}

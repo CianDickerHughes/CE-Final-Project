@@ -1,3 +1,68 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:3961f36d3f42480d404d42fa0ed1bccb9bc27421d613ac8ec492e2ab810b7e63
-size 2261
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+
+//Class is meant to serve to populate the UI item for combatants like i bg3 in the gameplay scene
+public class CharInitToken : MonoBehaviour
+{
+    //UI Fields
+    [SerializeField] private TextMeshProUGUI hpText;
+    [SerializeField] private Image tokenImage;
+    [SerializeField] private Image backgroundImage;
+
+    //Highligting UI fields
+    [Header("Highlight Colors")]
+    [SerializeField] private Color normalColor = new Color(0.2f, 0.2f, 0.2f, 1f);
+    [SerializeField] private Color highlightColor = new Color(0.4f, 0.8f, 0.4f, 1f);
+
+    private CombatParticipant participant;
+
+    //Method to set up the combatant token with the relevant data
+    public void Setup(CombatParticipant combatParticipant)
+    {
+        participant = combatParticipant;
+        UpdateHP();
+        //Setting up the token image
+        SetupTokenImage();
+        //Setting up the background color to normal by default
+        SetHighlight(false);
+    }
+
+    //UI method for highlighting and Unhighlighting an item in the initiative order when its that players turn
+    public void SetHighlight(bool isActive)
+    {
+        if (backgroundImage != null)
+        {
+            backgroundImage.color = isActive ? highlightColor : normalColor;
+        }
+    }
+
+    private void SetupTokenImage()
+    {
+        if (tokenImage != null && participant.token != null)
+        {
+            // Get the sprite from the token's SpriteRenderer
+            SpriteRenderer spriteRenderer = participant.token.GetComponent<SpriteRenderer>();
+            if (spriteRenderer != null && spriteRenderer.sprite != null)
+            {
+                tokenImage.sprite = spriteRenderer.sprite;
+                tokenImage.preserveAspect = true;
+            }
+        }
+    }
+
+    public void UpdateHP()
+    {
+        if(hpText != null)
+        {
+            hpText.text = $"{participant.currentHP}/{participant.maxHP}";
+        }
+    }
+    
+    //Updates the displayed participant data (used when HP changes from damage/healing)
+    public void UpdateParticipant(CombatParticipant updatedParticipant)
+    {
+        participant = updatedParticipant;
+        UpdateHP();
+    }
+}

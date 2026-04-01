@@ -1,3 +1,15 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:75e0d8412ac83de19e4ffda0a6b3568a63267f7c1868fa9ab4d5177a9628fa1c
-size 384
+fileFormatVersion: 2
+guid: f6270515bd754bc4c9f384683d0072f5
+timeCreated: 1507316392
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 99451
+  packageName: SIMPLE FANTASY GUI
+  packageVersion: 1.0
+  assetPath: Assets/Simple Fantasy GUI/Scenes/DemoScene2.unity
+  uploadId: 204814
