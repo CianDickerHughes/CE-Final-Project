@@ -359,6 +359,31 @@ public class GameplayManager : MonoBehaviour
         {
             TokenManager.Instance.DeselectToken();
         }
+        
+        //Backspace to delete selected enemy
+        if (Input.GetKeyDown(KeyCode.Backspace))
+        {
+            Token selected = TokenManager.Instance.GetSelectedToken();
+            if (selected != null && TokenManager.Instance.CanCurrentPlayerControlToken(selected) && selected.getCharacterType() == CharacterType.Enemy)
+            {
+                if (CombatManager.Instance != null && CombatManager.Instance.IsCombatActive())
+                {
+                    var initiativeOrder = CombatManager.Instance.GetInitiativeOrder();
+                    for (int i = 0; i < initiativeOrder.Count; i++)
+                    {
+                        if (initiativeOrder[i].token == selected)
+                        {
+                            CombatManager.Instance.ApplyDamage(i, 9999); // High damage to kill instantly and handle removal
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    TokenManager.Instance.RemoveToken(selected);
+                }
+            }
+        }
     }
 
     //This should fix the ui issure we're getting with the map not loading
