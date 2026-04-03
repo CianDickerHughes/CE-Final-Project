@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>LLamaSharp</id>
+    <version>0.26.0</version>
+    <authors>Rinne, Martin Evans, jlsantiago and all the other contributors in https://github.com/SciSharp/LLamaSharp/graphs/contributors.</authors>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <readme>README.md</readme>
+    <iconUrl>https://avatars3.githubusercontent.com/u/44989469?s=200&amp;v=4</iconUrl>
+    <description>LLamaSharp is a cross-platform library to run 🦙LLaMA/Mtmd model (and others) in your local device. 
+      Based on [llama.cpp](https://github.com/ggerganov/llama.cpp), inference with LLamaSharp is efficient on both CPU and GPU. 
+      With the higher-level APIs and RAG support, it's convenient to deploy LLM (Large Language Model) in your application with LLamaSharp.</description>
+    <releaseNotes>Updated llama.cpp version to 506bb6e01009058f35558474cf987eeb56361782</releaseNotes>
+    <copyright>MIT, SciSharp STACK 2026</copyright>
+    <tags>LLama, LLM, GPT, ChatGPT, NLP, AI, Chat Bot, SciSharp</tags>
+    <repository type="git" url="https://github.com/SciSharp/LLamaSharp" commit="b5cd28ec93f67bf72171d08d985420c17d13ad3d" />
+    <dependencies>
+      <group targetFramework="net8.0">
+        <dependency id="CommunityToolkit.HighPerformance" version="8.4.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Bcl.AsyncInterfaces" version="10.0.2" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.AI.Abstractions" version="9.10.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Logging.Abstractions" version="10.0.2" exclude="Build,Analyzers" />
+        <dependency id="System.Numerics.Tensors" version="9.0.9" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="CommunityToolkit.HighPerformance" version="8.4.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Bcl.AsyncInterfaces" version="10.0.2" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.AI.Abstractions" version="9.10.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Logging.Abstractions" version="10.0.2" exclude="Build,Analyzers" />
+        <dependency id="System.Linq.Async" version="6.0.3" exclude="Build,Analyzers" />
+        <dependency id="System.Numerics.Tensors" version="9.0.9" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="9.0.9" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>
