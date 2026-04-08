@@ -496,25 +496,107 @@ public class PlayerAssignmentHelper : MonoBehaviour
         
         Sprite sprite = Resources.Load<Sprite>($"CharacterTokens/{characterData.tokenFileName}");
         
+        // Try multiple image locations (same search order as Token.cs)
         if (sprite == null)
         {
-            string imagePath;
-            #if UNITY_EDITOR
-                imagePath = Path.Combine(Application.dataPath, "Campaigns", "ReceivedCampaigns", "Characters", characterData.tokenFileName);
-            #else
-                imagePath = Path.Combine(Application.persistentDataPath, "Campaigns", "ReceivedCampaigns", "Characters", characterData.tokenFileName);
-            #endif
+            string tokenPath = null;
             
-            if (File.Exists(imagePath))
+            // Location 1: Main characters folder
+            string mainFolder = CharacterIO.GetCharactersFolder();
+            string mainPath = Path.Combine(mainFolder, characterData.tokenFileName);
+            if (File.Exists(mainPath)) tokenPath = mainPath;
+            
+            // Location 2: ReceivedCampaigns folder
+            if (tokenPath == null)
             {
-                byte[] imageData = File.ReadAllBytes(imagePath);
-                Texture2D texture = new Texture2D(2, 2);
-                texture.LoadImage(imageData);
-                sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.one * 0.5f);
+                #if UNITY_EDITOR
+                    string receivedPath = Path.Combine(Application.dataPath, "Campaigns", "ReceivedCampaigns", "Characters", characterData.tokenFileName);
+                #else
+                    string receivedPath = Path.Combine(Application.persistentDataPath, "Campaigns", "ReceivedCampaigns", "Characters", characterData.tokenFileName);
+                #endif
+                if (File.Exists(receivedPath)) tokenPath = receivedPath;
+            }
+            
+            // Location 3: Campaign Characters / PlayerCharacters folders
+            if (tokenPath == null)
+            {
+                string campaignName = CampaignManager.Instance?.GetCurrentCampaign()?.campaignName;
+                if (!string.IsNullOrEmpty(campaignName))
+                {
+                    string campaignFolder = CampaignManager.GetCampaignsFolder();
+                    string campaignCharsPath = Path.Combine(campaignFolder, campaignName, "Characters", characterData.tokenFileName);
+                    string playerCharsPath = Path.Combine(campaignFolder, campaignName, "PlayerCharacters", characterData.tokenFileName);
+                    if (File.Exists(campaignCharsPath)) tokenPath = campaignCharsPath;
+                    else if (File.Exists(playerCharsPath)) tokenPath = playerCharsPath;
+                }
+            }
+            
+            if (tokenPath != null)
+            {
+                try
+                {
+                    byte[] imageData = File.ReadAllBytes(tokenPath);
+                    Texture2D texture = new Texture2D(2, 2);
+                    texture.LoadImage(imageData);
+                    sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.one * 0.5f);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"UpdateCharacterUI: Failed to load image from {tokenPath}: {ex.Message}");
+                }
             }
         }
         
         if (sprite != null) characterImg.sprite = sprite;
+    }
+    
+    /// <summary>
+    /// Display any character's details in the PlayerCharDetails panel.
+    /// Used by the DM/Host to inspect tokens by clicking on them.
+    /// </summary>
+    public void DisplayCharacter(CharacterData data)
+    {
+        if (data == null) return;
+        ConnectUIReferences();
+        UpdateCharacterUI(data);
+    }
+    
+    /// <summary>
+    /// Display enemy details in the PlayerCharDetails panel.
+    /// Maps enemy fields to the character UI fields for DM inspection.
+    /// </summary>
+    public void DisplayEnemy(EnemyData data)
+    {
+        if (data == null) return;
+        ConnectUIReferences();
+        
+        if (characterName != null) characterName.text = data.name;
+        if (characterClass != null) characterClass.text = data.type;
+        if (characterLevel != null) characterLevel.text = $"CR {data.challengeRating}";
+        if (characterRace != null) characterRace.text = data.size;
+        if (characterHP != null) characterHP.text = $"{data.HP}";
+        if (characterAC != null) characterAC.text = $"{data.AC}";
+        
+        // Load enemy token image
+        if (characterImg != null && !string.IsNullOrEmpty(data.tokenFileName))
+        {
+            string folder = CharacterIO.GetEnemiesFolder();
+            string tokenPath = System.IO.Path.Combine(folder, data.tokenFileName);
+            if (File.Exists(tokenPath))
+            {
+                try
+                {
+                    byte[] imageData = File.ReadAllBytes(tokenPath);
+                    Texture2D texture = new Texture2D(2, 2);
+                    texture.LoadImage(imageData);
+                    characterImg.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.one * 0.5f);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"DisplayEnemy: Failed to load enemy image: {ex.Message}");
+                }
+            }
+        }
     }
     
     /// <summary>
