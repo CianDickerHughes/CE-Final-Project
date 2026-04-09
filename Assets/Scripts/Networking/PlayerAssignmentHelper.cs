@@ -70,11 +70,7 @@ public class PlayerAssignmentHelper : MonoBehaviour
     void OnEnable()
     {
         // Subscribe to assignment changes
-        if (PlayerConnectionManager.Instance != null)
-        {
-            PlayerConnectionManager.Instance.OnCharacterAssigned += OnCharacterAssigned;
-            PlayerConnectionManager.Instance.OnCharacterUnassigned += OnCharacterUnassigned;
-        }
+        TrySubscribeToConnectionManager();
         
         // Try connecting UI references again in case they weren't available in Awake
         if (characterName == null)
@@ -89,6 +85,34 @@ public class PlayerAssignmentHelper : MonoBehaviour
         {
             PlayerConnectionManager.Instance.OnCharacterAssigned -= OnCharacterAssigned;
             PlayerConnectionManager.Instance.OnCharacterUnassigned -= OnCharacterUnassigned;
+            _subscribedToConnectionManager = true; // reset so we re-subscribe on re-enable
+        }
+        _subscribedToConnectionManager = false;
+    }
+    
+    private bool _subscribedToConnectionManager = false;
+    
+    /// <summary>
+    /// Try to subscribe to PlayerConnectionManager events.
+    /// Called from OnEnable and Update to handle late spawning of the network manager.
+    /// </summary>
+    private void TrySubscribeToConnectionManager()
+    {
+        if (_subscribedToConnectionManager) return;
+        if (PlayerConnectionManager.Instance == null) return;
+        
+        PlayerConnectionManager.Instance.OnCharacterAssigned += OnCharacterAssigned;
+        PlayerConnectionManager.Instance.OnCharacterUnassigned += OnCharacterUnassigned;
+        _subscribedToConnectionManager = true;
+        Debug.Log("PlayerAssignmentHelper: Subscribed to PlayerConnectionManager events");
+    }
+    
+    void Update()
+    {
+        // Retry subscription if PlayerConnectionManager wasn't available during OnEnable
+        if (!_subscribedToConnectionManager)
+        {
+            TrySubscribeToConnectionManager();
         }
     }
     
@@ -688,6 +712,58 @@ public class PlayerAssignmentHelper : MonoBehaviour
         return campaign?.characterAssignments?.assignments ?? new System.Collections.Generic.List<CharacterPlayerAssignment>();
     }
     
+    // ========== DIRECT RPC HANDLERS (bypasses event subscription timing issues) ==========
+    
+    /// <summary>
+    /// Called directly from NotifyAssignmentClientRpc to set the assignment.
+    /// This avoids relying on event subscription which may have been missed
+    /// if PlayerConnectionManager spawned after PlayerAssignmentHelper.OnEnable().
+    /// </summary>
+    public void SetAssignmentFromServer(string characterId, string playerId, string username)
+    {
+        if (playerId != GetMyPlayerId()) return;
+        
+        Debug.Log($"PlayerAssignmentHelper: Assignment received from server - character {characterId} for player {username}");
+        
+        myAssignment = new CharacterPlayerAssignment(characterId, playerId, username);
+        
+        if (!characterDataCache.TryGetValue(characterId, out myCharacter))
+            myCharacter = LoadCharacterDataById(characterId);
+        
+        if (myCharacter != null) UpdateCharacterUI(myCharacter);
+        OnMyAssignmentChanged?.Invoke(myCharacter);
+    }
+    
+    /// <summary>
+    /// Called directly from NotifyUnassignmentClientRpc to clear the assignment.
+    /// </summary>
+    public void ClearAssignmentFromServer(string characterId)
+    {
+        if (myAssignment?.characterId == characterId)
+        {
+            Debug.Log($"PlayerAssignmentHelper: Unassignment received from server - character {characterId}");
+            myAssignment = null;
+            myCharacter = null;
+            displayedTokenUniqueId = null;
+            ClearCharacterUI();
+            OnMyAssignmentChanged?.Invoke(null);
+        }
+    }
+    
+    /// <summary>
+    /// Clear the PlayerCharDetails UI panel when unassigned
+    /// </summary>
+    private void ClearCharacterUI()
+    {
+        if (characterName != null) characterName.text = "";
+        if (characterClass != null) characterClass.text = "";
+        if (characterLevel != null) characterLevel.text = "";
+        if (characterRace != null) characterRace.text = "";
+        if (characterHP != null) characterHP.text = "";
+        if (characterAC != null) characterAC.text = "";
+        if (characterImg != null) characterImg.sprite = null;
+    }
+    
     // ========== EVENT HANDLERS ==========
     
     private void OnCharacterAssigned(string characterId, string playerId, string username)
@@ -709,6 +785,8 @@ public class PlayerAssignmentHelper : MonoBehaviour
         {
             myAssignment = null;
             myCharacter = null;
+            displayedTokenUniqueId = null;
+            ClearCharacterUI();
             OnMyAssignmentChanged?.Invoke(null);
         }
     }
