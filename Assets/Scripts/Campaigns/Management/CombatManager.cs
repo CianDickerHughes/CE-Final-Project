@@ -310,14 +310,16 @@ public class CombatManager : MonoBehaviour
     {
         if (participantIndex < 0 || participantIndex >= initiativeOrder.Count)
         {
+            Debug.LogWarning($"ApplyDamage: Invalid index {participantIndex}, initiativeOrder count={initiativeOrder.Count}");
             return;
         }
     
         CombatParticipant target = initiativeOrder[participantIndex];
+        int oldHP = target.currentHP;
         target.currentHP = Mathf.Max(0, target.currentHP - damage);
         initiativeOrder[participantIndex] = target;  // Structs require reassignment
         
-        Debug.Log($"{target.GetName()} took {damage} damage. HP: {target.currentHP}/{target.maxHP}");
+        Debug.Log($"{target.GetName()} took {damage} damage. HP: {oldHP} -> {target.currentHP}/{target.maxHP}");
         
         // Update the UI to reflect HP change
         UpdateCombatantHP(participantIndex);
@@ -414,15 +416,23 @@ public class CombatManager : MonoBehaviour
     //Updates the HP display for a specific combatant
     private void UpdateCombatantHP(int participantIndex)
     {
-        if (participantIndex < 0 || participantIndex >= combatantUIElements.Count)
+        Debug.Log($"UpdateCombatantHP called: index={participantIndex}, uiElements={combatantUIElements.Count}, initiativeOrder={initiativeOrder.Count}");
+        
+        if (participantIndex >= 0 && participantIndex < combatantUIElements.Count)
         {
-            return;
+            CharInitToken uiElement = combatantUIElements[participantIndex];
+            if (uiElement != null)
+            {
+                uiElement.UpdateParticipant(initiativeOrder[participantIndex]);
+            }
         }
         
-        CharInitToken uiElement = combatantUIElements[participantIndex];
-        if (uiElement != null)
+        // Also update the PlayerCharDetails panel if this participant is currently displayed
+        if (participantIndex >= 0 && participantIndex < initiativeOrder.Count && PlayerAssignmentHelper.Instance != null)
         {
-            uiElement.UpdateParticipant(initiativeOrder[participantIndex]);
+            var p = initiativeOrder[participantIndex];
+            Debug.Log($"UpdateCombatantHP: Calling UpdateDisplayedHP for {p.GetName()} uniqueId={p.GetUniqueId()} HP={p.currentHP}/{p.maxHP}");
+            PlayerAssignmentHelper.Instance.UpdateDisplayedHP(p.GetUniqueId(), p.currentHP, p.maxHP);
         }
     }
     

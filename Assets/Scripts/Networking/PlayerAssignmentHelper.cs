@@ -35,6 +35,9 @@ public class PlayerAssignmentHelper : MonoBehaviour
     private System.Collections.Generic.Dictionary<string, CharacterData> characterDataCache = 
         new System.Collections.Generic.Dictionary<string, CharacterData>();
     
+    // Track which token is currently displayed in the PlayerCharDetails panel
+    private string displayedTokenUniqueId;
+    
     // For chunked image reception
     private class PendingImageTransfer
     {
@@ -492,6 +495,20 @@ public class PlayerAssignmentHelper : MonoBehaviour
         if (characterHP != null) characterHP.text = $"{characterData.HP}";
         if (characterAC != null) characterAC.text = $"{characterData.AC}";
         
+        // Track displayed character and show combat HP if in combat
+        displayedTokenUniqueId = characterData.id;
+        if (CombatManager.Instance != null && CombatManager.Instance.GetCombatState() != CombatState.Inactive)
+        {
+            foreach (var p in CombatManager.Instance.GetInitiativeOrder())
+            {
+                if (p.GetUniqueId() == characterData.id)
+                {
+                    if (characterHP != null) characterHP.text = $"{p.currentHP}/{p.maxHP}";
+                    break;
+                }
+            }
+        }
+        
         if (characterImg == null || string.IsNullOrEmpty(characterData.tokenFileName)) return;
         
         Sprite sprite = Resources.Load<Sprite>($"CharacterTokens/{characterData.tokenFileName}");
@@ -577,6 +594,20 @@ public class PlayerAssignmentHelper : MonoBehaviour
         if (characterHP != null) characterHP.text = $"{data.HP}";
         if (characterAC != null) characterAC.text = $"{data.AC}";
         
+        // Track which enemy is displayed and show combat HP if in combat
+        displayedTokenUniqueId = $"enemy_{data.name}";
+        if (CombatManager.Instance != null && CombatManager.Instance.GetCombatState() != CombatState.Inactive)
+        {
+            foreach (var p in CombatManager.Instance.GetInitiativeOrder())
+            {
+                if (p.GetUniqueId() == displayedTokenUniqueId)
+                {
+                    if (characterHP != null) characterHP.text = $"{p.currentHP}/{p.maxHP}";
+                    break;
+                }
+            }
+        }
+        
         // Load enemy token image
         if (characterImg != null && !string.IsNullOrEmpty(data.tokenFileName))
         {
@@ -596,6 +627,19 @@ public class PlayerAssignmentHelper : MonoBehaviour
                     Debug.LogWarning($"DisplayEnemy: Failed to load enemy image: {ex.Message}");
                 }
             }
+        }
+    }
+    
+    /// <summary>
+    /// Update the HP display in the PlayerCharDetails panel if the given participant is currently shown.
+    /// Called by CombatManager when HP changes during combat.
+    /// </summary>
+    public void UpdateDisplayedHP(string participantUniqueId, int currentHP, int maxHP)
+    {
+        Debug.Log($"UpdateDisplayedHP: participantId={participantUniqueId}, displayedId={displayedTokenUniqueId}, match={displayedTokenUniqueId == participantUniqueId}, characterHP null={characterHP == null}");
+        if (displayedTokenUniqueId == participantUniqueId && characterHP != null)
+        {
+            characterHP.text = $"{currentHP}/{maxHP}";
         }
     }
     

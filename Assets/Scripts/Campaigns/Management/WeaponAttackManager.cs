@@ -395,6 +395,7 @@ public class WeaponAttackManager : MonoBehaviour
         var initiativeOrder = CombatManager.Instance.GetInitiativeOrder();
         if (initiativeOrder == null) return -1;
 
+        // First try direct reference match
         for (int i = 0; i < initiativeOrder.Count; i++)
         {
             if (initiativeOrder[i].token == token)
@@ -403,6 +404,32 @@ public class WeaponAttackManager : MonoBehaviour
             }
         }
 
+        // Fallback: match by unique ID (token reference may differ from what was stored)
+        string targetId = null;
+        if (token.getCharacterType() == CharacterType.Enemy)
+        {
+            var enemyData = token.getEnemyData();
+            if (enemyData != null) targetId = $"enemy_{enemyData.name}";
+        }
+        else
+        {
+            var charData = token.getCharacterData();
+            if (charData != null) targetId = charData.id;
+        }
+
+        if (!string.IsNullOrEmpty(targetId))
+        {
+            for (int i = 0; i < initiativeOrder.Count; i++)
+            {
+                if (initiativeOrder[i].GetUniqueId() == targetId)
+                {
+                    Debug.Log($"GetParticipantIndex: Matched by uniqueId '{targetId}' at index {i} (token reference mismatch)");
+                    return i;
+                }
+            }
+        }
+
+        Debug.LogWarning($"GetParticipantIndex: No match found for token '{token.name}' (targetId={targetId})");
         return -1;
     }
 

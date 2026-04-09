@@ -492,6 +492,8 @@ public class AbilityManager : MonoBehaviour
         if (CombatManager.Instance == null || token == null) return -1;
         
         var initiativeOrder = CombatManager.Instance.GetInitiativeOrder();
+        
+        // First try direct reference match
         for (int i = 0; i < initiativeOrder.Count; i++)
         {
             if (initiativeOrder[i].token == token)
@@ -499,6 +501,31 @@ public class AbilityManager : MonoBehaviour
                 return i;
             }
         }
+        
+        // Fallback: match by unique ID (token reference may differ from what was stored)
+        string targetId = null;
+        if (token.getCharacterType() == CharacterType.Enemy)
+        {
+            var enemyData = token.getEnemyData();
+            if (enemyData != null) targetId = $"enemy_{enemyData.name}";
+        }
+        else
+        {
+            var charData = token.getCharacterData();
+            if (charData != null) targetId = charData.id;
+        }
+
+        if (!string.IsNullOrEmpty(targetId))
+        {
+            for (int i = 0; i < initiativeOrder.Count; i++)
+            {
+                if (initiativeOrder[i].GetUniqueId() == targetId)
+                {
+                    return i;
+                }
+            }
+        }
+
         return -1;
     }
 
