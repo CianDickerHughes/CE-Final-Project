@@ -22,7 +22,16 @@ public class CombatInitiativeNetData
 {
     public List<CombatParticipantNetData> participants;
 }
-
+/// <summary>
+/// Manages turns, initiative, and combat actions.
+///
+/// KEY CHANGES vs original:
+///   1. AdvanceTurn() now notifies AIManager after a player turn ends.
+///   2. AdvanceTurn() auto-triggers DMEnemyController.ExecuteTurn() when the
+///      DM's turn starts — this fixes the "turn hangs" bug where nothing called
+///      the AI enemy to act.
+///   3. controlCombat() calls AIManager.ResetForNewCombat() when starting.
+/// </summary>
 //This class is meant to serve as a manager for the combat related behaviours in the gameplay scene
 // - Handling turns, initiative, combat actions, etc
 public class CombatManager : MonoBehaviour
@@ -115,6 +124,9 @@ public class CombatManager : MonoBehaviour
             
             // Start combat logging
             CombatLogger.Instance.StartLogging();
+
+            if (AIManager.Instance != null)
+                AIManager.Instance.ResetForNewCombat();
             
             //Updating the UI reference to reflect combat starting
             if(combatStateText != null)
@@ -137,6 +149,8 @@ public class CombatManager : MonoBehaviour
             {
                 WeaponAttackManager.Instance.UpdateWeaponButtonState();
             }
+
+            TriggerDMTurnIfNeeded();
         }
         else if (combatState == CombatState.Active)
         {
@@ -227,24 +241,58 @@ public class CombatManager : MonoBehaviour
     }
     
     /// <summary>
-    /// Actually advance the turn. Called on server/host only.
+    /// Advance to the next participant's turn.
+    ///
+    /// CHANGES:
+    ///   • Notifies AIManager when a player turn just ended.
+    ///   • Auto-triggers DMEnemyController when it becomes the DM's turn.
     /// </summary>
     public void AdvanceTurn()
     {
         if (combatState != CombatState.Active || initiativeOrder.Count == 0) return;
-        
-        Debug.Log("Ending turn...");
-        
-        // Commit all pending combat actions from this turn
+ 
+        Debug.Log("Advancing turn...");
+ 
+        // Commit combat log for the turn that just ended
         CombatLogger.Instance.CommitTurn();
-        
+ 
+        // ── NEW: notify AIManager if a player just ended their turn ──────
+        CombatParticipant justEnded = initiativeOrder[currentTurnIndex];
+        if (justEnded.token != null &&
+            justEnded.token.getCharacterType() != CharacterType.Enemy &&
+            AIManager.Instance != null)
+        {
+            AIManager.Instance.NotifyPlayerTurnEnded();
+        }
+ 
+        // Move to next participant
         currentTurnIndex = (currentTurnIndex + 1) % initiativeOrder.Count;
         SetCurrentParticipantActed(false);
-        //Update UI to highlight current turn, reset action states for the new turn, etc
+ 
         UpdateTurnHighlight();
-        
-        // Broadcast turn change to clients
         BroadcastTurnChangeToClients();
+ 
+        // ── NEW: if it's now the DM's turn, trigger their action ─────────
+        TriggerDMTurnIfNeeded();
+    }
+ 
+    /// <summary>
+    /// If the current participant is the DM enemy, kick off their coroutine.
+    /// DMEnemyController.ExecuteTurn() moves, attacks, then calls AdvanceTurn() itself.
+    /// </summary>
+    private void TriggerDMTurnIfNeeded()
+    {
+        if (initiativeOrder.Count == 0) return;
+ 
+        CombatParticipant current = initiativeOrder[currentTurnIndex];
+        if (current.token == null) return;
+        if (current.token.getCharacterType() != CharacterType.Enemy) return;
+ 
+        DMEnemyController dmController = current.token.GetComponent<DMEnemyController>();
+        if (dmController == null) return;
+ 
+        Debug.Log("[CombatManager] DM's turn — triggering DMEnemyController.ExecuteTurn()");
+        dmController.ExecuteTurn();
     }
 
     //Combat Setup methods

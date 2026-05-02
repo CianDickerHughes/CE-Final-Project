@@ -44,6 +44,8 @@ public class CombatLogger : MonoBehaviour
     private Dictionary<string, GridPosition> movementOriginalPos = new Dictionary<string, GridPosition>();
     private Dictionary<string, GridPosition> movementCurrentPos = new Dictionary<string, GridPosition>();
 
+    private string _overrideLogPath = null;
+
     void Awake()
     {
         if (_instance == null)
@@ -54,6 +56,19 @@ public class CombatLogger : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+
+    /// <summary>
+    /// NEW — call before StartLogging() in scenes with no campaign (e.g. DMFight).
+    /// Both CombatLogger and AIManager will use this path so they stay in sync.
+    ///
+    /// Recommended path:
+    ///   Path.Combine(Application.persistentDataPath, "CombatLogs", "combat_log.json")
+    /// </summary>
+    public void SetLogPath(string fullFilePath)
+    {
+        _overrideLogPath = fullFilePath;
+        Debug.Log($"CombatLogger: Log path overridden to {fullFilePath}");
     }
 
     /// <summary>

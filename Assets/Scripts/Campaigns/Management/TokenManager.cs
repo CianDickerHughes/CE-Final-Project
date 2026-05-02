@@ -12,6 +12,7 @@ public class TokenManager : MonoBehaviour
     //Variables for the tokens management
     [Header("Token Spawining")]
     [SerializeField] private Token tokenPrefab;
+    [SerializeField] private Token dmEnemyTokenPrefab;
     private List<Token> spawnedTokens;
     private Dictionary<string, Token> playerTokens;
     private Token selectedToken;
@@ -92,6 +93,22 @@ public class TokenManager : MonoBehaviour
 
         Debug.Log("Enemy Spawned: " + enemy.name + " at Tile (" + token.transform.position + ")");
         
+        return token;
+    }
+
+    public Token SpawnDMEnemyTokenAtTile(Tile tile, EnemyData enemy, CharacterType type)
+    {
+        Token prefabToUse = dmEnemyTokenPrefab != null ? dmEnemyTokenPrefab : tokenPrefab;
+        
+        if (tile == null || prefabToUse == null) return null;
+
+        Token token = Instantiate(prefabToUse, 
+            new Vector3(tile.transform.position.x, tile.transform.position.y, -1), 
+            Quaternion.identity);
+        token.Initialize(enemy, type, tile);
+        spawnedTokens.Add(token);
+
+        Debug.Log("DM Enemy Spawned: " + enemy.name + " at (" + token.transform.position + ")");
         return token;
     }
 
@@ -355,6 +372,11 @@ public class TokenManager : MonoBehaviour
         foreach(var token in spawnedTokens)
         {
             if(token.getCharacterData() != null && token.getCharacterData().id == characterId)
+            {
+                return token;
+            }
+            // Also check for enemy tokens
+            if(token.getEnemyData() != null && $"enemy_{token.getEnemyData().name}" == characterId)
             {
                 return token;
             }
