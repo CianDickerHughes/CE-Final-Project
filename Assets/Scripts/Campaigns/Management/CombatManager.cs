@@ -394,6 +394,12 @@ public class CombatManager : MonoBehaviour
         string deadName = deadParticipant.GetName();
         
         Debug.Log($"{deadName} has been defeated!");
+
+        // Play death sound
+        if (SoundEffectManager.Instance != null)
+        {
+            SoundEffectManager.Instance.PlayDeathSound();
+        }
         
         //Log the death
         if (CombatLogger.Instance != null)

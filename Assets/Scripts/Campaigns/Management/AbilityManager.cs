@@ -407,6 +407,12 @@ public class AbilityManager : MonoBehaviour
                 CombatManager.Instance.ApplyHealing(targetIndex, amount);
             }
         }
+
+        // Play healing sound
+        if (SoundEffectManager.Instance != null)
+        {
+            SoundEffectManager.Instance.PlayHealingSound();
+        }
         
         // Log the healing
         if (CombatLogger.Instance != null)
@@ -434,6 +440,12 @@ public class AbilityManager : MonoBehaviour
             {
                 CombatManager.Instance.ApplyDamage(targetIndex, amount);
             }
+        }
+
+        // Play magical attack sound
+        if (SoundEffectManager.Instance != null)
+        {
+            SoundEffectManager.Instance.PlayMagicalAttackSound();
         }
         
         // Log the damage

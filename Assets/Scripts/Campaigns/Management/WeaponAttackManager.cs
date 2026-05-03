@@ -291,6 +291,12 @@ public class WeaponAttackManager : MonoBehaviour
             }
         }
 
+        // Play physical attack sound
+        if (SoundEffectManager.Instance != null)
+        {
+            SoundEffectManager.Instance.PlayPhysicalAttackSound();
+        }
+
         // Log the attack
         if (CombatLogger.Instance != null)
         {
