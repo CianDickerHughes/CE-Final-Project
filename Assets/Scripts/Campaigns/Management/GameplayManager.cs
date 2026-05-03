@@ -113,7 +113,36 @@ public class GameplayManager : MonoBehaviour
         playerCharacters = new Dictionary<string, CharacterData>();
         
         //Loading the scene data using the SceneDataTransfer singleton
-        if (SceneDataTransfer.Instance != null)
+        // Clients (non-host) should prefer CurrentScene.json which was sent by the host
+        bool isClient = NetworkManager.Singleton != null && NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsServer;
+        bool loadedFromNetwork = false;
+        
+        if (isClient)
+        {
+            // Try loading from CurrentScene.json that was saved by the host's RPC
+            string campaignsFolder = CampaignManager.GetCampaignsFolder();
+            string currentScenePath = System.IO.Path.Combine(campaignsFolder, "CurrentScene.json");
+            if (System.IO.File.Exists(currentScenePath))
+            {
+                try
+                {
+                    string json = System.IO.File.ReadAllText(currentScenePath);
+                    currentSceneData = JsonUtility.FromJson<SceneData>(json);
+                    if (currentSceneData != null)
+                    {
+                        loadedFromNetwork = true;
+                        Debug.Log($"GameplayManager: Client loaded scene from CurrentScene.json: {currentSceneData.sceneName}");
+                        currentMode = currentSceneData.sceneType == SceneType.Combat ? GameMode.Combat : GameMode.Roleplay;
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogWarning($"GameplayManager: Failed to load CurrentScene.json: {ex.Message}");
+                }
+            }
+        }
+        
+        if (!loadedFromNetwork && SceneDataTransfer.Instance != null)
         {
             currentSceneData = SceneDataTransfer.Instance.GetPendingScene();
             campaignId = SceneDataTransfer.Instance.GetCurrentCampaignId();
@@ -124,7 +153,7 @@ public class GameplayManager : MonoBehaviour
             //Need to set up the mode of this scene based on the loaded scene type
             currentMode = currentSceneData.sceneType == SceneType.Combat ? GameMode.Combat : GameMode.Roleplay;
         }
-        else
+        else if (!loadedFromNetwork)
         {
             Debug.LogError("SceneDataTransfer.Instance is NULL! Make sure it exists in an earlier scene.");
         }

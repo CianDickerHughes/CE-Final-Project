@@ -29,7 +29,7 @@ public class RelayHostManager : MonoBehaviour
     [SerializeField] NetworkObject playerConnectionManagerPrefab;
 
     [Header("Settings")]
-    [SerializeField] int maxConnections = 3;
+    [SerializeField] int maxConnections = 7; // Max client connections (excluding host), so total players = maxConnections + 1
 
     string currentJoinCode;
 

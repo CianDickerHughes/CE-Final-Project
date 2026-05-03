@@ -35,6 +35,9 @@ public class PlayerAssignmentHelper : MonoBehaviour
     private System.Collections.Generic.Dictionary<string, CharacterData> characterDataCache = 
         new System.Collections.Generic.Dictionary<string, CharacterData>();
     
+    // Track which token is currently displayed in the PlayerCharDetails panel
+    private string displayedTokenUniqueId;
+    
     // For chunked image reception
     private class PendingImageTransfer
     {
@@ -67,11 +70,7 @@ public class PlayerAssignmentHelper : MonoBehaviour
     void OnEnable()
     {
         // Subscribe to assignment changes
-        if (PlayerConnectionManager.Instance != null)
-        {
-            PlayerConnectionManager.Instance.OnCharacterAssigned += OnCharacterAssigned;
-            PlayerConnectionManager.Instance.OnCharacterUnassigned += OnCharacterUnassigned;
-        }
+        TrySubscribeToConnectionManager();
         
         // Try connecting UI references again in case they weren't available in Awake
         if (characterName == null)
@@ -86,6 +85,34 @@ public class PlayerAssignmentHelper : MonoBehaviour
         {
             PlayerConnectionManager.Instance.OnCharacterAssigned -= OnCharacterAssigned;
             PlayerConnectionManager.Instance.OnCharacterUnassigned -= OnCharacterUnassigned;
+            _subscribedToConnectionManager = true; // reset so we re-subscribe on re-enable
+        }
+        _subscribedToConnectionManager = false;
+    }
+    
+    private bool _subscribedToConnectionManager = false;
+    
+    /// <summary>
+    /// Try to subscribe to PlayerConnectionManager events.
+    /// Called from OnEnable and Update to handle late spawning of the network manager.
+    /// </summary>
+    private void TrySubscribeToConnectionManager()
+    {
+        if (_subscribedToConnectionManager) return;
+        if (PlayerConnectionManager.Instance == null) return;
+        
+        PlayerConnectionManager.Instance.OnCharacterAssigned += OnCharacterAssigned;
+        PlayerConnectionManager.Instance.OnCharacterUnassigned += OnCharacterUnassigned;
+        _subscribedToConnectionManager = true;
+        Debug.Log("PlayerAssignmentHelper: Subscribed to PlayerConnectionManager events");
+    }
+    
+    void Update()
+    {
+        // Retry subscription if PlayerConnectionManager wasn't available during OnEnable
+        if (!_subscribedToConnectionManager)
+        {
+            TrySubscribeToConnectionManager();
         }
     }
     
@@ -492,29 +519,152 @@ public class PlayerAssignmentHelper : MonoBehaviour
         if (characterHP != null) characterHP.text = $"{characterData.HP}";
         if (characterAC != null) characterAC.text = $"{characterData.AC}";
         
+        // Track displayed character and show combat HP if in combat
+        displayedTokenUniqueId = characterData.id;
+        if (CombatManager.Instance != null && CombatManager.Instance.GetCombatState() != CombatState.Inactive)
+        {
+            foreach (var p in CombatManager.Instance.GetInitiativeOrder())
+            {
+                if (p.GetUniqueId() == characterData.id)
+                {
+                    if (characterHP != null) characterHP.text = $"{p.currentHP}/{p.maxHP}";
+                    break;
+                }
+            }
+        }
+        
         if (characterImg == null || string.IsNullOrEmpty(characterData.tokenFileName)) return;
         
         Sprite sprite = Resources.Load<Sprite>($"CharacterTokens/{characterData.tokenFileName}");
         
+        // Try multiple image locations (same search order as Token.cs)
         if (sprite == null)
         {
-            string imagePath;
-            #if UNITY_EDITOR
-                imagePath = Path.Combine(Application.dataPath, "Campaigns", "ReceivedCampaigns", "Characters", characterData.tokenFileName);
-            #else
-                imagePath = Path.Combine(Application.persistentDataPath, "Campaigns", "ReceivedCampaigns", "Characters", characterData.tokenFileName);
-            #endif
+            string tokenPath = null;
             
-            if (File.Exists(imagePath))
+            // Location 1: Main characters folder
+            string mainFolder = CharacterIO.GetCharactersFolder();
+            string mainPath = Path.Combine(mainFolder, characterData.tokenFileName);
+            if (File.Exists(mainPath)) tokenPath = mainPath;
+            
+            // Location 2: ReceivedCampaigns folder
+            if (tokenPath == null)
             {
-                byte[] imageData = File.ReadAllBytes(imagePath);
-                Texture2D texture = new Texture2D(2, 2);
-                texture.LoadImage(imageData);
-                sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.one * 0.5f);
+                #if UNITY_EDITOR
+                    string receivedPath = Path.Combine(Application.dataPath, "Campaigns", "ReceivedCampaigns", "Characters", characterData.tokenFileName);
+                #else
+                    string receivedPath = Path.Combine(Application.persistentDataPath, "Campaigns", "ReceivedCampaigns", "Characters", characterData.tokenFileName);
+                #endif
+                if (File.Exists(receivedPath)) tokenPath = receivedPath;
+            }
+            
+            // Location 3: Campaign Characters / PlayerCharacters folders
+            if (tokenPath == null)
+            {
+                string campaignName = CampaignManager.Instance?.GetCurrentCampaign()?.campaignName;
+                if (!string.IsNullOrEmpty(campaignName))
+                {
+                    string campaignFolder = CampaignManager.GetCampaignsFolder();
+                    string campaignCharsPath = Path.Combine(campaignFolder, campaignName, "Characters", characterData.tokenFileName);
+                    string playerCharsPath = Path.Combine(campaignFolder, campaignName, "PlayerCharacters", characterData.tokenFileName);
+                    if (File.Exists(campaignCharsPath)) tokenPath = campaignCharsPath;
+                    else if (File.Exists(playerCharsPath)) tokenPath = playerCharsPath;
+                }
+            }
+            
+            if (tokenPath != null)
+            {
+                try
+                {
+                    byte[] imageData = File.ReadAllBytes(tokenPath);
+                    Texture2D texture = new Texture2D(2, 2);
+                    texture.LoadImage(imageData);
+                    sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.one * 0.5f);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"UpdateCharacterUI: Failed to load image from {tokenPath}: {ex.Message}");
+                }
             }
         }
         
         if (sprite != null) characterImg.sprite = sprite;
+    }
+    
+    /// <summary>
+    /// Display any character's details in the PlayerCharDetails panel.
+    /// Used by the DM/Host to inspect tokens by clicking on them.
+    /// </summary>
+    public void DisplayCharacter(CharacterData data)
+    {
+        if (data == null) return;
+        ConnectUIReferences();
+        UpdateCharacterUI(data);
+    }
+    
+    /// <summary>
+    /// Display enemy details in the PlayerCharDetails panel.
+    /// Maps enemy fields to the character UI fields for DM inspection.
+    /// </summary>
+    public void DisplayEnemy(EnemyData data)
+    {
+        if (data == null) return;
+        ConnectUIReferences();
+        
+        if (characterName != null) characterName.text = data.name;
+        if (characterClass != null) characterClass.text = data.type;
+        if (characterLevel != null) characterLevel.text = $"CR {data.challengeRating}";
+        if (characterRace != null) characterRace.text = data.size;
+        if (characterHP != null) characterHP.text = $"{data.HP}";
+        if (characterAC != null) characterAC.text = $"{data.AC}";
+        
+        // Track which enemy is displayed and show combat HP if in combat
+        displayedTokenUniqueId = $"enemy_{data.name}";
+        if (CombatManager.Instance != null && CombatManager.Instance.GetCombatState() != CombatState.Inactive)
+        {
+            foreach (var p in CombatManager.Instance.GetInitiativeOrder())
+            {
+                if (p.GetUniqueId() == displayedTokenUniqueId)
+                {
+                    if (characterHP != null) characterHP.text = $"{p.currentHP}/{p.maxHP}";
+                    break;
+                }
+            }
+        }
+        
+        // Load enemy token image
+        if (characterImg != null && !string.IsNullOrEmpty(data.tokenFileName))
+        {
+            string folder = CharacterIO.GetEnemiesFolder();
+            string tokenPath = System.IO.Path.Combine(folder, data.tokenFileName);
+            if (File.Exists(tokenPath))
+            {
+                try
+                {
+                    byte[] imageData = File.ReadAllBytes(tokenPath);
+                    Texture2D texture = new Texture2D(2, 2);
+                    texture.LoadImage(imageData);
+                    characterImg.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.one * 0.5f);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"DisplayEnemy: Failed to load enemy image: {ex.Message}");
+                }
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Update the HP display in the PlayerCharDetails panel if the given participant is currently shown.
+    /// Called by CombatManager when HP changes during combat.
+    /// </summary>
+    public void UpdateDisplayedHP(string participantUniqueId, int currentHP, int maxHP)
+    {
+        Debug.Log($"UpdateDisplayedHP: participantId={participantUniqueId}, displayedId={displayedTokenUniqueId}, match={displayedTokenUniqueId == participantUniqueId}, characterHP null={characterHP == null}");
+        if (displayedTokenUniqueId == participantUniqueId && characterHP != null)
+        {
+            characterHP.text = $"{currentHP}/{maxHP}";
+        }
     }
     
     /// <summary>
@@ -562,6 +712,58 @@ public class PlayerAssignmentHelper : MonoBehaviour
         return campaign?.characterAssignments?.assignments ?? new System.Collections.Generic.List<CharacterPlayerAssignment>();
     }
     
+    // ========== DIRECT RPC HANDLERS (bypasses event subscription timing issues) ==========
+    
+    /// <summary>
+    /// Called directly from NotifyAssignmentClientRpc to set the assignment.
+    /// This avoids relying on event subscription which may have been missed
+    /// if PlayerConnectionManager spawned after PlayerAssignmentHelper.OnEnable().
+    /// </summary>
+    public void SetAssignmentFromServer(string characterId, string playerId, string username)
+    {
+        if (playerId != GetMyPlayerId()) return;
+        
+        Debug.Log($"PlayerAssignmentHelper: Assignment received from server - character {characterId} for player {username}");
+        
+        myAssignment = new CharacterPlayerAssignment(characterId, playerId, username);
+        
+        if (!characterDataCache.TryGetValue(characterId, out myCharacter))
+            myCharacter = LoadCharacterDataById(characterId);
+        
+        if (myCharacter != null) UpdateCharacterUI(myCharacter);
+        OnMyAssignmentChanged?.Invoke(myCharacter);
+    }
+    
+    /// <summary>
+    /// Called directly from NotifyUnassignmentClientRpc to clear the assignment.
+    /// </summary>
+    public void ClearAssignmentFromServer(string characterId)
+    {
+        if (myAssignment?.characterId == characterId)
+        {
+            Debug.Log($"PlayerAssignmentHelper: Unassignment received from server - character {characterId}");
+            myAssignment = null;
+            myCharacter = null;
+            displayedTokenUniqueId = null;
+            ClearCharacterUI();
+            OnMyAssignmentChanged?.Invoke(null);
+        }
+    }
+    
+    /// <summary>
+    /// Clear the PlayerCharDetails UI panel when unassigned
+    /// </summary>
+    private void ClearCharacterUI()
+    {
+        if (characterName != null) characterName.text = "";
+        if (characterClass != null) characterClass.text = "";
+        if (characterLevel != null) characterLevel.text = "";
+        if (characterRace != null) characterRace.text = "";
+        if (characterHP != null) characterHP.text = "";
+        if (characterAC != null) characterAC.text = "";
+        if (characterImg != null) characterImg.sprite = null;
+    }
+    
     // ========== EVENT HANDLERS ==========
     
     private void OnCharacterAssigned(string characterId, string playerId, string username)
@@ -583,6 +785,8 @@ public class PlayerAssignmentHelper : MonoBehaviour
         {
             myAssignment = null;
             myCharacter = null;
+            displayedTokenUniqueId = null;
+            ClearCharacterUI();
             OnMyAssignmentChanged?.Invoke(null);
         }
     }

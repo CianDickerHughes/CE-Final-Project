@@ -32,12 +32,70 @@ public class SceneDataNetwork : NetworkBehaviour
         }
     }
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        
+        if (IsServer && NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedSendScene;
+        }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        if (IsServer && NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnectedSendScene;
+        }
+        
+        base.OnNetworkDespawn();
+    }
+
     public override void OnDestroy()
     {
         base.OnDestroy();
         if (Instance == this)
         {
             Instance = null;
+        }
+    }
+    
+    /// <summary>
+    /// When a new client connects, read CurrentScene.json from disk and send it.
+    /// </summary>
+    private void OnClientConnectedSendScene(ulong clientId)
+    {
+        if (!IsServer) return;
+        
+        // Skip the host itself
+        if (clientId == NetworkManager.Singleton.LocalClientId) return;
+        
+        Debug.Log($"SceneDataNetwork: New client {clientId} connected, loading CurrentScene.json to send...");
+        
+        try
+        {
+            string campaignsFolder = CampaignManager.GetCampaignsFolder();
+            string currentScenePath = Path.Combine(campaignsFolder, "CurrentScene.json");
+            
+            if (!File.Exists(currentScenePath))
+            {
+                Debug.Log($"SceneDataNetwork: No CurrentScene.json found at {currentScenePath}, nothing to send");
+                return;
+            }
+            
+            string json = File.ReadAllText(currentScenePath);
+            SceneData sceneData = JsonUtility.FromJson<SceneData>(json);
+            
+            if (sceneData != null)
+            {
+                Debug.Log($"SceneDataNetwork: Sending current scene '{sceneData.sceneName}' to new client {clientId}");
+                SendSceneToClients(sceneData);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"SceneDataNetwork: Failed to load/send CurrentScene.json to new client: {ex.Message}");
         }
     }
 

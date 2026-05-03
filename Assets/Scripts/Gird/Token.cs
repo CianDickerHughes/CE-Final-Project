@@ -370,6 +370,20 @@ public class Token : MonoBehaviour
         {
             TokenManager.Instance.SelectToken(this);
         }
+        
+        // Update the PlayerCharDetails panel to show this token's info
+        // DM/Host can click any token to inspect it; clients only reach here for their own token
+        if (PlayerAssignmentHelper.Instance != null)
+        {
+            if (characterData != null)
+            {
+                PlayerAssignmentHelper.Instance.DisplayCharacter(characterData);
+            }
+            else if (enemyData != null)
+            {
+                PlayerAssignmentHelper.Instance.DisplayEnemy(enemyData);
+            }
+        }
     }
     
     //Visual feedback for selection (simple color tint)

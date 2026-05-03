@@ -242,8 +242,31 @@ public class PlayerConnectionManager : NetworkBehaviour
         if (assignment != null)
         {
             Debug.Log($"Auto-assigning {player.username} to character {assignment.characterId} (from previous session)");
-            // The assignment already exists in campaign data, just notify
+            
+            // Load character data and image to send to the client
+            string characterDataJson = LoadCharacterDataAsJson(assignment.characterId);
+            string imageBase64 = LoadCharacterImageAsBase64(assignment.characterId);
+            
+            string tokenFileName = null;
+            if (!string.IsNullOrEmpty(characterDataJson))
+            {
+                try
+                {
+                    var charData = JsonUtility.FromJson<CharacterData>(characterDataJson);
+                    if (charData != null) tokenFileName = charData.tokenFileName;
+                }
+                catch { }
+            }
+            
+            // Notify all clients (including the joining one) about the assignment
             OnCharacterAssigned?.Invoke(assignment.characterId, player.playerId, player.username);
+            NotifyAssignmentClientRpc(assignment.characterId, player.playerId, player.username, characterDataJson ?? "", campaign.campaignName);
+            
+            // Send character image if available
+            if (!string.IsNullOrEmpty(imageBase64) && !string.IsNullOrEmpty(tokenFileName))
+            {
+                SendCharacterImageChunked(assignment.characterId, imageBase64, tokenFileName);
+            }
         }
     }
     
@@ -659,6 +682,10 @@ public class PlayerConnectionManager : NetworkBehaviour
             campaign.characterAssignments.AssignPlayerToCharacter(characterId, playerId, username);
         }
         
+        // Directly set the assignment on PlayerAssignmentHelper to avoid relying on
+        // event subscription timing (OnEnable may have run before this manager spawned)
+        PlayerAssignmentHelper.Instance?.SetAssignmentFromServer(characterId, playerId, username);
+        
         OnCharacterAssigned?.Invoke(characterId, playerId, username);
     }
     
@@ -666,6 +693,17 @@ public class PlayerConnectionManager : NetworkBehaviour
     private void NotifyUnassignmentClientRpc(string characterId)
     {
         Debug.Log($"Character unassigned: {characterId}");
+        
+        // Clear assignment from local campaign data so fallback lookups don't find stale data
+        var campaign = CampaignManager.Instance?.GetCurrentCampaign();
+        if (campaign?.characterAssignments != null)
+        {
+            campaign.characterAssignments.UnassignCharacter(characterId);
+        }
+        
+        // Directly clear the assignment on PlayerAssignmentHelper
+        PlayerAssignmentHelper.Instance?.ClearAssignmentFromServer(characterId);
+        
         OnCharacterUnassigned?.Invoke(characterId);
     }
     
