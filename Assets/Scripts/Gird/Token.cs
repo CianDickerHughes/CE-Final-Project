@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(Collider2D))]
 public class Token : MonoBehaviour
@@ -311,6 +312,10 @@ public class Token : MonoBehaviour
     //Click to select this token
     void OnMouseDown()
     {
+        // Prevent interaction if pointer is over UI
+        if (EventSystem.current.IsPointerOverGameObject())
+            return;
+
         //Don't select if in spawn mode
         if (TokenManager.Instance != null && TokenManager.Instance.IsInSpawnMode())
         {

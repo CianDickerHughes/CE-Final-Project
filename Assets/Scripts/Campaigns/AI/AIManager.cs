@@ -109,37 +109,9 @@ public class AIManager : MonoBehaviour
         Debug.Log("[AIManager] Reset for new combat.");
     }
 
-    // Log parsing — reads the structured JSON written by CombatLogger
-
-    // ─────────────────────────────────────────────────────────────
-    // DROP-IN REPLACEMENT for ParseCombatLog() and FindCombatLogPath()
-    // in AIManager.cs
-    //
-    // ROOT CAUSES FIXED:
-    //
-    // 1. Divine Smite was appearing in BOTH abilities_used AND spells_cast.
-    //    AbilityManager logs everything as "Used {name}" regardless of whether
-    //    it is a class ability or a spell. AIManager must check the name against
-    //    the known class abilities list — if it is NOT a class ability, treat it
-    //    as a spell instead.
-    //
-    // 2. Spells cast via SpellChoiceManager were never reaching the log because
-    //    SpellChoiceManager only fires an OnSpellCast event — it has no
-    //    CombatLogger call of its own. The subscriber (WeaponAttackManager or
-    //    GameplayManager) must log it. Until that is fixed at the source, we
-    //    catch spell names that arrive via "Used {name}" and route them correctly.
-    //
-    // 3. Weapon names were being read from "attacked with {weapon}" correctly
-    //    but the model was hallucinating them. This is a model issue fixed by
-    //    retraining with more examples — the parsing here is already correct.
-    // ─────────────────────────────────────────────────────────────
-
-    // Paste this into AIManager.cs, replacing the existing ParseCombatLog()
-    // and the _knownClassAbilities field declaration.
-
-    // ── FIELD: add this near the top of the class with the other private fields ──
-    // These are the ONLY strings that should appear in abilities_used.
-    // Everything else that comes through "Used X" is a spell.
+    //Changed to reflect the actual class abilities in game. This will help when parsing the message to the actual model
+    //Helps to restructure/restrict the data the model sees to reucde hallucinations.
+    //Also now fixes errors to do with spells being cast
     private static readonly HashSet<string> KnownClassAbilities = new HashSet<string>
     {
         "Infuse Item",

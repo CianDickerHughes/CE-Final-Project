@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
  
  /// <summary>
  /// Represents a single tile in the grid. It can be initialized with different colors 
@@ -70,6 +71,10 @@ public class Tile : MonoBehaviour {
     //Add OnMouseDown for clicking:
     void OnMouseDown()
     {
+        // Prevent interaction if pointer is over UI
+        if (EventSystem.current.IsPointerOverGameObject())
+            return;
+
         //Check for token spawning mode first
         if (TokenManager.Instance != null && TokenManager.Instance.IsInSpawnMode())
         {
@@ -101,6 +106,10 @@ public class Tile : MonoBehaviour {
         if (highlight != null){
             highlight.SetActive(true);
         }
+        
+        // Prevent interaction if pointer is over UI
+        if (EventSystem.current.IsPointerOverGameObject())
+            return;
         
         // Drag-paint support
         if (isMouseHeld && gridManager != null && gridManager.IsEditMode)
