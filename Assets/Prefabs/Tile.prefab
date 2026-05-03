@@ -199,6 +199,8 @@ MonoBehaviour:
   offsetColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   spriteRenderer: {fileID: 3014721623322810218}
   highlight: {fileID: 0}
+  useTileColorTint: 0
+  tileWorldSize: {x: 1, y: 1}
 --- !u!61 &2025804439759252873
 BoxCollider2D:
   m_ObjectHideFlags: 0

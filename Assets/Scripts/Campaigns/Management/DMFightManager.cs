@@ -3,8 +3,14 @@ using System.IO;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-//Manages the setup of the DM Fight scene.
-//Spawns the player's selected character and the DM enemy on opposite sides of the arena
+/// <summary>
+/// Sets up the DM Fight scene:
+///   1. Builds a 10×10 grass map.
+///   2. Spawns the player's selected character and the DM enemy.
+///   3. Overrides the CombatLogger path so AIManager can find the log
+///      even without a campaign being loaded.
+///   4. Starts combat automatically.
+/// </summary>
 public class DMFightManager : MonoBehaviour
 {
     [Header("References")]
@@ -12,76 +18,67 @@ public class DMFightManager : MonoBehaviour
     [SerializeField] private TokenManager tokenManager;
     [SerializeField] private Button exitButton;
 
-    [Header("DM Enemy Settings - Fallback if file not found")]
-    [SerializeField] private string dmEnemyName = "Dungeon Master";
-    [SerializeField] private int dmEnemyHP = 50;
-    [SerializeField] private int dmEnemyAC = 15;
-    [SerializeField] private int dmEnemySpeed = 30;
+    [Header("DM Enemy Settings — fallback if file not found")]
+    [SerializeField] private string dmEnemyName   = "Dungeon Master";
+    [SerializeField] private int    dmEnemyHP     = 50;
+    [SerializeField] private int    dmEnemyAC     = 15;
+    [SerializeField] private int    dmEnemySpeed  = 30;
 
     [Header("Spawn Positions")]
-    [Tooltip("Player spawns at left side")]
+    [Tooltip("Player spawns here (left side)")]
     [SerializeField] private Vector2Int playerSpawnOffset = new Vector2Int(1, 5);
-    [Tooltip("Enemy spawns at right side")]
-    [SerializeField] private Vector2Int enemySpawnOffset = new Vector2Int(8, 5);
+    [Tooltip("DM enemy spawns here (right side)")]
+    [SerializeField] private Vector2Int enemySpawnOffset  = new Vector2Int(8, 5);
 
-    private bool hasSetupCompleted = false;
+    private bool _setupComplete = false;
 
     void Start()
     {
         Debug.Log("=== DMFightManager Start() ===");
 
-        //Setup exit button if assigned
         if (exitButton != null)
         {
             exitButton.onClick.RemoveAllListeners();
             exitButton.onClick.AddListener(ExitToMainMenu);
         }
 
-        //Creating the MapData here for the DM fight - this makes things simpler and prevents an infinite loop I encountered earlier
+        // ── Override the combat log path so AIManager can find it ──
+        // This must happen BEFORE StartLogging() is called.
+        string logPath = Path.Combine(Application.persistentDataPath, "CombatLogs", "combat_log.json");
+        CombatLogger.Instance.SetLogPath(logPath);
+        Debug.Log($"DMFightManager: Combat log path set to {logPath}");
+
+        // ── Build the arena map ────────────────────────────────────
         MapData mapData = new MapData(10, 10);
         for (int x = 0; x < mapData.width; x++)
-        {
             for (int y = 0; y < mapData.height; y++)
-            {
                 mapData.SetTileAt(x, y, TileType.Grass);
-            }
-        }
-        //Initialize the grid with our map data
+
         if (gridManager != null)
-        {
             gridManager.LoadMapData(mapData);
-        }
         else
         {
             Debug.LogError("DMFightManager: GridManager reference is missing!");
             return;
         }
 
-        //Initialize token manager with grid reference
         if (TokenManager.Instance != null)
-        {
             TokenManager.Instance.Initialize(gridManager, null);
-        }
         else
         {
             Debug.LogError("DMFightManager: TokenManager.Instance is null!");
             return;
         }
 
-        //Now spawn the characters
         SpawnCharacters();
     }
 
-    //Main setup method - spawns player and enemy tokens
+    // ─────────────────────────────────────────────────────────────
+
     private void SpawnCharacters()
     {
-        if (hasSetupCompleted)
-        {
-            Debug.LogWarning("DMFightManager: Setup already completed!");
-            return;
-        }
+        if (_setupComplete) return;
 
-        //Get the player's selected character
         CharacterData playerCharacter = CharacterSelectionContext.GetSelectedCharacter();
         if (playerCharacter == null)
         {
@@ -91,93 +88,85 @@ public class DMFightManager : MonoBehaviour
 
         Debug.Log($"DMFightManager: Setting up fight for {playerCharacter.charName}");
 
-        //Initialize token manager with grid reference
-        if (TokenManager.Instance != null && gridManager != null)
-        {
-            TokenManager.Instance.Initialize(gridManager, null);
-        }
-        else
-        {
-            Debug.LogError("DMFightManager: TokenManager or GridManager is missing!");
-            return;
-        }
+        // Spawn player (left side)
+        Tile playerTile = gridManager.GetTileAtPosition(
+            new Vector2(playerSpawnOffset.x, playerSpawnOffset.y));
 
-        //Spawn the player token on the left side
-        Tile playerTile = gridManager.GetTileAtPosition(new Vector2(playerSpawnOffset.x, playerSpawnOffset.y));
         if (playerTile != null)
         {
             Token playerToken = TokenManager.Instance.SpawnTokenAtTile(playerTile, playerCharacter, CharacterType.Player);
             if (playerToken != null)
-            {
-                Debug.Log($"DMFightManager: Spawned player '{playerCharacter.charName}' at ({playerSpawnOffset.x}, {playerSpawnOffset.y})");
-            }
+                Debug.Log($"DMFightManager: Spawned player '{playerCharacter.charName}'");
         }
         else
         {
-            Debug.LogError($"DMFightManager: Could not find tile at player spawn position ({playerSpawnOffset.x}, {playerSpawnOffset.y})");
+            Debug.LogError($"DMFightManager: No tile at player spawn ({playerSpawnOffset.x},{playerSpawnOffset.y})");
         }
 
-        //Load and spawn the DM enemy on the right side
+        // Spawn DM enemy (right side)
         EnemyData dmEnemy = LoadDMEnemyFromFile();
-        Tile enemyTile = gridManager.GetTileAtPosition(new Vector2(enemySpawnOffset.x, enemySpawnOffset.y));
+        Tile enemyTile = gridManager.GetTileAtPosition(
+            new Vector2(enemySpawnOffset.x, enemySpawnOffset.y));
+
         if (enemyTile != null && dmEnemy != null)
         {
-            Token enemyToken = TokenManager.Instance.SpawnEnemyTokenAtTile(enemyTile, dmEnemy, CharacterType.Enemy);
+            Token enemyToken = TokenManager.Instance.SpawnDMEnemyTokenAtTile(enemyTile, dmEnemy, CharacterType.Enemy);
             if (enemyToken != null)
-            {
-                Debug.Log($"DMFightManager: Spawned DM enemy '{dmEnemy.name}' at ({enemySpawnOffset.x}, {enemySpawnOffset.y})");
-            }
+                Debug.Log($"DMFightManager: Spawned DM enemy '{dmEnemy.name}'");
         }
         else
         {
-            Debug.LogError($"DMFightManager: Could not find tile at enemy spawn position ({enemySpawnOffset.x}, {enemySpawnOffset.y})");
+            Debug.LogError($"DMFightManager: No tile at enemy spawn ({enemySpawnOffset.x},{enemySpawnOffset.y})");
         }
 
-        hasSetupCompleted = true;
-        Debug.Log("DMFightManager: Fight setup complete!");
+        _setupComplete = true;
 
-        //Clear the selection context since we've used it
+        // ── Start combat ─────────────────────────────────────────
+        if (CombatManager.Instance != null)
+        {
+            CombatManager.Instance.PopulateCombatList();
+            CombatManager.Instance.controlCombat();   // rolls initiative, starts logging, triggers AI reset
+            Debug.Log("DMFightManager: Combat started.");
+        }
+        else
+        {
+            Debug.LogError("DMFightManager: CombatManager not found in scene!");
+        }
+
         CharacterSelectionContext.Clear();
     }
 
-    //Loads the DM enemy data from the DungeonMaster.json file
+    // ─────────────────────────────────────────────────────────────
+
     private EnemyData LoadDMEnemyFromFile()
     {
         try
         {
-            string enemiesFolder = CharacterIO.GetEnemiesFolder();
-            string dmFilePath = Path.Combine(enemiesFolder, "DungeonMaster.json");
-
+            string dmFilePath = Path.Combine(CharacterIO.GetEnemiesFolder(), "DungeonMaster.json");
             if (File.Exists(dmFilePath))
             {
-                string json = File.ReadAllText(dmFilePath);
-                EnemyData enemy = JsonUtility.FromJson<EnemyData>(json);
-                Debug.Log($"DMFightManager: Loaded DM enemy '{enemy.name}' from file - HP: {enemy.HP}, AC: {enemy.AC}");
+                EnemyData enemy = JsonUtility.FromJson<EnemyData>(File.ReadAllText(dmFilePath));
+                Debug.Log($"DMFightManager: Loaded DM enemy '{enemy.name}' from file");
                 return enemy;
             }
-            else
-            {
-                Debug.LogWarning($"DMFightManager: DungeonMaster.json not found at {dmFilePath}, using fallback");
-            }
+            Debug.LogWarning($"DMFightManager: DungeonMaster.json not found, using fallback.");
         }
         catch (System.Exception ex)
         {
-            Debug.LogError($"DMFightManager: Failed to load DM enemy - {ex.Message}");
+            Debug.LogError($"DMFightManager: Failed to load DM enemy — {ex.Message}");
         }
 
-        //Fallback to hardcoded values if file not found
         return new EnemyData
         {
-            name = dmEnemyName,
-            HP = dmEnemyHP,
-            AC = dmEnemyAC,
-            speed = dmEnemySpeed,
-            type = "Humanoid",
+            name      = dmEnemyName,
+            HP        = dmEnemyHP,
+            AC        = dmEnemyAC,
+            speed     = dmEnemySpeed,
+            type      = "Humanoid",
             enemyType = EnemyType.Adaptive
         };
     }
 
-    //Exit back to main menu
     private void ExitToMainMenu()
     {
         Debug.Log("DMFightManager: Returning to Campaigns...");
