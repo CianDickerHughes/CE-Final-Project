@@ -56,6 +56,8 @@ public class AIManager : MonoBehaviour
     //Called by CombatManager at the end of the player's turn
     public async void NotifyPlayerTurnEnded()
     {
+        Debug.Log($"[AIManager] NotifyPlayerTurnEnded called. locked={classLocked} processing={processingTurn} ready={dmBrain?.IsReady}");
+    
         if (classLocked || processingTurn) return;
 
         if (dmBrain == null)

@@ -80,7 +80,7 @@ public class DMBrain : MonoBehaviour
             });
 
             IsReady = true;
-            Debug.Log("[DMBrain] Ready.");
+            Debug.Log($"[DMBrain] Model ready — took {Time.realtimeSinceStartup:F1}s since scene load.");
         }
         catch (Exception e)
         {

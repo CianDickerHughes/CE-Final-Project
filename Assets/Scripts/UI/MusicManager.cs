@@ -77,6 +77,7 @@ public class MusicManager : MonoBehaviour
     private System.Collections.IEnumerator FadeInMusic(AudioClip clip, float duration)
     {
         audioSource.clip = clip;
+        audioSource.loop = true;
         audioSource.Play();
         audioSource.volume = 0f;
 
